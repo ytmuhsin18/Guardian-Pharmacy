@@ -298,6 +298,32 @@
     display: flex;
 }
 
+.qty-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 0.35rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+}
+
+.qty-btn:hover {
+    background: #fca5a5;
+}
+
+.qty-btn-plus {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.qty-btn-plus:hover {
+    background: #6ee7b7;
+}
+
 .cart-footer {
     padding: 1.5rem;
     border-top: 1px solid var(--border-color);
@@ -339,4 +365,9 @@
 
 .success-toast svg {
     color: var(--primary);
+}
+
+.toast-top {
+    bottom: auto;
+    top: 5.5rem;
 }

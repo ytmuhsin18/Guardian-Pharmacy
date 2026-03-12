@@ -24,6 +24,7 @@ function LabTests() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
 
     const filteredTests = labTests.filter(test => {
         const matchesSearch = test.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -151,14 +152,18 @@ function LabTests() {
 
                                     <div className="product-footer" style={{ marginTop: 'auto', alignItems: 'center' }}>
                                         <div className="product-price">
-                                            <span style={{ fontSize: '1.5rem', fontWeight: 700 }}>${Number(test.price).toFixed(2)}</span>
-                                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textDecoration: 'line-through', margin: '0 8px' }}>${Number(test.originalPrice).toFixed(2)}</span>
+                                            <span style={{ fontSize: '1.5rem', fontWeight: 700 }}>₹{Number(test.price).toFixed(2)}</span>
+                                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textDecoration: 'line-through', margin: '0 8px' }}>₹{Number(test.originalPrice).toFixed(2)}</span>
                                             <span style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600 }}>{test.discount} off</span>
                                         </div>
 
                                         <button
                                             className="btn btn-primary add-btn"
-                                            onClick={() => addToCart(test)}
+                                            onClick={() => {
+                                                addToCart(test);
+                                                setAddedToCart(true);
+                                                setTimeout(() => setAddedToCart(false), 1500);
+                                            }}
                                             style={{ padding: '0.5rem 1.5rem', borderRadius: 'var(--border-radius-md)' }}
                                         >
                                             Add
@@ -215,12 +220,15 @@ function LabTests() {
                                         <div key={item.id} className="cart-item">
                                             <div className="item-details">
                                                 <h4>{item.name}</h4>
-                                                <p className="text-muted">${Number(item.price).toFixed(2)}</p>
+                                                <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
                                             </div>
                                             <div className="item-actions">
-                                                <span className="quantity">x{item.quantity}</span>
-                                                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
+                                                <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
                                                     <Minus size={16} />
+                                                </button>
+                                                <span className="quantity">{item.quantity}</span>
+                                                <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
+                                                    <Plus size={16} />
                                                 </button>
                                             </div>
                                         </div>
@@ -232,7 +240,7 @@ function LabTests() {
                                 <div className="cart-footer">
                                     <div className="cart-summary">
                                         <span>Total:</span>
-                                        <span className="cart-total">${cartTotal.toFixed(2)}</span>
+                                        <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
                                     </div>
                                     <button
                                         className="btn btn-primary btn-block checkout-btn"
@@ -263,6 +271,21 @@ function LabTests() {
                 )}
             </AnimatePresence>
 
+            {/* Added to Cart Toast */}
+            <AnimatePresence>
+                {addedToCart && (
+                    <motion.div
+                        className="toast success-toast toast-top"
+                        initial={{ opacity: 0, y: -50, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: -50, x: '-50%' }}
+                    >
+                        <CheckCircle size={24} />
+                        Added to cart!
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Promotional Call to Action specific to Lab Tests */}
             <section className="section-padding" style={{ paddingBottom: '4rem' }}>
                 <div className="container">
@@ -271,8 +294,8 @@ function LabTests() {
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Need assistance booking a test?</h2>
                             <p style={{ opacity: 0.9 }}>Our health advisors are available 24/7 to help you choose the right tests.</p>
                         </div>
-                        <a href="tel:08045572851" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'white', color: 'var(--primary)', padding: '1rem 2rem', borderRadius: 'var(--border-radius-full)', fontWeight: 700, textDecoration: 'none', boxShadow: 'var(--shadow-md)' }}>
-                            <Phone size={20} /> CALL TO BOOK 08045572851
+                        <a href="tel:9487469098" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'white', color: 'var(--primary)', padding: '1rem 2rem', borderRadius: 'var(--border-radius-full)', fontWeight: 700, textDecoration: 'none', boxShadow: 'var(--shadow-md)' }}>
+                            <Phone size={20} /> CALL TO BOOK 9487469098
                         </a>
                     </div>
                 </div>

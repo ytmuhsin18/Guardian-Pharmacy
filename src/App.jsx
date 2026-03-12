@@ -8,6 +8,7 @@ import Doctors from './pages/Doctors';
 import LabTests from './pages/LabTests';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
+import MobileNavbar from './components/MobileNavbar';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <MobileNavbar />
       </div>
     </Router>
   );

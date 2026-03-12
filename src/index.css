@@ -159,6 +159,13 @@ ul {
   min-height: 100vh;
 }
 
+@media (max-width: 768px) {
+  .page-layout {
+    padding-bottom: 60px;
+    /* space for MobileNavbar */
+  }
+}
+
 .main-content {
   flex-grow: 1;
 }

@@ -23,15 +23,13 @@ function Navbar() {
                 </div>
 
                 <div className="nav-actions desktop-only">
-                    <Link to="/admin" className="btn btn-outline nav-admin-btn">
-                        <User size={18} />
-                        Admin
-                    </Link>
+                    {localStorage.getItem('guardian_admin_auth') === 'true' && (
+                        <Link to="/admin" className="btn btn-outline nav-admin-btn">
+                            <User size={18} />
+                            Admin
+                        </Link>
+                    )}
                 </div>
-
-                <button className="mobile-menu-btn mobile-only">
-                    <Menu size={24} />
-                </button>
             </div>
         </nav>
     );

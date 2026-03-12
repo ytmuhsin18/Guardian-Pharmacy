@@ -1,51 +1,51 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AppContext = createContext();
 
-const initialMedicines = [
-    { id: 1, name: 'Paracetamol 500mg', category: 'Fever & Pain', condition: 'Fever', price: 2.50, description: 'Effective pain relief and fever reducer.', inStock: true },
-    { id: 2, name: 'Amoxicillin 250mg', category: 'Antibiotics', condition: 'General', price: 15.00, description: 'Treats bacterial infections. Prescription required.', inStock: true },
-    { id: 3, name: 'Cetirizine 10mg', category: 'Allergy', condition: 'Allergy', price: 5.20, description: 'Relief from allergy symptoms like sneezing.', inStock: true },
-    { id: 4, name: 'Vitamin C 1000mg', category: 'Supplements', condition: 'Immunity', price: 12.00, description: 'Immunity booster dietary supplement.', inStock: true },
-    { id: 5, name: 'Omeprazole 20mg', category: 'Digestion', condition: 'Acidity', price: 8.50, description: 'Reduces stomach acid, treats heartburn.', inStock: false },
-    { id: 6, name: 'Ibuprofen 400mg', category: 'Fever & Pain', condition: 'Pain', price: 4.00, description: 'Anti-inflammatory painkiller.', inStock: true },
-    { id: 7, name: 'Metformin 500mg', category: 'Diabetes', condition: 'Diabetes', price: 6.50, description: 'Helps control blood sugar levels.', inStock: true },
-    { id: 8, name: 'Thyroxine 50mcg', category: 'Thyroid', condition: 'Thyroid', price: 9.00, description: 'Thyroid hormone replacement therapy.', inStock: true },
-    { id: 9, name: 'Aspirin 75mg', category: 'Heart', condition: 'Heart', price: 3.50, description: 'Low dose for heart health.', inStock: true },
-];
-
-const initialLabTests = [
-    { id: 101, name: 'Complete Blood Count (CBC)', category: 'Blood Studies', condition: 'General', price: 15.00, originalPrice: 20.00, discount: '25%', testsIncluded: 30 },
-    { id: 102, name: 'HbA1c Test', category: 'Diabetes', condition: 'Diabetes', price: 25.00, originalPrice: 35.00, discount: '28%', testsIncluded: 3 },
-    { id: 103, name: 'Thyroid Profile (T3, T4, TSH)', category: 'Thyroid', condition: 'Thyroid', price: 30.00, originalPrice: 50.00, discount: '40%', testsIncluded: 3 },
-    { id: 104, name: 'Lipid Profile', category: 'Heart', condition: 'Heart', price: 22.00, originalPrice: 30.00, discount: '26%', testsIncluded: 8 },
-    { id: 105, name: 'Liver Function Test', category: 'Liver', condition: 'Liver', price: 28.00, originalPrice: 40.00, discount: '30%', testsIncluded: 11 },
-    { id: 106, name: 'Kidney Function Test', category: 'Kidney', condition: 'Kidney', price: 26.00, originalPrice: 38.00, discount: '31%', testsIncluded: 10 },
-    { id: 107, name: 'Fasting Blood Sugar (FBS)', category: 'Diabetes', condition: 'Diabetes', price: 8.00, originalPrice: 15.00, discount: '46%', testsIncluded: 1 },
-    { id: 108, name: 'Vitamin D Total', category: 'Vitamin', condition: 'Immunity', price: 35.00, originalPrice: 60.00, discount: '41%', testsIncluded: 1 }
-];
-
 export function AppProvider({ children }) {
-    const [medicines, setMedicines] = useState(initialMedicines);
-    const [labTests, setLabTests] = useState(initialLabTests);
-    const [cart, setCart] = useState([]);
+    const [medicines, setMedicines] = useState([]);
+    const [labTests, setLabTests] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
+    const [cart, setCart] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Load data from local storage or use defaults
-        const storedMedicines = localStorage.getItem('guardian_medicines');
-        if (storedMedicines) {
-            setMedicines(JSON.parse(storedMedicines));
-        } else {
-            setMedicines(initialMedicines);
-            localStorage.setItem('guardian_medicines', JSON.stringify(initialMedicines));
-        }
-
-        const storedAppointments = localStorage.getItem('guardian_appointments');
-        if (storedAppointments) {
-            setAppointments(JSON.parse(storedAppointments));
-        }
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            // Fetch medicines
+            const { data: medsData } = await supabase.from('medicines').select('*').order('id', { ascending: true });
+            if (medsData) {
+                setMedicines(medsData.map(m => ({ ...m, inStock: m.instock })));
+            }
+
+            // Fetch lab tests
+            const { data: testsData } = await supabase.from('lab_tests').select('*').order('id', { ascending: true });
+            if (testsData) {
+                setLabTests(testsData.map(t => ({ ...t, originalPrice: t.originalprice, testsIncluded: t.testsincluded })));
+            }
+
+            // Fetch doctors
+            const { data: docsData } = await supabase.from('doctors').select('*').order('id', { ascending: true });
+            if (docsData) setDoctors(docsData);
+
+            // Fetch appointments
+            const { data: aptsData } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
+            if (aptsData) {
+                setAppointments(aptsData.map(a => ({ ...a, patientName: a.patientname, doctorId: a.doctorid, doctorName: a.doctorname })));
+            }
+
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const addToCart = (medicine) => {
         setCart(prev => {
@@ -63,34 +63,96 @@ export function AppProvider({ children }) {
 
     const clearCart = () => setCart([]);
 
-    const addAppointment = (appointment) => {
-        const updated = [...appointments, { ...appointment, id: Date.now(), status: 'Pending' }];
-        setAppointments(updated);
-        localStorage.setItem('guardian_appointments', JSON.stringify(updated));
+    const addAppointment = async (appointment) => {
+        const dbAppointment = {
+            patientname: appointment.patientName,
+            doctorid: appointment.doctorId,
+            doctorname: appointment.doctorName,
+            date: appointment.date,
+            time: appointment.time,
+            phone: appointment.phone,
+            reason: appointment.reason,
+            status: 'Pending'
+        };
+        const { data, error } = await supabase.from('appointments').insert([dbAppointment]).select();
+        if (data && !error) {
+            const newApt = data[0];
+            setAppointments(prev => [{ ...newApt, patientName: newApt.patientname, doctorId: newApt.doctorid, doctorName: newApt.doctorname }, ...prev]);
+        } else {
+            console.error("Failed to add appointment", error);
+        }
     };
 
-    const updateAppointmentStatus = (id, status) => {
-        const updated = appointments.map(apt => apt.id === id ? { ...apt, status } : apt);
-        setAppointments(updated);
-        localStorage.setItem('guardian_appointments', JSON.stringify(updated));
+    const updateAppointmentStatus = async (id, status) => {
+        const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
+        if (!error) {
+            setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status } : apt));
+        } else {
+            console.error("Failed to update status", error);
+        }
     };
 
-    const addMedicine = (medicine) => {
-        setMedicines([...medicines, { ...medicine, id: Date.now() }]);
+    const addMedicine = async (medicine) => {
+        const dbMedicine = {
+            name: medicine.name,
+            category: medicine.category,
+            condition: medicine.condition || 'All',
+            price: medicine.price,
+            description: medicine.description,
+            instock: medicine.inStock,
+            image_base64: medicine.image_base64
+        };
+        const { data, error } = await supabase.from('medicines').insert([dbMedicine]).select();
+        if (data && !error) {
+            const newMed = data[0];
+            setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock }]);
+        } else {
+            console.error("Failed to add medicine", error);
+        }
+    };
+
+    const updateMedicineImage = async (id, base64Image) => {
+        const { error } = await supabase.from('medicines').update({ image_base64: base64Image }).eq('id', id);
+        if (!error) {
+            setMedicines(prev => prev.map(med => med.id === id ? { ...med, image_base64: base64Image } : med));
+        }
+    };
+
+    const addDoctor = async (doctor) => {
+        const { data, error } = await supabase.from('doctors').insert([doctor]).select();
+        if (data && !error) {
+            setDoctors(prev => [...prev, data[0]]);
+        } else {
+            console.error("Failed to add doctor", error);
+        }
+    };
+
+    const updateDoctorImage = async (id, base64Image) => {
+        const { error } = await supabase.from('doctors').update({ image_base64: base64Image }).eq('id', id);
+        if (!error) {
+            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, image_base64: base64Image } : doc));
+        } else {
+            console.error("Failed to update doctor image", error);
+        }
     };
 
     return (
         <AppContext.Provider value={{
             medicines,
             addMedicine,
+            updateMedicineImage,
             labTests,
+            doctors,
+            addDoctor,
+            updateDoctorImage,
             cart,
             addToCart,
             removeFromCart,
             clearCart,
             appointments,
             addAppointment,
-            updateAppointmentStatus
+            updateAppointmentStatus,
+            loading
         }}>
             {children}
         </AppContext.Provider>

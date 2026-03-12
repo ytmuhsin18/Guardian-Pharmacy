@@ -7,12 +7,17 @@ import './AdminDashboard.css';
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const { appointments, updateAppointmentStatus, addMedicine } = useApp();
+    const { appointments, updateAppointmentStatus, addMedicine, doctors, updateDoctorImage, addDoctor } = useApp();
     const [activeTab, setActiveTab] = useState('appointments');
     const [newMedicine, setNewMedicine] = useState({
-        name: '', category: '', price: '', description: '', inStock: true
+        name: '', category: '', price: '', description: '', inStock: true, image_base64: ''
     });
     const [uploadSuccess, setUploadSuccess] = useState(false);
+
+    const [newDoctor, setNewDoctor] = useState({
+        name: '', specialty: '', experience: 'Experienced', about: '', image_base64: ''
+    });
+    const [doctorUploadSuccess, setDoctorUploadSuccess] = useState(false);
 
     useEffect(() => {
         // Check auth
@@ -27,6 +32,15 @@ function AdminDashboard() {
         navigate('/login');
     };
 
+    const handleImageUpload = (e, callback) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => callback(reader.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleMedicineSubmit = (e) => {
         e.preventDefault();
         addMedicine({
@@ -34,11 +48,22 @@ function AdminDashboard() {
             price: parseFloat(newMedicine.price)
         });
         setUploadSuccess(true);
-        setNewMedicine({ name: '', category: '', price: '', description: '', inStock: true });
+        setNewMedicine({ name: '', category: '', price: '', description: '', inStock: true, image_base64: '' });
 
         setTimeout(() => {
             setUploadSuccess(false);
             setActiveTab('appointments'); // redirect back to dashboard view
+        }, 2000);
+    };
+
+    const handleDoctorSubmit = (e) => {
+        e.preventDefault();
+        addDoctor(newDoctor);
+        setDoctorUploadSuccess(true);
+        setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '' });
+
+        setTimeout(() => {
+            setDoctorUploadSuccess(false);
         }, 2000);
     };
 
@@ -70,6 +95,13 @@ function AdminDashboard() {
                         <Pill size={20} />
                         Upload Medicine
                     </button>
+                    <button
+                        className={`admin-nav-item ${activeTab === 'doctors' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('doctors')}
+                    >
+                        <Users size={20} />
+                        Edit Doctors
+                    </button>
                 </nav>
 
                 <div className="admin-sidebar-footer">
@@ -84,7 +116,7 @@ function AdminDashboard() {
             <main className="admin-main">
                 <header className="admin-header">
                     <h1 className="title">
-                        {activeTab === 'appointments' ? 'Doctor Appointments' : 'Add New Medicine'}
+                        {activeTab === 'appointments' ? 'Doctor Appointments' : activeTab === 'upload' ? 'Add New Medicine' : 'Edit Doctors'}
                     </h1>
                 </header>
 
@@ -209,7 +241,7 @@ function AdminDashboard() {
 
                                         <div className="form-row">
                                             <div className="input-group">
-                                                <label className="input-label">Price ($)</label>
+                                                <label className="input-label">Price (₹)</label>
                                                 <input
                                                     type="number"
                                                     required
@@ -235,6 +267,22 @@ function AdminDashboard() {
                                         </div>
 
                                         <div className="input-group">
+                                            <label className="input-label">Medicine Image</label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="input-field"
+                                                style={{ padding: '0.5rem' }}
+                                                onChange={e => handleImageUpload(e, (base64) => setNewMedicine({ ...newMedicine, image_base64: base64 }))}
+                                            />
+                                            {newMedicine.image_base64 && (
+                                                <div style={{ marginTop: '10px' }}>
+                                                    <img src={newMedicine.image_base64} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="input-group">
                                             <label className="input-label">Description</label>
                                             <textarea
                                                 required
@@ -251,6 +299,132 @@ function AdminDashboard() {
                                         </button>
                                     </form>
                                 )}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'doctors' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="doctors-edit-view glass-panel"
+                            style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1.5rem' }}
+                        >
+                            <div className="add-doctor-section">
+                                <h3>Add New Doctor</h3>
+                                {doctorUploadSuccess ? (
+                                    <div className="success-state text-center" style={{ padding: '2rem' }}>
+                                        <CheckCircle size={48} className="text-primary" style={{ margin: '0 auto 1rem' }} />
+                                        <h4>Doctor Added Successfully!</h4>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleDoctorSubmit} className="upload-form" style={{ marginTop: '1rem' }}>
+                                        <div className="form-row">
+                                            <div className="input-group">
+                                                <label className="input-label">Doctor Name</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    className="input-field"
+                                                    placeholder="e.g. Dr. Sarah Smith"
+                                                    value={newDoctor.name}
+                                                    onChange={e => setNewDoctor({ ...newDoctor, name: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="input-group">
+                                                <label className="input-label">Specialty</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    className="input-field"
+                                                    placeholder="e.g. Cardiologist"
+                                                    value={newDoctor.specialty}
+                                                    onChange={e => setNewDoctor({ ...newDoctor, specialty: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="form-row">
+                                            <div className="input-group">
+                                                <label className="input-label">Experience</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    className="input-field"
+                                                    placeholder="e.g. 10 Years"
+                                                    value={newDoctor.experience}
+                                                    onChange={e => setNewDoctor({ ...newDoctor, experience: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="input-group">
+                                                <label className="input-label">Photo</label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="input-field"
+                                                    style={{ padding: '0.5rem' }}
+                                                    onChange={e => handleImageUpload(e, (base64) => setNewDoctor({ ...newDoctor, image_base64: base64 }))}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="input-group">
+                                            <label className="input-label">About</label>
+                                            <textarea
+                                                required
+                                                className="input-field"
+                                                rows="3"
+                                                placeholder="Briefly describe the doctor..."
+                                                value={newDoctor.about}
+                                                onChange={e => setNewDoctor({ ...newDoctor, about: e.target.value })}
+                                            ></textarea>
+                                        </div>
+                                        <button type="submit" className="btn btn-primary mt-2">
+                                            <Users size={18} /> Add Doctor
+                                        </button>
+                                    </form>
+                                )}
+                            </div>
+
+                            <hr style={{ borderColor: 'var(--border-color)', margin: '1rem 0' }} />
+
+                            <div>
+                                <h3>Manage Existing Doctors</h3>
+                                <table className="admin-table" style={{ marginTop: '1rem' }}>
+                                    <thead>
+                                        <tr>
+                                            <th>Current Photo</th>
+                                            <th>Name</th>
+                                            <th>Specialty</th>
+                                            <th>Update Photo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {doctors.map(doc => (
+                                            <tr key={doc.id}>
+                                                <td>
+                                                    <img
+                                                        src={doc.image_base64 || 'https://via.placeholder.com/50'}
+                                                        alt={doc.name}
+                                                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '50%' }}
+                                                    />
+                                                </td>
+                                                <td><strong>{doc.name}</strong></td>
+                                                <td>{doc.specialty}</td>
+                                                <td>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            handleImageUpload(e, (base64) => {
+                                                                updateDoctorImage(doc.id, base64);
+                                                            });
+                                                        }}
+                                                        style={{ fontSize: '0.8rem' }}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </motion.div>
                     )}

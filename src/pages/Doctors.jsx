@@ -4,57 +4,8 @@ import { Calendar, Clock, MapPin, Star, User, X, CheckCircle } from 'lucide-reac
 import { useApp } from '../context/AppContext';
 import './Doctors.css';
 
-const doctorsList = [
-    {
-        id: 1,
-        name: 'Dr. Muralidharan',
-        specialty: 'Dentist (BDS)',
-        experience: 'Experienced',
-        image: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=300&h=300',
-        about: 'Dr. Muralidharan is a highly experienced dentist dedicated to providing comprehensive dental care for families.',
-        reviews: [
-            { author: 'Michael T.', rating: 5, date: '2 weeks ago', text: 'Dr. Muralidharan was very attentive and quickly solved my dental issue.' },
-            { author: 'Sarah K.', rating: 4, date: '1 month ago', text: 'Great dentist, very friendly and professional.' }
-        ]
-    },
-    {
-        id: 2,
-        name: 'Dr. Swaminathan',
-        specialty: 'MD DVL (SKIN DOCTOR)',
-        experience: 'Experienced',
-        image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300',
-        about: 'Specializing in dermatology, Dr. Swaminathan utilizes the latest diagnostic technologies for optimal skin health.',
-        reviews: [
-            { author: 'Robert W.', rating: 5, date: '3 days ago', text: 'Excellent skin specialist. Explained everything clearly.' }
-        ]
-    },
-    {
-        id: 3,
-        name: 'Dr. Uma maheswaran',
-        specialty: 'Ortho (MS ORTHO D ORTHO)',
-        experience: 'Experienced',
-        image: 'https://images.unsplash.com/photo-1594824436951-7f1262d04840?auto=format&fit=crop&q=80&w=300&h=300',
-        about: 'Expert orthopedist passionate about providing excellent orthopedic care and joint health treatments.',
-        reviews: [
-            { author: 'Laura M.', rating: 5, date: '1 week ago', text: 'My joint pain is much better. He is so patient and kind.' },
-            { author: 'Daniel H.', rating: 5, date: '2 months ago', text: 'Highly recommend for any orthopedic needs.' }
-        ]
-    },
-    {
-        id: 4,
-        name: 'Dr. Pragadeesh',
-        specialty: 'MD',
-        experience: 'Experienced',
-        image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300',
-        about: 'Dr. PragaDees is a dedicated general physician providing comprehensive healthcare and medical guidance.',
-        reviews: [
-            { author: 'John D.', rating: 5, date: '3 weeks ago', text: 'Very attentive and professional doctor.' }
-        ]
-    }
-];
-
 function Doctors() {
-    const { addAppointment } = useApp();
+    const { addAppointment, doctors, loading } = useApp();
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [bookingFormData, setBookingFormData] = useState({
         patientName: '',
@@ -88,6 +39,17 @@ function Doctors() {
         }, 3000);
     };
 
+    // Default image if none exists
+    const getDefaultImage = (idx) => {
+        const fallbacks = [
+            'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=300&h=300',
+            'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300',
+            'https://images.unsplash.com/photo-1594824436951-7f1262d04840?auto=format&fit=crop&q=80&w=300&h=300',
+            'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300'
+        ];
+        return fallbacks[idx % fallbacks.length];
+    };
+
     return (
         <div className="doctors-page">
             <section className="docs-header section-padding">
@@ -101,43 +63,47 @@ function Doctors() {
 
             <section className="docs-list section-padding pt-0">
                 <div className="container">
-                    <div className="doctors-grid">
-                        {doctorsList.map((doc) => (
-                            <motion.div
-                                key={doc.id}
-                                className="doctor-card glass-panel"
-                                whileHover={{ y: -5, boxShadow: 'var(--shadow-lg)' }}
-                            >
-                                <div className="doc-img-wrapper">
-                                    <img src={doc.image} alt={doc.name} className="doc-image" />
-                                    <div className="doc-exp-badge">{doc.experience}</div>
-                                </div>
-
-                                <div className="doc-info">
-                                    <h3 className="doc-name">{doc.name}</h3>
-                                    <p className="doc-specialty text-primary">{doc.specialty}</p>
-
-                                    <div className="doc-stats">
-                                        <div className="stat">
-                                            <Star size={16} fill="#f59e0b" className="text-accent" />
-                                            <span>4.9</span>
-                                        </div>
-                                        <div className="stat">
-                                            <User size={16} className="text-muted" />
-                                            <span>{doc.reviews.length} Reviews</span>
-                                        </div>
+                    {loading ? (
+                        <div className="text-center py-8">Loading Doctors...</div>
+                    ) : (
+                        <div className="doctors-grid">
+                            {doctors.map((doc, idx) => (
+                                <motion.div
+                                    key={doc.id}
+                                    className="doctor-card glass-panel"
+                                    whileHover={{ y: -5, boxShadow: 'var(--shadow-lg)' }}
+                                >
+                                    <div className="doc-img-wrapper">
+                                        <img src={doc.image_base64 || getDefaultImage(idx)} alt={doc.name} className="doc-image" />
+                                        <div className="doc-exp-badge">{doc.experience}</div>
                                     </div>
 
-                                    <button
-                                        className="btn btn-outline btn-block mt-4"
-                                        onClick={() => setSelectedDoctor(doc)}
-                                    >
-                                        View Profile & Book
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                                    <div className="doc-info">
+                                        <h3 className="doc-name">{doc.name}</h3>
+                                        <p className="doc-specialty text-primary">{doc.specialty}</p>
+
+                                        <div className="doc-stats">
+                                            <div className="stat">
+                                                <Star size={16} fill="#f59e0b" className="text-accent" />
+                                                <span>4.9</span>
+                                            </div>
+                                            <div className="stat">
+                                                <User size={16} className="text-muted" />
+                                                <span>10+ Reviews</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            className="btn btn-outline btn-block mt-4"
+                                            onClick={() => setSelectedDoctor(doc)}
+                                        >
+                                            View Profile & Book
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -165,7 +131,7 @@ function Doctors() {
                             <div className="modal-grid">
                                 {/* Left Profile Side */}
                                 <div className="doc-profile-side">
-                                    <img src={selectedDoctor.image} alt={selectedDoctor.name} className="profile-img" />
+                                    <img src={selectedDoctor.image_base64 || getDefaultImage(doctors.findIndex(d => d.id === selectedDoctor.id))} alt={selectedDoctor.name} className="profile-img" />
                                     <h2 className="profile-name">{selectedDoctor.name}</h2>
                                     <p className="profile-specialty text-primary">{selectedDoctor.specialty}</p>
 
@@ -177,20 +143,19 @@ function Doctors() {
                                     <div className="profile-reviews-section">
                                         <h4>Patient Reviews</h4>
                                         <div className="reviews-list">
-                                            {selectedDoctor.reviews.map((review, idx) => (
-                                                <div key={idx} className="review-item">
-                                                    <div className="review-header">
-                                                        <span className="review-author">{review.author}</span>
-                                                        <span className="review-date text-muted">{review.date}</span>
-                                                    </div>
-                                                    <div className="review-stars">
-                                                        {[...Array(5)].map((_, i) => (
-                                                            <Star key={i} size={14} fill={i < review.rating ? "#f59e0b" : "transparent"} color={i < review.rating ? "#f59e0b" : "#cbd5e1"} />
-                                                        ))}
-                                                    </div>
-                                                    <p className="review-text">{review.text}</p>
+                                            {/* Static fallback reviews since it's not in DB schema yet */}
+                                            <div className="review-item">
+                                                <div className="review-header">
+                                                    <span className="review-author">Verified Patient</span>
+                                                    <span className="review-date text-muted">2 weeks ago</span>
                                                 </div>
-                                            ))}
+                                                <div className="review-stars">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
+                                                    ))}
+                                                </div>
+                                                <p className="review-text">Great and attentive doctor. Highly recommend!</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

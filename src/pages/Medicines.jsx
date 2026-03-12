@@ -21,6 +21,7 @@ function Medicines() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,45 +105,58 @@ function Medicines() {
             {/* Products Grid */}
             <section className="med-products">
                 <div className="container">
-                    <motion.div
-                        className="products-grid"
-                        layout
-                    >
-                        <AnimatePresence>
-                            {filteredMedicines.map((medicine) => (
-                                <motion.div
-                                    key={medicine.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="product-card glass-panel"
-                                >
-                                    <div className="product-category badge">{medicine.category}</div>
-                                    <h3 className="product-title">{medicine.name}</h3>
-                                    <p className="product-desc">{medicine.description}</p>
-
-                                    <div className="product-footer">
-                                        <div className="product-price">
-                                            ${Number(medicine.price).toFixed(2)}
-                                        </div>
-
-                                        {medicine.inStock ? (
-                                            <button
-                                                className="btn btn-primary add-btn"
-                                                onClick={() => addToCart(medicine)}
-                                            >
-                                                <Plus size={16} /> Add
-                                            </button>
-                                        ) : (
-                                            <span className="out-of-stock badge">Out of Stock</span>
+                    {medicines.length === 0 ? (
+                        <div className="text-center py-8">Loading Medicines...</div>
+                    ) : (
+                        <motion.div
+                            className="products-grid"
+                            layout
+                        >
+                            <AnimatePresence>
+                                {filteredMedicines.map((medicine) => (
+                                    <motion.div
+                                        key={medicine.id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="product-card glass-panel"
+                                    >
+                                        <div className="product-category badge">{medicine.category}</div>
+                                        {medicine.image_base64 && (
+                                            <div className="product-image-wrapper">
+                                                <img src={medicine.image_base64} alt={medicine.name} className="product-image" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: 'var(--border-radius-sm)', marginBottom: '1rem' }} />
+                                            </div>
                                         )}
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </motion.div>
+                                        <h3 className="product-title">{medicine.name}</h3>
+                                        <p className="product-desc">{medicine.description}</p>
+
+                                        <div className="product-footer">
+                                            <div className="product-price">
+                                                ₹{Number(medicine.price).toFixed(2)}
+                                            </div>
+
+                                            {medicine.inStock ? (
+                                                <button
+                                                    className="btn btn-primary add-btn"
+                                                    onClick={() => {
+                                                        addToCart(medicine);
+                                                        setAddedToCart(true);
+                                                        setTimeout(() => setAddedToCart(false), 1500);
+                                                    }}
+                                                >
+                                                    <Plus size={16} /> Add
+                                                </button>
+                                            ) : (
+                                                <span className="out-of-stock badge">Out of Stock</span>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
                     {filteredMedicines.length === 0 && (
                         <div className="empty-state">
@@ -190,12 +204,15 @@ function Medicines() {
                                         <div key={item.id} className="cart-item">
                                             <div className="item-details">
                                                 <h4>{item.name}</h4>
-                                                <p className="text-muted">${Number(item.price).toFixed(2)}</p>
+                                                <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
                                             </div>
                                             <div className="item-actions">
-                                                <span className="quantity">x{item.quantity}</span>
-                                                <button className="remove-btn" onClick={() => removeFromCart(item.id)}>
+                                                <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
                                                     <Minus size={16} />
+                                                </button>
+                                                <span className="quantity">{item.quantity}</span>
+                                                <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
+                                                    <Plus size={16} />
                                                 </button>
                                             </div>
                                         </div>
@@ -207,7 +224,7 @@ function Medicines() {
                                 <div className="cart-footer">
                                     <div className="cart-summary">
                                         <span>Total:</span>
-                                        <span className="cart-total">${cartTotal.toFixed(2)}</span>
+                                        <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
                                     </div>
                                     <button
                                         className="btn btn-primary btn-block checkout-btn"
@@ -234,6 +251,21 @@ function Medicines() {
                     >
                         <CheckCircle size={24} />
                         Order placed successfully!
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Added to Cart Toast */}
+            <AnimatePresence>
+                {addedToCart && (
+                    <motion.div
+                        className="toast success-toast toast-top"
+                        initial={{ opacity: 0, y: -50, x: '-50%' }}
+                        animate={{ opacity: 1, y: 0, x: '-50%' }}
+                        exit={{ opacity: 0, y: -50, x: '-50%' }}
+                    >
+                        <CheckCircle size={24} />
+                        Added to cart!
                     </motion.div>
                 )}
             </AnimatePresence>
