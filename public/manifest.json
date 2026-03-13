@@ -1,6 +1,6 @@
 {
     "name": "Guardian Pharmacy",
-    "short_name": "Guardian",
+    "short_name": "Guardian Pharmacy",
     "description": "Your trusted partner in healthcare. Order medicines, book lab tests, and schedule doctor appointments.",
     "start_url": "/",
     "display": "standalone",
