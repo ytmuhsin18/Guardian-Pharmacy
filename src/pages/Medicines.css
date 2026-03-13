@@ -206,7 +206,7 @@
     inset: 0;
     background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(4px);
-    z-index: 100;
+    z-index: 2000;
 }
 
 .cart-drawer {
@@ -217,7 +217,7 @@
     width: 100%;
     max-width: 400px;
     background: white;
-    z-index: 101;
+    z-index: 2010;
     display: flex;
     flex-direction: column;
     box-shadow: -10px 0 25px rgba(0, 0, 0, 0.1);
