@@ -12,12 +12,11 @@ function Login() {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        // Hardcoded simple admin check for prototype
-        if (email === 'admin@guardian.com' && password === 'admin123') {
+        if (email === 'ytmuhsin18@gmail.com' && password === '8248513188') {
             localStorage.setItem('guardian_admin_auth', 'true');
             navigate('/admin');
         } else {
-            setError('Invalid email or password. Use admin@guardian.com / admin123');
+            setError('Invalid email or password.');
         }
     };
 
@@ -47,7 +46,7 @@ function Login() {
                             <input
                                 type="email"
                                 className="input-field with-icon"
-                                placeholder="admin@guardian.com"
+                                placeholder="Enter your email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
@@ -73,12 +72,6 @@ function Login() {
                     <button type="submit" className="btn btn-primary btn-block login-btn">
                         Sign In
                     </button>
-
-                    <div className="demo-credentials">
-                        <p><strong>Demo Credentials:</strong></p>
-                        <p>Email: admin@guardian.com</p>
-                        <p>Password: admin123</p>
-                    </div>
                 </form>
             </motion.div>
         </div>

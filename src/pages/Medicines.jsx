@@ -15,13 +15,17 @@ const conditionFilters = [
 ];
 
 function Medicines() {
-    const { medicines, cart, addToCart, removeFromCart, clearCart } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCondition, setSelectedCondition] = useState('All');
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
+    const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+    const [customerDetails, setCustomerDetails] = useState({
+        name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
+    });
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -33,17 +37,38 @@ function Medicines() {
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const handleCheckout = (e) => {
+    const handleProceedToCheckout = () => {
+        setShowCheckoutForm(true);
+    };
+
+    const handleCheckout = async (e) => {
         e.preventDefault();
         setIsCheckingOut(true);
-        // Simulate API call
-        setTimeout(() => {
+
+        const orderDetails = {
+            customer_name: customerDetails.name,
+            phone: customerDetails.phone,
+            whatsapp: customerDetails.whatsapp,
+            address: customerDetails.address,
+            pincode: customerDetails.pincode,
+            email: customerDetails.email || null,
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            total_amount: cartTotal
+        };
+
+        const success = await addOrder(orderDetails);
+        setIsCheckingOut(false);
+
+        if (success) {
             clearCart();
-            setIsCheckingOut(false);
             setOrderComplete(true);
+            setShowCheckoutForm(false);
+            setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '' });
             setTimeout(() => setOrderComplete(false), 3000);
             setIsCartOpen(false);
-        }, 1500);
+        } else {
+            alert("Failed to place order. Please try again.");
+        }
     };
 
     return (
@@ -177,7 +202,7 @@ function Medicines() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            onClick={() => setIsCartOpen(false)}
+                            onClick={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
                         />
                         <motion.div
                             className="cart-drawer"
@@ -187,53 +212,152 @@ function Medicines() {
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                         >
                             <div className="cart-header">
-                                <h2>Your Cart ({totalItems})</h2>
-                                <button className="close-btn" onClick={() => setIsCartOpen(false)}>
+                                <h2>{showCheckoutForm ? 'Delivery Details' : `Your Cart (${totalItems})`}</h2>
+                                <button className="close-btn" onClick={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}>
                                     <X size={24} />
                                 </button>
                             </div>
 
-                            <div className="cart-items">
-                                {cart.length === 0 ? (
-                                    <div className="empty-cart">
-                                        <ShoppingCart size={48} className="text-muted" />
-                                        <p>Your cart is empty.</p>
+                            {!showCheckoutForm ? (
+                                <>
+                                    <div className="cart-items">
+                                        {cart.length === 0 ? (
+                                            <div className="empty-cart">
+                                                <ShoppingCart size={48} className="text-muted" />
+                                                <p>Your cart is empty.</p>
+                                            </div>
+                                        ) : (
+                                            cart.map(item => (
+                                                <div key={item.id} className="cart-item">
+                                                    <div className="item-details">
+                                                        <h4>{item.name}</h4>
+                                                        <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
+                                                    </div>
+                                                    <div className="item-actions">
+                                                        <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
+                                                            <Minus size={16} />
+                                                        </button>
+                                                        <span className="quantity">{item.quantity}</span>
+                                                        <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
-                                ) : (
-                                    cart.map(item => (
-                                        <div key={item.id} className="cart-item">
-                                            <div className="item-details">
-                                                <h4>{item.name}</h4>
-                                                <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
-                                            </div>
-                                            <div className="item-actions">
-                                                <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
-                                                    <Minus size={16} />
-                                                </button>
-                                                <span className="quantity">{item.quantity}</span>
-                                                <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
-                                                    <Plus size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
 
-                            {cart.length > 0 && (
-                                <div className="cart-footer">
-                                    <div className="cart-summary">
-                                        <span>Total:</span>
-                                        <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
+                                    {cart.length > 0 && (
+                                        <div className="cart-footer">
+                                            <div className="cart-summary">
+                                                <span>Total:</span>
+                                                <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
+                                            </div>
+                                            <button
+                                                className="btn btn-primary btn-block checkout-btn"
+                                                onClick={handleProceedToCheckout}
+                                            >
+                                                Proceed to Checkout
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <form onSubmit={handleCheckout} className="checkout-form">
+                                    <div className="cart-items" style={{ gap: '0.75rem' }}>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">Full Name *</label>
+                                            <input
+                                                type="text"
+                                                className="input-field"
+                                                placeholder="Enter your full name"
+                                                required
+                                                value={customerDetails.name}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">Phone Number *</label>
+                                            <input
+                                                type="tel"
+                                                className="input-field"
+                                                placeholder="Enter your phone number"
+                                                required
+                                                value={customerDetails.phone}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, phone: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">WhatsApp Number *</label>
+                                            <input
+                                                type="tel"
+                                                className="input-field"
+                                                placeholder="Enter your WhatsApp number"
+                                                required
+                                                value={customerDetails.whatsapp}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, whatsapp: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">Delivery Address *</label>
+                                            <textarea
+                                                className="input-field"
+                                                placeholder="Enter your full delivery address"
+                                                required
+                                                rows="3"
+                                                value={customerDetails.address}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, address: e.target.value })}
+                                            ></textarea>
+                                        </div>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">Pincode *</label>
+                                            <input
+                                                type="text"
+                                                className="input-field"
+                                                placeholder="Enter your pincode"
+                                                required
+                                                maxLength="6"
+                                                value={customerDetails.pincode}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, pincode: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="checkout-form-group">
+                                            <label className="input-label">Email <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(Optional)</span></label>
+                                            <input
+                                                type="email"
+                                                className="input-field"
+                                                placeholder="Enter your email (optional)"
+                                                value={customerDetails.email}
+                                                onChange={e => setCustomerDetails({ ...customerDetails, email: e.target.value })}
+                                            />
+                                        </div>
                                     </div>
-                                    <button
-                                        className="btn btn-primary btn-block checkout-btn"
-                                        onClick={handleCheckout}
-                                        disabled={isCheckingOut}
-                                    >
-                                        {isCheckingOut ? 'Processing...' : 'Checkout & Order'}
-                                    </button>
-                                </div>
+
+                                    <div className="cart-footer">
+                                        <div className="cart-summary">
+                                            <span>Total:</span>
+                                            <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline"
+                                                style={{ flex: 1 }}
+                                                onClick={() => setShowCheckoutForm(false)}
+                                            >
+                                                Back
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="btn btn-primary checkout-btn"
+                                                style={{ flex: 2 }}
+                                                disabled={isCheckingOut}
+                                            >
+                                                {isCheckingOut ? 'Processing...' : 'Place Order'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             )}
                         </motion.div>
                     </>

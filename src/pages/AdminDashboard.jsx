@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, Pill, LogOut, CheckCircle, Clock, X } from 'lucide-react';
+import { LayoutDashboard, Users, Pill, LogOut, CheckCircle, Clock, X, Package } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const { appointments, updateAppointmentStatus, addMedicine, doctors, updateDoctorImage, addDoctor } = useApp();
-    const [activeTab, setActiveTab] = useState('appointments');
+    const { appointments, updateAppointmentStatus, orders, updateOrderStatus, addMedicine, doctors, updateDoctorImage, addDoctor } = useApp();
+    const [activeTab, setActiveTab] = useState('orders');
     const [newMedicine, setNewMedicine] = useState({
         name: '', category: '', price: '', description: '', inStock: true, image_base64: ''
     });
@@ -81,6 +81,14 @@ function AdminDashboard() {
 
                 <nav className="admin-nav">
                     <button
+                        className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('orders')}
+                    >
+                        <Package size={20} />
+                        Orders
+                    </button>
+
+                    <button
                         className={`admin-nav-item ${activeTab === 'appointments' ? 'active' : ''}`}
                         onClick={() => setActiveTab('appointments')}
                     >
@@ -116,11 +124,87 @@ function AdminDashboard() {
             <main className="admin-main">
                 <header className="admin-header">
                     <h1 className="title">
-                        {activeTab === 'appointments' ? 'Doctor Appointments' : activeTab === 'upload' ? 'Add New Medicine' : 'Edit Doctors'}
+                        {activeTab === 'orders' ? 'Customer Orders' : activeTab === 'appointments' ? 'Doctor Appointments' : activeTab === 'upload' ? 'Add New Medicine' : 'Edit Doctors'}
                     </h1>
                 </header>
 
                 <div className="admin-content">
+                    {activeTab === 'orders' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="appointments-view"
+                        >
+                            {orders.length === 0 ? (
+                                <div className="empty-state glass-panel">
+                                    <Package size={48} className="text-muted" />
+                                    <h3>No Orders Yet</h3>
+                                    <p>When customers place orders, they will appear here.</p>
+                                </div>
+                            ) : (
+                                <div className="appointments-table-wrapper glass-panel">
+                                    <table className="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer Details</th>
+                                                <th>Items Ordered</th>
+                                                <th>Total</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {orders.map(order => (
+                                                <tr key={order.id}>
+                                                    <td>
+                                                        <strong>{order.customer_name}</strong><br />
+                                                        <span className="text-muted text-sm">{order.phone} (WA: {order.whatsapp})</span><br />
+                                                        <span className="text-muted text-sm" style={{ whiteSpace: 'normal', display: 'inline-block', maxWidth: '200px' }}>{order.address}, {order.pincode}</span>
+                                                    </td>
+                                                    <td>
+                                                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem' }}>
+                                                            {order.items.map((item, idx) => (
+                                                                <li key={idx}>{item.name} x{item.quantity}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </td>
+                                                    <td>
+                                                        <strong>₹{Number(order.total_amount).toFixed(2)}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`status-badge ${order.status.toLowerCase()}`}>
+                                                            {order.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {order.status === 'Pending' && (
+                                                            <div className="action-buttons">
+                                                                <button
+                                                                    className="btn-icon accept"
+                                                                    onClick={() => updateOrderStatus(order.id, 'Confirmed')}
+                                                                    title="Confirm Order"
+                                                                >
+                                                                    <CheckCircle size={18} />
+                                                                </button>
+                                                                <button
+                                                                    className="btn-icon reject"
+                                                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                                                    title="Cancel Order"
+                                                                >
+                                                                    <X size={18} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+
                     {activeTab === 'appointments' && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}

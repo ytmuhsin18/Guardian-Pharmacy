@@ -342,6 +342,14 @@
     width: 100%;
 }
 
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
 /* Toast */
 .toast {
     position: fixed;

@@ -8,6 +8,7 @@ export function AppProvider({ children }) {
     const [labTests, setLabTests] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -40,6 +41,12 @@ export function AppProvider({ children }) {
                 setAppointments(aptsData.map(a => ({ ...a, patientName: a.patientname, doctorId: a.doctorid, doctorName: a.doctorname })));
             }
 
+            // Fetch orders
+            const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+            if (ordersData) {
+                setOrders(ordersData);
+            }
+
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -58,7 +65,13 @@ export function AppProvider({ children }) {
     };
 
     const removeFromCart = (id) => {
-        setCart(prev => prev.filter(item => item.id !== id));
+        setCart(prev => {
+            const existing = prev.find(item => item.id === id);
+            if (existing && existing.quantity > 1) {
+                return prev.map(item => item.id === id ? { ...item, quantity: item.quantity - 1 } : item);
+            }
+            return prev.filter(item => item.id !== id);
+        });
     };
 
     const clearCart = () => setCart([]);
@@ -87,6 +100,37 @@ export function AppProvider({ children }) {
         const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
         if (!error) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status } : apt));
+        } else {
+            console.error("Failed to update status", error);
+        }
+    };
+
+    const addOrder = async (orderDetails) => {
+        const dbOrder = {
+            customer_name: orderDetails.customer_name,
+            phone: orderDetails.phone,
+            whatsapp: orderDetails.whatsapp,
+            address: orderDetails.address,
+            pincode: orderDetails.pincode,
+            email: orderDetails.email || null,
+            items: orderDetails.items,
+            total_amount: orderDetails.total_amount,
+            status: 'Pending'
+        };
+        const { data, error } = await supabase.from('orders').insert([dbOrder]).select();
+        if (data && !error) {
+            setOrders(prev => [data[0], ...prev]);
+            return true;
+        } else {
+            console.error("Failed to add order", error);
+            return false;
+        }
+    };
+
+    const updateOrderStatus = async (id, status) => {
+        const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+        if (!error) {
+            setOrders(prev => prev.map(order => order.id === id ? { ...order, status } : order));
         } else {
             console.error("Failed to update status", error);
         }
@@ -152,6 +196,9 @@ export function AppProvider({ children }) {
             appointments,
             addAppointment,
             updateAppointmentStatus,
+            orders,
+            addOrder,
+            updateOrderStatus,
             loading
         }}>
             {children}
