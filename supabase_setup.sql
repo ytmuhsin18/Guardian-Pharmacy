@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS medicines (
   category TEXT,
   condition TEXT,
   price NUMERIC,
+  discount NUMERIC DEFAULT 0,
+  combination TEXT,
   description TEXT,
   inStock BOOLEAN DEFAULT true,
   image_base64 TEXT, -- To store base64 image strings uploaded by Admin
@@ -21,6 +23,8 @@ CREATE TABLE IF NOT EXISTS doctors (
   experience TEXT,
   image_base64 TEXT, -- To store base64 image strings uploaded/edited by Admin
   about TEXT,
+  availability_start TEXT DEFAULT '06:00 PM',
+  availability_end TEXT DEFAULT '10:00 PM',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
@@ -48,6 +52,7 @@ CREATE TABLE IF NOT EXISTS appointments (
   phone TEXT,
   reason TEXT,
   status TEXT DEFAULT 'Pending',
+  token_number INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
@@ -81,6 +86,14 @@ CREATE POLICY "Public full access lab_tests" ON lab_tests FOR ALL TO public USIN
 CREATE POLICY "Public full access appointments" ON appointments FOR ALL TO public USING (true) WITH CHECK (true);
 CREATE POLICY "Public full access orders" ON orders FOR ALL TO public USING (true) WITH CHECK (true);
 
+-- Migration: Add missing columns if tables already exist
+-- Run these ALTER statements separately if the tables already exist:
+-- ALTER TABLE medicines ADD COLUMN IF NOT EXISTS combination TEXT;
+-- ALTER TABLE medicines ADD COLUMN IF NOT EXISTS discount NUMERIC DEFAULT 0;
+-- ALTER TABLE doctors ADD COLUMN IF NOT EXISTS availability_start TEXT DEFAULT '06:00 PM';
+-- ALTER TABLE doctors ADD COLUMN IF NOT EXISTS availability_end TEXT DEFAULT '10:00 PM';
+-- ALTER TABLE appointments ADD COLUMN IF NOT EXISTS token_number INTEGER;
+
 -- Insert Some Initial Lab Tests Dummy Data
 INSERT INTO lab_tests (name, category, condition, price, originalPrice, discount, testsIncluded) VALUES
 ('Complete Blood Count (CBC)', 'Blood Studies', 'General', 15.00, 20.00, '25%', 30),
@@ -93,8 +106,8 @@ INSERT INTO medicines (name, category, condition, price, description, inStock) V
 ('Cetirizine 10mg', 'Allergy', 'Allergy', 5.20, 'Relief from allergy symptoms like sneezing.', true);
 
 -- Insert Some Initial Doctors Dummy Data
-INSERT INTO doctors (name, specialty, experience, about) VALUES
-('Dr. Muralidharan', 'Dentist (BDS)', 'Experienced', 'Dr. Muralidharan is a highly experienced dentist dedicated to providing comprehensive dental care for families.'),
-('Dr. Swaminathan', 'MD DVL (SKIN DOCTOR)', 'Experienced', 'Specializing in dermatology, Dr. Swaminathan utilizes the latest diagnostic technologies for optimal skin health.'),
-('Dr. Uma maheswaran', 'Ortho (MS ORTHO D ORTHO)', 'Experienced', 'Expert orthopedist passionate about providing excellent orthopedic care and joint health treatments.'),
-('Dr. Pragadeesh', 'MD', 'Experienced', 'Dr. Pragadeesh is a dedicated general physician providing comprehensive healthcare and medical guidance.');
+INSERT INTO doctors (name, specialty, experience, about, availability_start, availability_end) VALUES
+('Dr. Muralidharan', 'Dentist (BDS)', 'Experienced', 'Dr. Muralidharan is a highly experienced dentist dedicated to providing comprehensive dental care for families.', '06:00 PM', '10:00 PM'),
+('Dr. Swaminathan', 'MD DVL (SKIN DOCTOR)', 'Experienced', 'Specializing in dermatology, Dr. Swaminathan utilizes the latest diagnostic technologies for optimal skin health.', '06:00 PM', '10:00 PM'),
+('Dr. Uma maheswaran', 'Ortho (MS ORTHO D ORTHO)', 'Experienced', 'Expert orthopedist passionate about providing excellent orthopedic care and joint health treatments.', '06:00 PM', '10:00 PM'),
+('Dr. Pragadeesh', 'MD', 'Experienced', 'Dr. Pragadeesh is a dedicated general physician providing comprehensive healthcare and medical guidance.', '06:00 PM', '10:00 PM');

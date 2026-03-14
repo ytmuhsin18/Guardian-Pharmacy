@@ -184,7 +184,7 @@ function Home() {
                     >
                         <div className="map-placeholder" style={{ padding: 0, border: 'none', background: 'transparent' }}>
                             <iframe
-                                src="https://maps.google.com/maps?q=10.773636,79.6358872&t=&z=18&ie=UTF8&iwloc=&output=embed"
+                                src="https://maps.google.com/maps?q=10.7736818,79.6358374&t=&z=17&ie=UTF8&iwloc=&output=embed"
                                 width="100%"
                                 height="100%"
                                 style={{ border: 0, borderRadius: '1.5rem' }}
@@ -194,6 +194,18 @@ function Home() {
                                 title="Guardian Pharmacy Location"
                             ></iframe>
                         </div>
+                        <a
+                            href="https://maps.app.goo.gl/fEUrSfdPTmKKMLwz5"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="open-maps-btn"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            Open in Google Maps
+                        </a>
                     </motion.div>
                 </div>
             </section>

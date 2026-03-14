@@ -9,11 +9,14 @@ import LabTests from './pages/LabTests';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 import MobileNavbar from './components/MobileNavbar';
+import EmergencyBanner from './components/EmergencyBanner';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
     <Router>
       <div className="page-layout">
+        <EmergencyBanner />
         <Navbar />
         <main className="main-content">
           <Routes>
@@ -27,6 +30,7 @@ function App() {
         </main>
         <Footer />
         <MobileNavbar />
+        <WhatsAppButton />
       </div>
     </Router>
   );

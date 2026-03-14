@@ -78,7 +78,24 @@
 .doc-specialty {
     font-size: 0.9rem;
     font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+/* Doctor Availability Info on Card */
+.doc-availability-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--border-radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--primary-dark);
     margin-bottom: 1rem;
+    white-space: nowrap;
+    width: fit-content;
 }
 
 .doc-stats {
@@ -311,4 +328,49 @@ select.input-field {
 
 .text-center {
     text-align: center;
+}
+
+/* Doctor Availability Notice in Booking Form */
+.doctor-availability-notice {
+    display: flex;
+    gap: 12px;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+    border: 1px solid #bfdbfe;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 1.5rem;
+    align-items: flex-start;
+}
+
+.availability-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.doctor-availability-notice strong {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.avail-time {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 4px 0 6px 0;
+    letter-spacing: 0.01em;
+}
+
+.avail-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
 }

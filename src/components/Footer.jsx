@@ -1,7 +1,7 @@
 import React from 'react';
 import './Footer.css';
 import { Pill, MapPin, Phone, Star, Instagram, Facebook } from 'lucide-react';
-import logo from '../assets/gp logo.jpeg';
+import logo from '../assets/gp-logo-new.png';
 
 function Footer() {
     return (

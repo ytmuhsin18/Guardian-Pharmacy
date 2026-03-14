@@ -1,8 +1,33 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, AlertCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css';
+
+const playCartSound = (action) => {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        if (action === 'add') {
+            osc.frequency.setValueAtTime(300, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+        } else {
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+        }
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+    } catch (e) {
+        console.error(e);
+    }
+};
 
 const conditionFilters = [
     { label: 'All', value: 'All', icon: <Activity size={18} /> },
@@ -21,11 +46,23 @@ function Medicines() {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
-    const [addedToCart, setAddedToCart] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(null); // stores the product just added
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+    const [showProceedConfirm, setShowProceedConfirm] = useState(false);
+    const [showBackConfirm, setShowBackConfirm] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
         name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
     });
+
+    const handleAddToCartItem = (item) => {
+        addToCart(item);
+        playCartSound('add');
+    };
+
+    const handleRemoveFromCartItem = (id) => {
+        removeFromCart(id);
+        playCartSound('remove');
+    };
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -38,7 +75,21 @@ function Medicines() {
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleProceedToCheckout = () => {
+        setShowProceedConfirm(true);
+    };
+
+    const confirmProceed = () => {
+        setShowProceedConfirm(false);
         setShowCheckoutForm(true);
+    };
+
+    const handleBackClick = () => {
+        setShowBackConfirm(true);
+    };
+
+    const confirmBack = () => {
+        setShowBackConfirm(false);
+        setShowCheckoutForm(false);
     };
 
     const handleCheckout = async (e) => {
@@ -167,8 +218,7 @@ function Medicines() {
                                                     className="btn btn-primary add-btn"
                                                     onClick={() => {
                                                         addToCart(medicine);
-                                                        setAddedToCart(true);
-                                                        setTimeout(() => setAddedToCart(false), 1500);
+                                                        setAddedToCart(medicine);
                                                     }}
                                                 >
                                                     <Plus size={16} /> Add
@@ -222,28 +272,38 @@ function Medicines() {
                                 <>
                                     <div className="cart-items">
                                         {cart.length === 0 ? (
-                                            <div className="empty-cart">
+                                            <motion.div className="empty-cart" initial={{opacity:0}} animate={{opacity:1}}>
                                                 <ShoppingCart size={48} className="text-muted" />
                                                 <p>Your cart is empty.</p>
-                                            </div>
+                                            </motion.div>
                                         ) : (
-                                            cart.map(item => (
-                                                <div key={item.id} className="cart-item">
-                                                    <div className="item-details">
-                                                        <h4>{item.name}</h4>
-                                                        <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
-                                                    </div>
-                                                    <div className="item-actions">
-                                                        <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
-                                                            <Minus size={16} />
-                                                        </button>
-                                                        <span className="quantity">{item.quantity}</span>
-                                                        <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
-                                                            <Plus size={16} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))
+                                            <AnimatePresence>
+                                                {cart.map(item => (
+                                                    <motion.div 
+                                                        key={item.id} 
+                                                        className="cart-item"
+                                                        layout
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8, x: -50 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <div className="item-details">
+                                                            <h4>{item.name}</h4>
+                                                            <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
+                                                        </div>
+                                                        <div className="item-actions">
+                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn" onClick={() => handleRemoveFromCartItem(item.id)}>
+                                                                <Minus size={16} />
+                                                            </motion.button>
+                                                            <span className="quantity">{item.quantity}</span>
+                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn qty-btn-plus" onClick={() => handleAddToCartItem(item)}>
+                                                                <Plus size={16} />
+                                                            </motion.button>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
                                         )}
                                     </div>
 
@@ -343,7 +403,7 @@ function Medicines() {
                                                 type="button"
                                                 className="btn btn-outline"
                                                 style={{ flex: 1 }}
-                                                onClick={() => setShowCheckoutForm(false)}
+                                                onClick={handleBackClick}
                                             >
                                                 Back
                                             </button>
@@ -364,32 +424,148 @@ function Medicines() {
                 )}
             </AnimatePresence>
 
-            {/* Success Toast */}
+            {/* Proceed to Checkout Confirmation Modal */}
             <AnimatePresence>
-                {orderComplete && (
-                    <motion.div
-                        className="toast success-toast"
-                        initial={{ opacity: 0, y: 50, x: '-50%' }}
-                        animate={{ opacity: 1, y: 0, x: '-50%' }}
-                        exit={{ opacity: 0, y: 50, x: '-50%' }}
-                    >
-                        <CheckCircle size={24} />
-                        Order placed successfully!
+                {showProceedConfirm && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                            <div className="modal-icon-wrapper text-primary">
+                                <ShoppingCart size={40} />
+                            </div>
+                            <h3>Ready to Checkout?</h3>
+                            <p>You have {totalItems} items in your cart totaling ₹{cartTotal.toFixed(2)}.</p>
+                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
+                                <button className="btn btn-primary" style={{flex: 1}} onClick={confirmProceed}>Confirm</button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Added to Cart Toast */}
+            {/* Back Confirmation Modal */}
+            <AnimatePresence>
+                {showBackConfirm && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                            <div className="modal-icon-wrapper text-muted">
+                                <AlertCircle size={40} />
+                            </div>
+                            <h3>Why are you going back?</h3>
+                            <p>You haven't placed your order yet! Are you sure you want to go back to the cart?</p>
+                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowBackConfirm(false)}>Stay Here</button>
+                                <button className="btn btn-primary" style={{flex: 1, backgroundColor: 'var(--text-muted)'}} onClick={confirmBack}>Yes, Go Back</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Success Toast -> Prominent Order Confirmed Modal */}
+            <AnimatePresence>
+                {orderComplete && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
+                            <motion.div 
+                                initial={{ scale: 0 }} 
+                                animate={{ scale: 1 }} 
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
+                            >
+                                <CheckCircle size={64} fill="currentColor" color="white" />
+                            </motion.div>
+                            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--success-color, #28a745)' }}>Order Confirmed!</h2>
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Thank you for your order. We'll be in touch soon.</p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Add to Cart Modal */}
             <AnimatePresence>
                 {addedToCart && (
                     <motion.div
-                        className="toast success-toast toast-top"
-                        initial={{ opacity: 0, y: -50, x: '-50%' }}
-                        animate={{ opacity: 1, y: 0, x: '-50%' }}
-                        exit={{ opacity: 0, y: -50, x: '-50%' }}
+                        className="modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setAddedToCart(null)}
                     >
-                        <CheckCircle size={24} />
-                        Added to cart!
+                        <motion.div
+                            className="atc-modal glass-panel"
+                            initial={{ scale: 0.85, opacity: 0, y: 40 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.85, opacity: 0, y: 40 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {/* Close Button */}
+                            <button
+                                className="atc-close-btn"
+                                onClick={() => setAddedToCart(null)}
+                                aria-label="Close"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            {/* Success Badge */}
+                            <div className="atc-success-badge">
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.15, type: 'spring', stiffness: 300 }}
+                                >
+                                    <CheckCircle size={40} />
+                                </motion.div>
+                                <span>Item Added to Cart Successfully!</span>
+                            </div>
+
+                            {/* Product Info */}
+                            <div className="atc-product">
+                                {addedToCart.image_base64 ? (
+                                    <img
+                                        src={addedToCart.image_base64}
+                                        alt={addedToCart.name}
+                                        className="atc-product-img"
+                                    />
+                                ) : (
+                                    <div className="atc-product-img atc-no-img">
+                                        <ShoppingCart size={32} className="text-muted" />
+                                    </div>
+                                )}
+                                <div className="atc-product-details">
+                                    <span className="badge" style={{ marginBottom: '4px', display: 'inline-block' }}>{addedToCart.category}</span>
+                                    <h3 className="atc-product-name">{addedToCart.name}</h3>
+                                    {addedToCart.combination && (
+                                        <p className="atc-combination text-muted">{addedToCart.combination}</p>
+                                    )}
+                                    <p className="atc-price">
+                                        ₹{Number(addedToCart.price).toFixed(2)}
+                                        {addedToCart.discount > 0 && (
+                                            <span className="atc-discount">-{addedToCart.discount}% OFF</span>
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="atc-actions">
+                                <button
+                                    className="btn btn-outline"
+                                    onClick={() => setAddedToCart(null)}
+                                >
+                                    Continue Shopping
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => { setAddedToCart(null); setIsCartOpen(true); }}
+                                >
+                                    <ShoppingCart size={18} />
+                                    View Cart ({totalItems})
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

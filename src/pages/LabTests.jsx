@@ -1,20 +1,64 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, TestTube, Phone } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, TestTube, Phone, AlertCircle, Droplet, Sun, Users, UserPlus, Receipt, User, Bug, Wind, ShieldAlert, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css'; // Reusing Medicines CSS since the design language is very similar
 
+const playCartSound = (action) => {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        if (action === 'add') {
+            osc.frequency.setValueAtTime(300, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1);
+        } else {
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
+        }
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+    } catch (e) {
+        console.error(e);
+    }
+};
+
 const conditionFilters = [
-    { label: 'All', value: 'All', icon: <Activity size={18} /> },
-    { label: 'Full Body Checkup', value: 'General', icon: <Activity size={18} /> },
-    { label: 'Diabetes', value: 'Diabetes', icon: <Activity size={18} /> },
-    { label: 'Women\'s Health', value: 'Women', icon: <Activity size={18} /> },
-    { label: 'Thyroid', value: 'Thyroid', icon: <Activity size={18} /> },
-    { label: 'Vitamin', value: 'Immunity', icon: <Activity size={18} /> },
-    { label: 'Blood Studies', value: 'Blood Studies', icon: <Activity size={18} /> },
-    { label: 'Heart', value: 'Heart', icon: <Heart size={18} /> },
-    { label: 'Kidney', value: 'Kidney', icon: <Activity size={18} /> },
-    { label: 'Liver', value: 'Liver', icon: <Activity size={18} /> },
+    { label: 'Full Body Checkup', value: 'General', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Diabetes', value: 'Diabetes', icon: <Droplet className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Heart', value: 'Heart', icon: <Heart className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Blood Studies', value: 'Blood Studies', icon: <Droplet className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Vitamin', value: 'Immunity', icon: <Sun className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Thyroid', value: 'Thyroid', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Kidney', value: 'Kidney', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Liver', value: 'Liver', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Women\'s Health', value: 'Women', icon: <Users className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Senior Citizen', value: 'Senior Citizen', icon: <UserPlus className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Tax Saver', value: 'Tax Saver', icon: <Receipt className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Fever', value: 'Fever', icon: <Thermometer className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Hormone Screening', value: 'Hormone', icon: <TestTube className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Hairfall', value: 'Hairfall', icon: <User className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Dengue', value: 'Dengue', icon: <Bug className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Bone and Joint', value: 'Bone', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Allergy', value: 'Allergy', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Sexual Wellness', value: 'Sexual Wellness', icon: <Heart className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Immunity', value: 'Immunity', icon: <Shield className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Fever and Infection', value: 'Fever', icon: <Thermometer className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Reproductive & Fertility', value: 'Reproductive', icon: <Users className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Cancer Screening', value: 'Cancer', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Hepatitis Screening', value: 'Hepatitis', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Lungs', value: 'Lungs', icon: <Wind className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Weight Management...', value: 'Weight', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Iron Studies', value: 'Iron', icon: <Droplet className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'Covid 19', value: 'Covid', icon: <ShieldAlert className="health-icon" size={24} />, hasDiscount: false },
+    { label: 'PCOD Screening', value: 'PCOD', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
+    { label: 'Healthy 2024', value: 'Healthy 2024', icon: <Sparkles className="health-icon" size={24} />, hasDiscount: false, verified: true },
 ];
 
 function LabTests() {
@@ -26,9 +70,21 @@ function LabTests() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+    const [showProceedConfirm, setShowProceedConfirm] = useState(false);
+    const [showBackConfirm, setShowBackConfirm] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
         name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
     });
+
+    const handleAddToCartItem = (item) => {
+        addToCart(item);
+        playCartSound('add');
+    };
+
+    const handleRemoveFromCartItem = (id) => {
+        removeFromCart(id);
+        playCartSound('remove');
+    };
 
     const filteredTests = labTests.filter(test => {
         const matchesSearch = test.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -54,7 +110,21 @@ function LabTests() {
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleProceedToCheckout = () => {
+        setShowProceedConfirm(true);
+    };
+
+    const confirmProceed = () => {
+        setShowProceedConfirm(false);
         setShowCheckoutForm(true);
+    };
+
+    const handleBackClick = () => {
+        setShowBackConfirm(true);
+    };
+
+    const confirmBack = () => {
+        setShowBackConfirm(false);
+        setShowCheckoutForm(false);
     };
 
     const handleCheckout = async (e) => {
@@ -120,26 +190,28 @@ function LabTests() {
                     </div>
 
                     {/* Condition Filters */}
-                    <div className="condition-filters" style={{ marginTop: '20px', display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
-                        {conditionFilters.map(filter => (
-                            <button
-                                key={filter.value}
-                                className={`pill-btn ${selectedCondition === filter.value ? 'active' : ''}`}
-                                onClick={() => setSelectedCondition(filter.value)}
-                                style={{
-                                    display: 'flex', alignItems: 'center', gap: '8px',
-                                    padding: '8px 16px', borderRadius: 'var(--border-radius-full)',
-                                    border: '1px solid var(--border-color)',
-                                    backgroundColor: selectedCondition === filter.value ? 'var(--primary)' : 'var(--surface-color)',
-                                    color: selectedCondition === filter.value ? 'white' : 'var(--text-main)',
-                                    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'var(--transition)',
-                                    boxShadow: 'var(--shadow-sm)'
-                                }}
-                            >
-                                {filter.icon}
-                                {filter.label}
-                            </button>
-                        ))}
+                    <div className="health-check-section" style={{ marginTop: '2.5rem' }}>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.2rem', color: '#111827' }}>Doctor Created Health Check</h2>
+                        <div className="health-check-grid">
+                            {conditionFilters.map(filter => (
+                                <div
+                                    key={filter.label}
+                                    className={`health-check-card ${selectedCondition === filter.value || (selectedCondition === 'All' && filter.label === 'Full Body Checkup') ? 'active' : ''}`}
+                                    onClick={() => setSelectedCondition(filter.value)}
+                                >
+                                    <div style={{ position: 'relative', display: 'flex', minWidth: '24px' }}>
+                                        {filter.icon}
+                                        {filter.hasDiscount && (
+                                            <span style={{ position: 'absolute', bottom: -2, right: -4, background: '#f97316', color: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', border: '1px solid white' }}>%</span>
+                                        )}
+                                        {filter.verified && (
+                                            <span style={{ position: 'absolute', bottom: -2, right: -4, background: '#eab308', color: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', border: '1px solid white' }}>✓</span>
+                                        )}
+                                    </div>
+                                    <span style={{ fontSize: '13.5px', fontWeight: 500, color: '#374151', lineHeight: 1.25, paddingLeft: '4px' }}>{filter.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -238,28 +310,38 @@ function LabTests() {
                                 <>
                                     <div className="cart-items">
                                         {cart.length === 0 ? (
-                                            <div className="empty-cart">
+                                            <motion.div className="empty-cart" initial={{opacity:0}} animate={{opacity:1}}>
                                                 <ShoppingCart size={48} className="text-muted" />
                                                 <p>Your cart is empty.</p>
-                                            </div>
+                                            </motion.div>
                                         ) : (
-                                            cart.map(item => (
-                                                <div key={item.id} className="cart-item">
-                                                    <div className="item-details">
-                                                        <h4>{item.name}</h4>
-                                                        <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
-                                                    </div>
-                                                    <div className="item-actions">
-                                                        <button className="qty-btn" onClick={() => removeFromCart(item.id)}>
-                                                            <Minus size={16} />
-                                                        </button>
-                                                        <span className="quantity">{item.quantity}</span>
-                                                        <button className="qty-btn qty-btn-plus" onClick={() => addToCart(item)}>
-                                                            <Plus size={16} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))
+                                            <AnimatePresence>
+                                                {cart.map(item => (
+                                                    <motion.div 
+                                                        key={item.id} 
+                                                        className="cart-item"
+                                                        layout
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8, x: -50 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <div className="item-details">
+                                                            <h4>{item.name}</h4>
+                                                            <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
+                                                        </div>
+                                                        <div className="item-actions">
+                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn" onClick={() => handleRemoveFromCartItem(item.id)}>
+                                                                <Minus size={16} />
+                                                            </motion.button>
+                                                            <span className="quantity">{item.quantity}</span>
+                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn qty-btn-plus" onClick={() => handleAddToCartItem(item)}>
+                                                                <Plus size={16} />
+                                                            </motion.button>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
                                         )}
                                     </div>
 
@@ -359,7 +441,7 @@ function LabTests() {
                                                 type="button"
                                                 className="btn btn-outline"
                                                 style={{ flex: 1 }}
-                                                onClick={() => setShowCheckoutForm(false)}
+                                                onClick={handleBackClick}
                                             >
                                                 Back
                                             </button>
@@ -380,32 +462,82 @@ function LabTests() {
                 )}
             </AnimatePresence>
 
-            {/* Success Toast */}
+            {/* Proceed to Checkout Confirmation Modal */}
             <AnimatePresence>
-                {orderComplete && (
-                    <motion.div
-                        className="toast success-toast"
-                        initial={{ opacity: 0, y: 50, x: '-50%' }}
-                        animate={{ opacity: 1, y: 0, x: '-50%' }}
-                        exit={{ opacity: 0, y: 50, x: '-50%' }}
-                    >
-                        <CheckCircle size={24} />
-                        Tests booked successfully!
+                {showProceedConfirm && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                            <div className="modal-icon-wrapper text-primary">
+                                <ShoppingCart size={40} />
+                            </div>
+                            <h3>Ready to Checkout?</h3>
+                            <p>You have {totalItems} items in your cart totaling ₹{cartTotal.toFixed(2)}.</p>
+                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
+                                <button className="btn btn-primary" style={{flex: 1}} onClick={confirmProceed}>Confirm</button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Added to Cart Toast */}
+            {/* Back Confirmation Modal */}
+            <AnimatePresence>
+                {showBackConfirm && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                            <div className="modal-icon-wrapper text-muted">
+                                <AlertCircle size={40} />
+                            </div>
+                            <h3>Why are you going back?</h3>
+                            <p>You haven't placed your order yet! Are you sure you want to go back to the cart?</p>
+                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowBackConfirm(false)}>Stay Here</button>
+                                <button className="btn btn-primary" style={{flex: 1, backgroundColor: 'var(--text-muted)'}} onClick={confirmBack}>Yes, Go Back</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Success Toast -> Prominent Order Confirmed Modal */}
+            <AnimatePresence>
+                {orderComplete && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
+                            <motion.div 
+                                initial={{ scale: 0 }} 
+                                animate={{ scale: 1 }} 
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
+                            >
+                                <CheckCircle size={64} fill="currentColor" color="white" />
+                            </motion.div>
+                            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--success-color, #28a745)' }}>Order Confirmed!</h2>
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Thank you for your order. We'll be in touch soon.</p>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Engaging Added to Cart Popup */}
             <AnimatePresence>
                 {addedToCart && (
                     <motion.div
-                        className="toast success-toast toast-top"
-                        initial={{ opacity: 0, y: -50, x: '-50%' }}
-                        animate={{ opacity: 1, y: 0, x: '-50%' }}
-                        exit={{ opacity: 0, y: -50, x: '-50%' }}
+                        className="toast success-toast toast-top engaging-toast"
+                        initial={{ opacity: 0, y: -50, scale: 0.5, rotate: -10 }}
+                        animate={{ opacity: 1, y: 20, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, y: -50, scale: 0.8 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                        style={{ 
+                            position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+                            padding: '12px 24px', fontSize: '1.1rem', backgroundColor: 'var(--primary)', 
+                            color: 'white', borderRadius: '30px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                            display: 'flex', alignItems: 'center', gap: '8px', zIndex: 9999
+                        }}
                     >
-                        <CheckCircle size={24} />
-                        Added to cart!
+                        <ShoppingCart size={24} />
+                        <span style={{ fontWeight: '600' }}>Item added to your cart! 🎉</span>
                     </motion.div>
                 )}
             </AnimatePresence>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Pill, User, Menu } from 'lucide-react';
 import './Navbar.css';
-import logo from '../assets/gp logo.jpeg';
+import logo from '../assets/gp-logo-new.png';
 
 function Navbar() {
     return (

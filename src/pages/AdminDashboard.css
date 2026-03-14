@@ -132,6 +132,9 @@
     font-size: 0.75rem;
     letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .admin-table td {
@@ -179,6 +182,11 @@
 .status-badge.cancelled {
     background: #fee2e2;
     color: #dc2626;
+}
+
+.status-badge.completed {
+    background: #d1fae5;
+    color: #059669;
 }
 
 .action-buttons {
@@ -250,6 +258,96 @@
     border: 1px dashed var(--primary-light);
 }
 
+/* Scrollable medicines list */
+.medicines-scroll-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.medicines-scroll-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+.medicines-scroll-wrapper::-webkit-scrollbar-track {
+    background: var(--surface-dark);
+    border-radius: 3px;
+}
+
+.medicines-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 3px;
+}
+
+.medicines-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Stock Toggle Button */
+.stock-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--border-radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    white-space: nowrap;
+}
+
+.stock-toggle-btn.in-stock {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.stock-toggle-btn.in-stock:hover {
+    background: #a7f3d0;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+}
+
+.stock-toggle-btn.out-of-stock {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.stock-toggle-btn.out-of-stock:hover {
+    background: #fecaca;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+/* Token Badge */
+.token-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: var(--border-radius-full);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* Availability Badge */
+.availability-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: #eff6ff;
+    color: var(--primary-dark);
+    border-radius: var(--border-radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid #bfdbfe;
+    white-space: nowrap;
+}
+
 @media (max-width: 768px) {
     .admin-layout {
         flex-direction: column;
@@ -293,7 +391,7 @@
     }
 
     .doctors-edit-view .admin-table {
-        min-width: 500px;
+        min-width: 600px;
     }
 
     .upload-form .form-row {
@@ -302,5 +400,9 @@
 
     .admin-header .title {
         font-size: 1.5rem;
+    }
+
+    .medicines-scroll-wrapper {
+        max-height: 400px;
     }
 }

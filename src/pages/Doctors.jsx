@@ -10,7 +10,6 @@ function Doctors() {
     const [bookingFormData, setBookingFormData] = useState({
         patientName: '',
         date: '',
-        time: '',
         phone: '',
         reason: ''
     });
@@ -28,14 +27,15 @@ function Doctors() {
         addAppointment({
             doctorId: selectedDoctor.id,
             doctorName: selectedDoctor.name,
-            ...bookingFormData
+            ...bookingFormData,
+            time: `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}`
         });
 
         setBookingSuccess(true);
         setTimeout(() => {
             setBookingSuccess(false);
             setSelectedDoctor(null);
-            setBookingFormData({ patientName: '', date: '', time: '', phone: '', reason: '' });
+            setBookingFormData({ patientName: '', date: '', phone: '', reason: '' });
         }, 3000);
     };
 
@@ -81,6 +81,12 @@ function Doctors() {
                                     <div className="doc-info">
                                         <h3 className="doc-name">{doc.name}</h3>
                                         <p className="doc-specialty text-primary">{doc.specialty}</p>
+
+                                        {/* Availability Badge */}
+                                        <div className="doc-availability-info">
+                                            <Clock size={14} className="text-primary" />
+                                            <span>Available: {doc.availability_start || '06:00 PM'} - {doc.availability_end || '10:00 PM'}</span>
+                                        </div>
 
                                         <div className="doc-stats">
                                             <div className="stat">
@@ -171,6 +177,19 @@ function Doctors() {
                                     ) : (
                                         <>
                                             <h3 className="mb-4">Book Appointment</h3>
+                                            
+                                            {/* Doctor Availability Info */}
+                                            <div className="doctor-availability-notice">
+                                                <div className="availability-icon-wrapper">
+                                                    <Clock size={20} />
+                                                </div>
+                                                <div>
+                                                    <strong>Doctor Available</strong>
+                                                    <p className="avail-time">{selectedDoctor.availability_start || '06:00 PM'} — {selectedDoctor.availability_end || '10:00 PM'}</p>
+                                                    <span className="avail-note">Token will be assigned by the admin after booking.</span>
+                                                </div>
+                                            </div>
+
                                             <form onSubmit={handleBookingSubmit} className="booking-form">
                                                 <div className="input-group">
                                                     <label className="input-label">Patient Name</label>
@@ -198,41 +217,19 @@ function Doctors() {
                                                     />
                                                 </div>
 
-                                                <div className="form-row">
-                                                    <div className="input-group">
-                                                        <label className="input-label">Date</label>
-                                                        <div className="icon-input-wrapper">
-                                                            <Calendar size={18} className="input-icon text-muted" />
-                                                            <input
-                                                                type="date"
-                                                                name="date"
-                                                                required
-                                                                className="input-field with-icon"
-                                                                value={bookingFormData.date}
-                                                                onChange={handleInputChange}
-                                                                min={new Date().toISOString().split('T')[0]}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="input-group">
-                                                        <label className="input-label">TimeSlot</label>
-                                                        <div className="icon-input-wrapper">
-                                                            <Clock size={18} className="input-icon text-muted" />
-                                                            <select
-                                                                name="time"
-                                                                required
-                                                                className="input-field with-icon"
-                                                                value={bookingFormData.time}
-                                                                onChange={handleInputChange}
-                                                            >
-                                                                <option value="">Select Time</option>
-                                                                <option value="09:00 AM">09:00 AM</option>
-                                                                <option value="11:00 AM">11:00 AM</option>
-                                                                <option value="02:00 PM">02:00 PM</option>
-                                                                <option value="04:00 PM">04:00 PM</option>
-                                                            </select>
-                                                        </div>
+                                                <div className="input-group">
+                                                    <label className="input-label">Date</label>
+                                                    <div className="icon-input-wrapper">
+                                                        <Calendar size={18} className="input-icon text-muted" />
+                                                        <input
+                                                            type="date"
+                                                            name="date"
+                                                            required
+                                                            className="input-field with-icon"
+                                                            value={bookingFormData.date}
+                                                            onChange={handleInputChange}
+                                                            min={new Date().toISOString().split('T')[0]}
+                                                        />
                                                     </div>
                                                 </div>
 

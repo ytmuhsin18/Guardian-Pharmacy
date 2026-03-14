@@ -20,29 +20,46 @@ export function AppProvider({ children }) {
         setLoading(true);
         try {
             // Fetch medicines
-            const { data: medsData } = await supabase.from('medicines').select('*').order('id', { ascending: true });
+            const { data: medsData, error: medsError } = await supabase.from('medicines').select('*').order('id', { ascending: true });
+            if (medsError) console.error("Error fetching medicines:", medsError);
             if (medsData) {
                 setMedicines(medsData.map(m => ({ ...m, inStock: m.instock })));
             }
 
             // Fetch lab tests
-            const { data: testsData } = await supabase.from('lab_tests').select('*').order('id', { ascending: true });
+            const { data: testsData, error: testsError } = await supabase.from('lab_tests').select('*').order('id', { ascending: true });
+            if (testsError) console.error("Error fetching lab tests:", testsError);
             if (testsData) {
                 setLabTests(testsData.map(t => ({ ...t, originalPrice: t.originalprice, testsIncluded: t.testsincluded })));
             }
 
             // Fetch doctors
-            const { data: docsData } = await supabase.from('doctors').select('*').order('id', { ascending: true });
-            if (docsData) setDoctors(docsData);
+            const { data: docsData, error: docsError } = await supabase.from('doctors').select('*').order('id', { ascending: true });
+            if (docsError) console.error("Error fetching doctors:", docsError);
+            if (docsData) {
+                setDoctors(docsData.map(d => ({
+                    ...d,
+                    availability_start: d.availability_start || '06:00 PM',
+                    availability_end: d.availability_end || '10:00 PM'
+                })));
+            }
 
             // Fetch appointments
-            const { data: aptsData } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
+            const { data: aptsData, error: aptsError } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
+            if (aptsError) console.error("Error fetching appointments:", aptsError);
             if (aptsData) {
-                setAppointments(aptsData.map(a => ({ ...a, patientName: a.patientname, doctorId: a.doctorid, doctorName: a.doctorname })));
+                setAppointments(aptsData.map(a => ({
+                    ...a,
+                    patientName: a.patientname,
+                    doctorId: a.doctorid,
+                    doctorName: a.doctorname,
+                    token_number: a.token_number || null
+                })));
             }
 
             // Fetch orders
-            const { data: ordersData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+            const { data: ordersData, error: ordersError } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+            if (ordersError) console.error("Error fetching orders:", ordersError);
             if (ordersData) {
                 setOrders(ordersData);
             }
@@ -82,7 +99,7 @@ export function AppProvider({ children }) {
             doctorid: appointment.doctorId,
             doctorname: appointment.doctorName,
             date: appointment.date,
-            time: appointment.time,
+            time: appointment.time || null,
             phone: appointment.phone,
             reason: appointment.reason,
             status: 'Pending'
@@ -90,7 +107,13 @@ export function AppProvider({ children }) {
         const { data, error } = await supabase.from('appointments').insert([dbAppointment]).select();
         if (data && !error) {
             const newApt = data[0];
-            setAppointments(prev => [{ ...newApt, patientName: newApt.patientname, doctorId: newApt.doctorid, doctorName: newApt.doctorname }, ...prev]);
+            setAppointments(prev => [{
+                ...newApt,
+                patientName: newApt.patientname,
+                doctorId: newApt.doctorid,
+                doctorName: newApt.doctorname,
+                token_number: newApt.token_number || null
+            }, ...prev]);
         } else {
             console.error("Failed to add appointment", error);
         }
@@ -102,6 +125,17 @@ export function AppProvider({ children }) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status } : apt));
         } else {
             console.error("Failed to update status", error);
+        }
+    };
+
+    const updateAppointmentToken = async (id, tokenNumber) => {
+        const { error } = await supabase.from('appointments').update({ token_number: tokenNumber }).eq('id', id);
+        if (!error) {
+            setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, token_number: tokenNumber } : apt));
+            return true;
+        } else {
+            console.error("Failed to update token", error);
+            return false;
         }
     };
 
@@ -139,19 +173,64 @@ export function AppProvider({ children }) {
     const addMedicine = async (medicine) => {
         const dbMedicine = {
             name: medicine.name,
+            combination: medicine.combination || null,
             category: medicine.category,
             condition: medicine.condition || 'All',
-            price: medicine.price,
-            description: medicine.description,
-            instock: medicine.inStock,
-            image_base64: medicine.image_base64
+            price: parseFloat(medicine.price) || 0,
+            discount: medicine.discount ? parseFloat(medicine.discount) : 0,
+            description: medicine.description || null,
+            instock: medicine.inStock !== undefined ? medicine.inStock : true,
+            image_base64: medicine.image_base64 || null
         };
+        
+        console.log("Inserting medicine:", dbMedicine);
         const { data, error } = await supabase.from('medicines').insert([dbMedicine]).select();
-        if (data && !error) {
+        
+        if (error) {
+            console.error("Failed to add medicine - DB Error:", error);
+            return false;
+        }
+        
+        if (data && data.length > 0) {
             const newMed = data[0];
             setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock }]);
+            console.log("Medicine added successfully:", newMed);
+            return true;
+        }
+        
+        return false;
+    };
+
+    const updateMedicineData = async (id, updatedData) => {
+        const dbUpdate = {
+            name: updatedData.name,
+            combination: updatedData.combination || null,
+            category: updatedData.category,
+            price: parseFloat(updatedData.price) || 0,
+            discount: updatedData.discount ? parseFloat(updatedData.discount) : 0,
+            description: updatedData.description || null,
+            instock: updatedData.inStock !== undefined ? updatedData.inStock : true,
+            image_base64: updatedData.image_base64 || null
+        };
+        const { error } = await supabase.from('medicines').update(dbUpdate).eq('id', id);
+        if (!error) {
+            setMedicines(prev => prev.map(med => med.id === id ? { ...med, ...updatedData, inStock: updatedData.inStock } : med));
+            return true;
         } else {
-            console.error("Failed to add medicine", error);
+            console.error("Failed to update medicine", error);
+            return false;
+        }
+    };
+
+    const toggleMedicineStock = async (id, currentStatus) => {
+        const newStatus = !currentStatus;
+        const { error } = await supabase.from('medicines').update({ instock: newStatus }).eq('id', id);
+        if (!error) {
+            setMedicines(prev => prev.map(med => med.id === id ? { ...med, inStock: newStatus } : med));
+            return true;
+        } else {
+            console.error("Failed to toggle stock status", error);
+            return false;
         }
     };
 
@@ -162,10 +241,34 @@ export function AppProvider({ children }) {
         }
     };
 
+    const deleteMedicine = async (id) => {
+        const { error } = await supabase.from('medicines').delete().eq('id', id);
+        if (!error) {
+            setMedicines(prev => prev.filter(med => med.id !== id));
+            return true;
+        } else {
+            console.error("Failed to delete medicine", error);
+            return false;
+        }
+    };
+
     const addDoctor = async (doctor) => {
-        const { data, error } = await supabase.from('doctors').insert([doctor]).select();
+        const dbDoctor = {
+            name: doctor.name,
+            specialty: doctor.specialty,
+            experience: doctor.experience,
+            about: doctor.about,
+            image_base64: doctor.image_base64 || null,
+            availability_start: doctor.availability_start || '06:00 PM',
+            availability_end: doctor.availability_end || '10:00 PM'
+        };
+        const { data, error } = await supabase.from('doctors').insert([dbDoctor]).select();
         if (data && !error) {
-            setDoctors(prev => [...prev, data[0]]);
+            setDoctors(prev => [...prev, {
+                ...data[0],
+                availability_start: data[0].availability_start || '06:00 PM',
+                availability_end: data[0].availability_end || '10:00 PM'
+            }]);
         } else {
             console.error("Failed to add doctor", error);
         }
@@ -180,15 +283,30 @@ export function AppProvider({ children }) {
         }
     };
 
+    const updateDoctorAvailability = async (id, start, end) => {
+        const { error } = await supabase.from('doctors').update({ availability_start: start, availability_end: end }).eq('id', id);
+        if (!error) {
+            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, availability_start: start, availability_end: end } : doc));
+            return true;
+        } else {
+            console.error("Failed to update doctor availability", error);
+            return false;
+        }
+    };
+
     return (
         <AppContext.Provider value={{
             medicines,
             addMedicine,
             updateMedicineImage,
+            updateMedicineData,
+            deleteMedicine,
+            toggleMedicineStock,
             labTests,
             doctors,
             addDoctor,
             updateDoctorImage,
+            updateDoctorAvailability,
             cart,
             addToCart,
             removeFromCart,
@@ -196,6 +314,7 @@ export function AppProvider({ children }) {
             appointments,
             addAppointment,
             updateAppointmentStatus,
+            updateAppointmentToken,
             orders,
             addOrder,
             updateOrderStatus,
