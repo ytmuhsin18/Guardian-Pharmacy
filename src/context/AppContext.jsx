@@ -114,6 +114,16 @@ export function AppProvider({ children }) {
                 doctorName: newApt.doctorname,
                 token_number: newApt.token_number || null
             }, ...prev]);
+
+            // Save appointment ID to localStorage to track for notifications
+            try {
+                const myApts = JSON.parse(localStorage.getItem('my_guardian_appointments') || '[]');
+                myApts.push(newApt.id);
+                localStorage.setItem('my_guardian_appointments', JSON.stringify(myApts));
+            } catch (e) {
+                console.error("Local tracking failed", e);
+            }
+            return true;
         } else {
             console.error("Failed to add appointment", error);
         }
@@ -154,6 +164,16 @@ export function AppProvider({ children }) {
         const { data, error } = await supabase.from('orders').insert([dbOrder]).select();
         if (data && !error) {
             setOrders(prev => [data[0], ...prev]);
+            
+            // Save order ID to localStorage to track for notifications
+            try {
+                const myOrders = JSON.parse(localStorage.getItem('my_guardian_orders') || '[]');
+                myOrders.push(data[0].id);
+                localStorage.setItem('my_guardian_orders', JSON.stringify(myOrders));
+            } catch (e) {
+                console.error("Local tracking failed", e);
+            }
+
             return true;
         } else {
             console.error("Failed to add order", error);
@@ -294,6 +314,26 @@ export function AppProvider({ children }) {
         }
     };
 
+    const updateDoctorData = async (id, updatedData) => {
+        const dbUpdate = {
+            name: updatedData.name,
+            specialty: updatedData.specialty,
+            experience: updatedData.experience,
+            about: updatedData.about,
+            image_base64: updatedData.image_base64 || null,
+            availability_start: updatedData.availability_start,
+            availability_end: updatedData.availability_end
+        };
+        const { error } = await supabase.from('doctors').update(dbUpdate).eq('id', id);
+        if (!error) {
+            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, ...updatedData } : doc));
+            return true;
+        } else {
+            console.error("Failed to update doctor details", error);
+            return false;
+        }
+    };
+
     return (
         <AppContext.Provider value={{
             medicines,
@@ -307,6 +347,7 @@ export function AppProvider({ children }) {
             addDoctor,
             updateDoctorImage,
             updateDoctorAvailability,
+            updateDoctorData,
             cart,
             addToCart,
             removeFromCart,

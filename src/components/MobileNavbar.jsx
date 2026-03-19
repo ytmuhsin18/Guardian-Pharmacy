@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Pill, Activity, Stethoscope, User } from 'lucide-react';
+import { Home, Pill, Activity, Stethoscope, User, LogIn } from 'lucide-react';
 import './MobileNavbar.css';
 
 function MobileNavbar() {
@@ -22,10 +22,15 @@ function MobileNavbar() {
                 <Activity size={20} />
                 <span>Lab Tests</span>
             </NavLink>
-            {localStorage.getItem('guardian_admin_auth') === 'true' && (
+            {localStorage.getItem('guardian_admin_auth') === 'true' ? (
                 <NavLink to="/admin" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                     <User size={20} />
                     <span>Admin</span>
+                </NavLink>
+            ) : (
+                <NavLink to="/login" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
+                    <LogIn size={20} />
+                    <span>Login</span>
                 </NavLink>
             )}
         </div>

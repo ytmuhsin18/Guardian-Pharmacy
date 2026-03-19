@@ -235,36 +235,66 @@ function LabTests() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     transition={{ duration: 0.3 }}
-                                    className="product-card glass-panel"
+                                    className="product-card"
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
-                                        <div style={{ background: 'var(--surface-dark)', padding: '1rem', borderRadius: 'var(--border-radius-md)' }}>
-                                            <TestTube size={32} className="text-secondary" />
+                                    <div className="product-image-section">
+                                        <div className="bestseller-badge">Certified</div>
+                                        <div className="product-image-container">
+                                            <div className="product-placeholder">
+                                                <TestTube size={48} className="text-secondary" />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="product-title" style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{test.name}</h3>
-                                            <p className="product-desc" style={{ fontSize: '0.9rem', margin: 0 }}>{test.testsIncluded} Tests Included</p>
-                                        </div>
+
+                                        {(() => {
+                                            const cartItem = cart.find(item => item.id === test.id);
+                                            const quantity = cartItem ? cartItem.quantity : 0;
+
+                                            return quantity > 0 ? (
+                                                <div className="qty-selector-floating">
+                                                    <button className="qty-op-btn" onClick={() => removeFromCart(test.id)}>
+                                                        <Minus size={14} strokeWidth={3} />
+                                                    </button>
+                                                    <span className="qty-amount">{quantity}</span>
+                                                    <button className="qty-op-btn" onClick={() => addToCart(test)}>
+                                                        <Plus size={14} strokeWidth={3} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className="add-btn"
+                                                    onClick={() => {
+                                                        addToCart(test);
+                                                        playCartSound('add');
+                                                    }}
+                                                >
+                                                    <Plus size={20} strokeWidth={3} />
+                                                </button>
+                                            );
+                                        })()}
                                     </div>
 
-                                    <div className="product-footer" style={{ marginTop: 'auto', alignItems: 'center' }}>
-                                        <div className="product-price">
-                                            <span style={{ fontSize: '1.5rem', fontWeight: 700 }}>₹{Number(test.price).toFixed(2)}</span>
-                                            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textDecoration: 'line-through', margin: '0 8px' }}>₹{Number(test.originalPrice).toFixed(2)}</span>
-                                            <span style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600 }}>{test.discount} off</span>
+                                    <div className="product-info-section">
+                                        <div className="product-price-row">
+                                            <span className="price-pill">₹{Number(test.price).toFixed(0)}</span>
+                                            <span className="mrp-old">₹{Number(test.originalPrice).toFixed(0)}</span>
+                                        </div>
+                                        <div className="savings-label">{test.discount} off</div>
+
+                                        <h3 className="product-name-new">{test.name}</h3>
+
+                                        <div className="product-meta-new">
+                                            <span className="pack-size">{test.testsIncluded} Tests Included</span>
+                                            <div className="product-tag-pill">{test.condition}</div>
                                         </div>
 
-                                        <button
-                                            className="btn btn-primary add-btn"
-                                            onClick={() => {
-                                                addToCart(test);
-                                                setAddedToCart(true);
-                                                setTimeout(() => setAddedToCart(false), 1500);
-                                            }}
-                                            style={{ padding: '0.5rem 1.5rem', borderRadius: 'var(--border-radius-md)' }}
-                                        >
-                                            Add
-                                        </button>
+                                        <div className="product-footer-new" style={{ marginTop: 'auto' }}>
+                                            <div className="rating-row">
+                                                <div className="star-icon">★</div>
+                                                <span className="rating-val">4.9</span>
+                                                <span className="rating-count">(34.0k)</span>
+                                            </div>
+                                            <div className="no-fee">Home Sample Collection</div>
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -310,15 +340,15 @@ function LabTests() {
                                 <>
                                     <div className="cart-items">
                                         {cart.length === 0 ? (
-                                            <motion.div className="empty-cart" initial={{opacity:0}} animate={{opacity:1}}>
+                                            <motion.div className="empty-cart" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                                 <ShoppingCart size={48} className="text-muted" />
                                                 <p>Your cart is empty.</p>
                                             </motion.div>
                                         ) : (
                                             <AnimatePresence>
                                                 {cart.map(item => (
-                                                    <motion.div 
-                                                        key={item.id} 
+                                                    <motion.div
+                                                        key={item.id}
                                                         className="cart-item"
                                                         layout
                                                         initial={{ opacity: 0, scale: 0.8 }}
@@ -472,9 +502,9 @@ function LabTests() {
                             </div>
                             <h3>Ready to Checkout?</h3>
                             <p>You have {totalItems} items in your cart totaling ₹{cartTotal.toFixed(2)}.</p>
-                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
-                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
-                                <button className="btn btn-primary" style={{flex: 1}} onClick={confirmProceed}>Confirm</button>
+                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
+                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmProceed}>Confirm</button>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -491,9 +521,9 @@ function LabTests() {
                             </div>
                             <h3>Why are you going back?</h3>
                             <p>You haven't placed your order yet! Are you sure you want to go back to the cart?</p>
-                            <div className="modal-actions" style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
-                                <button className="btn btn-outline" style={{flex: 1}} onClick={() => setShowBackConfirm(false)}>Stay Here</button>
-                                <button className="btn btn-primary" style={{flex: 1, backgroundColor: 'var(--text-muted)'}} onClick={confirmBack}>Yes, Go Back</button>
+                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowBackConfirm(false)}>Stay Here</button>
+                                <button className="btn btn-primary" style={{ flex: 1, backgroundColor: 'var(--text-muted)' }} onClick={confirmBack}>Yes, Go Back</button>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -505,9 +535,9 @@ function LabTests() {
                 {orderComplete && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
-                            <motion.div 
-                                initial={{ scale: 0 }} 
-                                animate={{ scale: 1 }} 
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                                 style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
                             >
@@ -529,9 +559,9 @@ function LabTests() {
                         animate={{ opacity: 1, y: 20, scale: 1, rotate: 0 }}
                         exit={{ opacity: 0, y: -50, scale: 0.8 }}
                         transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                        style={{ 
+                        style={{
                             position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-                            padding: '12px 24px', fontSize: '1.1rem', backgroundColor: 'var(--primary)', 
+                            padding: '12px 24px', fontSize: '1.1rem', backgroundColor: 'var(--primary)',
                             color: 'white', borderRadius: '30px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
                             display: 'flex', alignItems: 'center', gap: '8px', zIndex: 9999
                         }}

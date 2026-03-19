@@ -8,22 +8,30 @@ import Doctors from './pages/Doctors';
 import LabTests from './pages/LabTests';
 import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
+import MedicineDetails from './pages/MedicineDetails';
 import MobileNavbar from './components/MobileNavbar';
-import EmergencyBanner from './components/EmergencyBanner';
 import WhatsAppButton from './components/WhatsAppButton';
+import CustomerNotification from './components/CustomerNotification';
+
+import SurgicalProducts from './pages/SurgicalProducts';
+import Physiotherapy from './pages/Physiotherapy';
 
 function App() {
   return (
     <Router>
       <div className="page-layout">
-        <EmergencyBanner />
+
         <Navbar />
+        <CustomerNotification />
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/medicines" element={<Medicines />} />
+            <Route path="/medicine/:id" element={<MedicineDetails />} />
             <Route path="/lab-tests" element={<LabTests />} />
             <Route path="/doctors" element={<Doctors />} />
+            <Route path="/surgical-products" element={<SurgicalProducts />} />
+            <Route path="/physiotherapy" element={<Physiotherapy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/login" element={<Login />} />
           </Routes>

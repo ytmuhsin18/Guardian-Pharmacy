@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, Pill, LogOut, CheckCircle, Clock, X, Package, Paperclip, Edit2, Save, Trash2, ToggleLeft, ToggleRight, Hash } from 'lucide-react';
+import { LayoutDashboard, Users, Pill, LogOut, CheckCircle, Clock, X, Package, Paperclip, Edit2, Save, Trash2, ToggleLeft, ToggleRight, Hash, Search } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const { appointments, updateAppointmentStatus, updateAppointmentToken, orders, updateOrderStatus, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock, medicines, doctors, updateDoctorImage, addDoctor, updateDoctorAvailability } = useApp();
+    const { appointments, updateAppointmentStatus, updateAppointmentToken, orders, updateOrderStatus, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock, medicines, doctors, updateDoctorImage, addDoctor, updateDoctorAvailability, updateDoctorData } = useApp();
     const [activeTab, setActiveTab] = useState('orders');
     const [newMedicine, setNewMedicine] = useState({
         name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', image_base64: ''
     });
     const [editingMedicineId, setEditingMedicineId] = useState(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [newDoctor, setNewDoctor] = useState({
         name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '',
         availability_start: '06:00 PM', availability_end: '10:00 PM'
     });
     const [doctorUploadSuccess, setDoctorUploadSuccess] = useState(false);
-    
+    const [editingDoctorId, setEditingDoctorId] = useState(null);
+
     // Token editing state
     const [editingTokenId, setEditingTokenId] = useState(null);
     const [tokenValue, setTokenValue] = useState('');
@@ -54,7 +56,7 @@ function AdminDashboard() {
 
     const handleMedicineSubmit = async (e) => {
         e.preventDefault();
-        
+
         const submissionData = {
             name: newMedicine.name,
             combination: newMedicine.combination || null,
@@ -74,11 +76,11 @@ function AdminDashboard() {
             success = await addMedicine(submissionData);
             if (success) setUploadSuccess('Medicine added successfully!');
         }
-        
+
         if (!success) {
             setUploadSuccess('Error! Check console for details.');
         }
-        
+
         setNewMedicine({ name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', image_base64: '' });
         setEditingMedicineId(null);
 
@@ -154,15 +156,43 @@ function AdminDashboard() {
         }
     };
 
-    const handleDoctorSubmit = (e) => {
+    const handleDoctorSubmit = async (e) => {
         e.preventDefault();
-        addDoctor(newDoctor);
-        setDoctorUploadSuccess(true);
-        setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM' });
+        
+        let success;
+        if (editingDoctorId) {
+            success = await updateDoctorData(editingDoctorId, newDoctor);
+            if (success) setDoctorUploadSuccess('Doctor updated successfully!');
+        } else {
+            success = await addDoctor(newDoctor);
+            if (success) setDoctorUploadSuccess('Doctor added successfully!');
+        }
 
-        setTimeout(() => {
-            setDoctorUploadSuccess(false);
-        }, 2000);
+        if (success !== false) {
+            setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM' });
+            setEditingDoctorId(null);
+            setTimeout(() => setDoctorUploadSuccess(false), 3000);
+        }
+    };
+
+    const handleEditDoctor = (doc) => {
+        setNewDoctor({
+            name: doc.name,
+            specialty: doc.specialty,
+            experience: doc.experience || 'Experienced',
+            about: doc.about || '',
+            image_base64: doc.image_base64 || '',
+            availability_start: doc.availability_start || '06:00 PM',
+            availability_end: doc.availability_end || '10:00 PM'
+        });
+        setEditingDoctorId(doc.id);
+        // Scroll to form if not in view
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelDoctorEdit = () => {
+        setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM' });
+        setEditingDoctorId(null);
     };
 
     const timeOptions = [
@@ -474,6 +504,19 @@ function AdminDashboard() {
                                                     <option value="Supplements">Supplements</option>
                                                     <option value="Digestion">Digestion</option>
                                                     <option value="First Aid">First Aid</option>
+                                                    <option value="Baby Care">Baby Care</option>
+                                                    <option value="Pharmacy">Pharmacy</option>
+                                                    <option value="Skin Care">Skin Care</option>
+                                                    <option value="Vitamins">Vitamins</option>
+                                                    <option value="Personal Care">Personal Care</option>
+                                                    <option value="Ayurvedic">Ayurvedic</option>
+                                                    <option value="Pain Relief">Pain Relief</option>
+                                                    <option value="Healthcare Devices">Healthcare Devices</option>
+                                                    <option value="Home Care">Home Care</option>
+                                                    <option value="Sexual Wellness">Sexual Wellness</option>
+                                                    <option value="Maternity Care">Maternity Care</option>
+                                                     <option value="Surgical Products">Surgical Products</option>
+                                                     <option value="Physiotherapy">Physiotherapy</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -556,8 +599,8 @@ function AdminDashboard() {
                                                 <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
                                                     <img src={newMedicine.image_base64} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-color)', padding: '4px', background: 'white' }} />
                                                     {editingMedicineId && (
-                                                        <button 
-                                                            type="button" 
+                                                        <button
+                                                            type="button"
                                                             onClick={() => setNewMedicine({ ...newMedicine, image_base64: '' })}
                                                             style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}
                                                             title="Delete Image"
@@ -589,7 +632,7 @@ function AdminDashboard() {
                                                     <><Paperclip size={18} style={{ transform: 'rotate(-45deg)', marginRight: '6px' }} /> Upload Product to Store</>
                                                 )}
                                             </button>
-                                            
+
                                             {editingMedicineId && (
                                                 <button type="button" className="btn btn-outline" onClick={cancelEdit} style={{ borderRadius: '30px' }}>
                                                     <X size={18} /> Cancel Edit
@@ -601,8 +644,20 @@ function AdminDashboard() {
                             </div>
 
                             <div className="manage-medicines-container glass-panel" style={{ padding: '2rem' }}>
-                                <h3>Manage Existing Medicines</h3>
-                                <div className="medicines-scroll-wrapper" style={{ marginTop: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+                                    <h3 style={{ margin: 0 }}>Manage Existing Medicines</h3>
+                                    <div className="admin-search-wrapper">
+                                        <Search className="search-icon" size={18} />
+                                        <input
+                                            type="text"
+                                            className="admin-search-input"
+                                            placeholder="Search medicines..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="medicines-scroll-wrapper">
                                     <div className="appointments-table-wrapper">
                                         <table className="admin-table">
                                             <thead>
@@ -616,7 +671,11 @@ function AdminDashboard() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {medicines.map(med => (
+                                                {medicines.filter(m =>
+                                                    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    (m.combination && m.combination.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                                    m.category.toLowerCase().includes(searchTerm.toLowerCase())
+                                                ).map(med => (
                                                     <tr key={med.id}>
                                                         <td>
                                                             <img
@@ -778,9 +837,20 @@ function AdminDashboard() {
                                                 onChange={e => setNewDoctor({ ...newDoctor, about: e.target.value })}
                                             ></textarea>
                                         </div>
-                                        <button type="submit" className="btn btn-primary mt-2">
-                                            <Users size={18} /> Add Doctor
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                                            <button type="submit" className="btn btn-primary" style={{ borderRadius: '30px' }}>
+                                                {editingDoctorId ? (
+                                                    <><Save size={18} style={{ marginRight: '6px' }} /> Update Profile</>
+                                                ) : (
+                                                    <><Users size={18} style={{ marginRight: '6px' }} /> Add Doctor</>
+                                                )}
+                                            </button>
+                                            {editingDoctorId && (
+                                                <button type="button" className="btn btn-outline" onClick={cancelDoctorEdit} style={{ borderRadius: '30px' }}>
+                                                    <X size={18} /> Cancel
+                                                </button>
+                                            )}
+                                        </div>
                                     </form>
                                 )}
                             </div>
@@ -797,7 +867,7 @@ function AdminDashboard() {
                                                 <th>Name</th>
                                                 <th>Specialty</th>
                                                 <th>Availability</th>
-                                                <th>Update Photo</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -854,16 +924,29 @@ function AdminDashboard() {
                                                         )}
                                                     </td>
                                                     <td>
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            onChange={(e) => {
-                                                                handleImageUpload(e, (base64) => {
-                                                                    updateDoctorImage(doc.id, base64);
-                                                                });
-                                                            }}
-                                                            style={{ fontSize: '0.8rem' }}
-                                                        />
+                                                        <div className="action-buttons">
+                                                            <button
+                                                                className="btn-icon accept"
+                                                                onClick={() => handleEditDoctor(doc)}
+                                                                title="Edit Doctor Details"
+                                                                style={{ width: '32px', height: '32px' }}
+                                                            >
+                                                                <Edit2 size={16} />
+                                                            </button>
+                                                            <div style={{ position: 'relative', overflow: 'hidden', width: '32px', height: '32px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    onChange={(e) => {
+                                                                        handleImageUpload(e, (base64) => {
+                                                                            updateDoctorImage(doc.id, base64);
+                                                                        });
+                                                                    }}
+                                                                    style={{ position: 'absolute', opacity: 0, scale: 2, cursor: 'pointer' }}
+                                                                />
+                                                                <Paperclip size={16} className="text-muted" />
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}

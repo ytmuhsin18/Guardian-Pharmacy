@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, User, Menu } from 'lucide-react';
+import { Pill, User, Menu, LogIn } from 'lucide-react';
 import './Navbar.css';
 import logo from '../assets/gp-logo-new.png';
 
@@ -20,14 +20,23 @@ function Navbar() {
                     <Link to="/medicines" className="nav-link">Medicines</Link>
                     <Link to="/lab-tests" className="nav-link">Lab Tests</Link>
                     <Link to="/doctors" className="nav-link">Doctors</Link>
+                    <Link to="/surgical-products" className="nav-link">Surgical Products</Link>
+                    <Link to="/physiotherapy" className="nav-link">Physiotherapy</Link>
                 </div>
 
                 <div className="nav-actions desktop-only">
-                    {localStorage.getItem('guardian_admin_auth') === 'true' && (
+                    {localStorage.getItem('guardian_admin_auth') === 'true' ? (
                         <Link to="/admin" className="btn btn-outline nav-admin-btn">
                             <User size={18} />
                             Admin
                         </Link>
+                    ) : (
+                        <div className="admin-login-wrapper">
+                            <Link to="/login" className="nav-login-btn">
+                                <LogIn size={24} />
+                            </Link>
+                            <span className="nav-tooltip">Admin Login</span>
+                        </div>
                     )}
                 </div>
             </div>

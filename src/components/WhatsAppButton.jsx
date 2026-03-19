@@ -1,7 +1,13 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import './WhatsAppButton.css';
 
 function WhatsAppButton() {
+    const location = useLocation();
+
+    // Hide on admin page
+    if (location.pathname === '/admin') return null;
+
     return (
         <a
             href="https://wa.me/919487469098"

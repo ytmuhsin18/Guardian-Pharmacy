@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, Star, User, X, CheckCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import EmergencyBanner from '../components/EmergencyBanner';
 import './Doctors.css';
 
 function Doctors() {
@@ -52,6 +53,7 @@ function Doctors() {
 
     return (
         <div className="doctors-page">
+            <EmergencyBanner />
             <section className="docs-header section-padding">
                 <div className="container text-center">
                     <h1 className="title">Our <span className="gradient-text">Specialists</span></h1>
