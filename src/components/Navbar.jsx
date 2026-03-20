@@ -25,19 +25,7 @@ function Navbar() {
                 </div>
 
                 <div className="nav-actions desktop-only">
-                    {localStorage.getItem('guardian_admin_auth') === 'true' ? (
-                        <Link to="/admin" className="btn btn-outline nav-admin-btn">
-                            <User size={18} />
-                            Admin
-                        </Link>
-                    ) : (
-                        <div className="admin-login-wrapper">
-                            <Link to="/login" className="nav-login-btn">
-                                <LogIn size={24} />
-                            </Link>
-                            <span className="nav-tooltip">Admin Login</span>
-                        </div>
-                    )}
+
                 </div>
             </div>
         </nav>

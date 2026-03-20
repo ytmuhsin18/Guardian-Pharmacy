@@ -79,7 +79,9 @@ function Physiotherapy() {
                                     >
                                         <div className="product-image-section">
                                             <div className="product-image-container">
-                                                {medicine.image_base64 ? (
+                                                {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
+                                                    <img src={medicine.images[0]} alt={medicine.name} className="product-img" />
+                                                ) : medicine.image_base64 ? (
                                                     <img src={medicine.image_base64} alt={medicine.name} className="product-img" />
                                                 ) : (
                                                     <div className="product-placeholder"><Pill size={40} className="text-muted" /></div>

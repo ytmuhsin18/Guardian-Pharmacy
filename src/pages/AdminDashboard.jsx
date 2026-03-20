@@ -10,7 +10,7 @@ function AdminDashboard() {
     const { appointments, updateAppointmentStatus, updateAppointmentToken, orders, updateOrderStatus, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock, medicines, doctors, updateDoctorImage, addDoctor, updateDoctorAvailability, updateDoctorData } = useApp();
     const [activeTab, setActiveTab] = useState('orders');
     const [newMedicine, setNewMedicine] = useState({
-        name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', image_base64: ''
+        name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: []
     });
     const [editingMedicineId, setEditingMedicineId] = useState(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -46,11 +46,19 @@ function AdminDashboard() {
     };
 
     const handleImageUpload = (e, callback) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => callback(reader.result);
-            reader.readAsDataURL(file);
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            const readers = files.map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(readers).then(base64Images => {
+                callback(base64Images);
+            });
         }
     };
 
@@ -65,7 +73,7 @@ function AdminDashboard() {
             discount: newMedicine.discount ? parseFloat(newMedicine.discount) : 0,
             description: newMedicine.description || null,
             inStock: parseInt(newMedicine.stockQuantity) > 0,
-            image_base64: newMedicine.image_base64 || null
+            images: newMedicine.images || []
         };
 
         let success;
@@ -81,7 +89,7 @@ function AdminDashboard() {
             setUploadSuccess('Error! Check console for details.');
         }
 
-        setNewMedicine({ name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', image_base64: '' });
+        setNewMedicine({ name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
         setEditingMedicineId(null);
 
         setTimeout(() => {
@@ -98,7 +106,7 @@ function AdminDashboard() {
             discount: med.discount || '',
             description: med.description || '',
             stockQuantity: med.stockQuantity || (med.inStock ? 100 : 0),
-            image_base64: med.image_base64 || ''
+            images: Array.isArray(med.images) ? med.images : (med.image_base64 ? [med.image_base64] : [])
         });
         setEditingMedicineId(med.id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -158,7 +166,7 @@ function AdminDashboard() {
 
     const handleDoctorSubmit = async (e) => {
         e.preventDefault();
-        
+
         let success;
         if (editingDoctorId) {
             success = await updateDoctorData(editingDoctorId, newDoctor);
@@ -515,8 +523,8 @@ function AdminDashboard() {
                                                     <option value="Home Care">Home Care</option>
                                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                                     <option value="Maternity Care">Maternity Care</option>
-                                                     <option value="Surgical Products">Surgical Products</option>
-                                                     <option value="Physiotherapy">Physiotherapy</option>
+                                                    <option value="Surgical Products">Surgical Products</option>
+                                                    <option value="Physiotherapy">Physiotherapy</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -579,35 +587,47 @@ function AdminDashboard() {
                                         </div>
 
                                         <div className="input-group">
-                                            <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Medicine Image</label>
+                                            <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Medicine Images</label>
                                             <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', background: 'white' }}>
                                                 <input
                                                     type="file"
+                                                    multiple
                                                     accept="image/*"
                                                     id="med-image"
                                                     style={{ display: 'none' }}
-                                                    onChange={e => handleImageUpload(e, (base64) => setNewMedicine({ ...newMedicine, image_base64: base64 }))}
+                                                    onChange={e => handleImageUpload(e, (base64Images) => {
+                                                        setNewMedicine(prev => ({
+                                                            ...prev,
+                                                            images: [...prev.images, ...base64Images]
+                                                        }));
+                                                    })}
                                                 />
                                                 <label htmlFor="med-image" style={{ background: '#f1f5f9', padding: '0.65rem 1rem', borderRight: '1px solid var(--border-color)', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem', color: '#334155', borderTopLeftRadius: 'var(--border-radius-sm)', borderBottomLeftRadius: 'var(--border-radius-sm)' }}>
                                                     Choose File
                                                 </label>
                                                 <span style={{ padding: '0 1rem', color: '#64748b', fontSize: '0.9rem' }}>
-                                                    {newMedicine.image_base64 ? 'Image selected' : 'No file chosen'}
+                                                    {newMedicine.images.length > 0 ? `${newMedicine.images.length} Image(s) selected` : 'No file chosen'}
                                                 </span>
                                             </div>
-                                            {newMedicine.image_base64 && (
-                                                <div style={{ marginTop: '10px', position: 'relative', display: 'inline-block' }}>
-                                                    <img src={newMedicine.image_base64} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-color)', padding: '4px', background: 'white' }} />
-                                                    {editingMedicineId && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setNewMedicine({ ...newMedicine, image_base64: '' })}
-                                                            style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white' }}
-                                                            title="Delete Image"
-                                                        >
-                                                            <X size={14} />
-                                                        </button>
-                                                    )}
+                                            {newMedicine.images.length > 0 && (
+                                                <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
+                                                    {newMedicine.images.map((img, idx) => (
+                                                        <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
+                                                            <img src={img} alt={`Preview ${idx}`} style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-color)', padding: '5px', background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const updatedImages = [...newMedicine.images];
+                                                                    updatedImages.splice(idx, 1);
+                                                                    setNewMedicine({ ...newMedicine, images: updatedImages });
+                                                                }}
+                                                                style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#ef4444', color: 'white', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white', cursor: 'pointer', zIndex: 2 }}
+                                                                title="Delete Image"
+                                                            >
+                                                                <X size={14} />
+                                                            </button>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
@@ -679,7 +699,7 @@ function AdminDashboard() {
                                                     <tr key={med.id}>
                                                         <td>
                                                             <img
-                                                                src={med.image_base64 || 'https://via.placeholder.com/50'}
+                                                                src={(Array.isArray(med.images) && med.images.length > 0) ? med.images[0] : (med.image_base64 || 'https://via.placeholder.com/50')}
                                                                 alt={med.name}
                                                                 style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px', background: 'white', border: '1px solid #e2e8f0' }}
                                                             />

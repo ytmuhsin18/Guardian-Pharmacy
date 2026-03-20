@@ -23,7 +23,18 @@ export function AppProvider({ children }) {
             const { data: medsData, error: medsError } = await supabase.from('medicines').select('*').order('id', { ascending: true });
             if (medsError) console.error("Error fetching medicines:", medsError);
             if (medsData) {
-                setMedicines(medsData.map(m => ({ ...m, inStock: m.instock })));
+                setMedicines(medsData.map(m => {
+                    let parsedImages = [];
+                    if (m.image_base64) {
+                        try {
+                            const parsed = JSON.parse(m.image_base64);
+                            parsedImages = Array.isArray(parsed) ? parsed : [m.image_base64];
+                        } catch (e) {
+                            parsedImages = [m.image_base64];
+                        }
+                    }
+                    return { ...m, inStock: m.instock, images: parsedImages };
+                }));
             }
 
             // Fetch lab tests
@@ -164,7 +175,7 @@ export function AppProvider({ children }) {
         const { data, error } = await supabase.from('orders').insert([dbOrder]).select();
         if (data && !error) {
             setOrders(prev => [data[0], ...prev]);
-            
+
             // Save order ID to localStorage to track for notifications
             try {
                 const myOrders = JSON.parse(localStorage.getItem('my_guardian_orders') || '[]');
@@ -200,24 +211,24 @@ export function AppProvider({ children }) {
             discount: medicine.discount ? parseFloat(medicine.discount) : 0,
             description: medicine.description || null,
             instock: medicine.inStock !== undefined ? medicine.inStock : true,
-            image_base64: medicine.image_base64 || null
+            image_base64: medicine.images ? JSON.stringify(medicine.images) : (medicine.image_base64 || null)
         };
-        
+
         console.log("Inserting medicine:", dbMedicine);
         const { data, error } = await supabase.from('medicines').insert([dbMedicine]).select();
-        
+
         if (error) {
             console.error("Failed to add medicine - DB Error:", error);
             return false;
         }
-        
+
         if (data && data.length > 0) {
             const newMed = data[0];
             setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock }]);
             console.log("Medicine added successfully:", newMed);
             return true;
         }
-        
+
         return false;
     };
 
@@ -230,7 +241,7 @@ export function AppProvider({ children }) {
             discount: updatedData.discount ? parseFloat(updatedData.discount) : 0,
             description: updatedData.description || null,
             instock: updatedData.inStock !== undefined ? updatedData.inStock : true,
-            image_base64: updatedData.image_base64 || null
+            image_base64: updatedData.images ? JSON.stringify(updatedData.images) : (updatedData.image_base64 || null)
         };
         const { error } = await supabase.from('medicines').update(dbUpdate).eq('id', id);
         if (!error) {

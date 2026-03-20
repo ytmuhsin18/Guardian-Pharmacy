@@ -12,6 +12,7 @@ function MedicineDetails() {
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
 
     useEffect(() => {
         const found = medicines.find(m => m.id === parseInt(id));
@@ -44,8 +45,8 @@ function MedicineDetails() {
 
     return (
         <div className="medicine-details-container container">
-            <motion.button 
-                className="back-btn" 
+            <motion.button
+                className="back-btn"
                 onClick={() => navigate('/medicines')}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -55,25 +56,47 @@ function MedicineDetails() {
 
             <div className="details-grid">
                 {/* Visual Section */}
-                <motion.div 
+                <motion.div
                     className="details-visual-panel glass-panel"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
                     <div className="image-container">
-                        {product.image_base64 ? (
-                            <img src={product.image_base64} alt={product.name} className="main-image" />
+                        {product.images && product.images.length > 0 ? (
+                            <div className="gallery-layout">
+                                <div className="main-image-wrapper">
+                                    <img src={product.images[activeImageIndex]} alt={product.name} className="main-image" />
+                                    {product.discount > 0 && <span className="discount-tag">-{product.discount}% OFF</span>}
+                                </div>
+                                {product.images.length > 1 && (
+                                    <div className="thumbnails-wrapper">
+                                        {product.images.map((img, idx) => (
+                                            <button
+                                                key={idx}
+                                                className={`thumbnail-btn ${activeImageIndex === idx ? 'active' : ''}`}
+                                                onClick={() => setActiveImageIndex(idx)}
+                                            >
+                                                <img src={img} alt={`${product.name} thumb ${idx}`} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : product.image_base64 ? (
+                            <div className="main-image-wrapper">
+                                <img src={product.image_base64} alt={product.name} className="main-image" />
+                                {product.discount > 0 && <span className="discount-tag">-{product.discount}% OFF</span>}
+                            </div>
                         ) : (
                             <div className="placeholder-image">
                                 <Pill size={120} style={{ opacity: 0.1 }} />
                             </div>
                         )}
-                        {product.discount > 0 && <span className="discount-tag">-{product.discount}% OFF</span>}
                     </div>
                 </motion.div>
 
                 {/* Info Section */}
-                <motion.div 
+                <motion.div
                     className="details-info-panel"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -89,7 +112,7 @@ function MedicineDetails() {
                         <div className="price-display">
                             <span className="actual-price">₹{Number(product.price).toFixed(2)}</span>
                             {product.discount > 0 && (
-                                <span className="mrp-display">MRP <del>₹{(product.price / (1 - product.discount/100)).toFixed(2)}</del></span>
+                                <span className="mrp-display">MRP <del>₹{(product.price / (1 - product.discount / 100)).toFixed(2)}</del></span>
                             )}
                         </div>
                         <p className="tax-info">Inclusive of all taxes</p>
@@ -142,7 +165,7 @@ function MedicineDetails() {
 
             {/* Success Notification */}
             {showSuccess && (
-                <motion.div 
+                <motion.div
                     className="toast success-toast floating-toast"
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}

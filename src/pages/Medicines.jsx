@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, AlertCircle, Pill } from 'lucide-react';
@@ -31,13 +31,13 @@ const playCartSound = (action) => {
 };
 
 const conditionFilters = [
-    { label: 'All', value: 'All', icon: <Activity size={18} /> },
-    { label: 'Fever', value: 'Fever', icon: <Thermometer size={18} /> },
-    { label: 'Heart', value: 'Heart', icon: <Heart size={18} /> },
-    { label: 'Immunity', value: 'Immunity', icon: <Shield size={18} /> },
-    { label: 'Allergy', value: 'Allergy', icon: <Activity size={18} /> },
-    { label: 'Diabetes', value: 'Diabetes', icon: <Activity size={18} /> },
-    { label: 'Thyroid', value: 'Thyroid', icon: <Activity size={18} /> }
+    { label: 'All', value: 'All' },
+    { label: 'Fever', value: 'Fever' },
+    { label: 'Heart', value: 'Heart' },
+    { label: 'Immunity', value: 'Immunity' },
+    { label: 'Allergy', value: 'Allergy' },
+    { label: 'Diabetes', value: 'Diabetes' },
+    { label: 'Thyroid', value: 'Thyroid' }
 ];
 
 const pharmacyCategories = [
@@ -66,12 +66,23 @@ function Medicines() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(null); // stores the product just added
     const [selectedMedicine, setSelectedMedicine] = useState(null); // for quick view detail modal
+    const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
     const [showProceedConfirm, setShowProceedConfirm] = useState(false);
     const [showBackConfirm, setShowBackConfirm] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
         name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
     });
+
+    // Prevent body scrolling when a modal or drawer is open
+    useEffect(() => {
+        if (isCartOpen || showProceedConfirm || showBackConfirm || addedToCart || selectedMedicine || orderComplete) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+        return () => document.body.classList.remove('modal-open');
+    }, [isCartOpen, showProceedConfirm, showBackConfirm, addedToCart, selectedMedicine, orderComplete]);
 
     const scrollToProducts = () => {
         const prodSection = document.getElementById('products-listing-start');
@@ -218,7 +229,7 @@ function Medicines() {
                                 className={`pill-btn ${selectedCondition === filter.value ? 'active' : ''}`}
                                 onClick={() => setSelectedCondition(filter.value)}
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    display: 'inline-block',
                                     padding: '8px 16px', borderRadius: 'var(--border-radius-full)',
                                     border: '1px solid var(--border-color)',
                                     backgroundColor: selectedCondition === filter.value ? 'var(--primary)' : 'var(--surface-color)',
@@ -226,7 +237,6 @@ function Medicines() {
                                     cursor: 'pointer', whiteSpace: 'nowrap', transition: 'var(--transition)'
                                 }}
                             >
-                                {filter.icon}
                                 {filter.label}
                             </button>
                         ))}
@@ -268,9 +278,11 @@ function Medicines() {
 
                                                     <div
                                                         className="product-image-container"
-                                                        onClick={() => setSelectedMedicine(medicine)}
+                                                        onClick={() => { setSelectedMedicine(medicine); setActiveModalImageIndex(0); }}
                                                     >
-                                                        {medicine.image_base64 ? (
+                                                        {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
+                                                            <img src={medicine.images[0]} alt={medicine.name} className="product-img" />
+                                                        ) : medicine.image_base64 ? (
                                                             <img src={medicine.image_base64} alt={medicine.name} className="product-img" />
                                                         ) : (
                                                             <div className="product-placeholder">
@@ -310,7 +322,7 @@ function Medicines() {
                                             );
                                         })()}
 
-                                        <div className="product-info-section" onClick={() => setSelectedMedicine(medicine)}>
+                                        <div className="product-info-section" onClick={() => { setSelectedMedicine(medicine); setActiveModalImageIndex(0); }}>
                                             <div className="product-price-row">
                                                 <span className="price-pill">₹{Number(medicine.price).toFixed(0)}</span>
                                                 {medicine.discount > 0 && (
@@ -634,7 +646,13 @@ function Medicines() {
 
                             {/* Product Info */}
                             <div className="atc-product">
-                                {addedToCart.image_base64 ? (
+                                {(Array.isArray(addedToCart.images) && addedToCart.images.length > 0) ? (
+                                    <img
+                                        src={addedToCart.images[0]}
+                                        alt={addedToCart.name}
+                                        className="atc-product-img"
+                                    />
+                                ) : addedToCart.image_base64 ? (
                                     <img
                                         src={addedToCart.image_base64}
                                         alt={addedToCart.name}
@@ -704,7 +722,26 @@ function Medicines() {
 
                             <div className="detail-grid">
                                 <div className="detail-image-sec">
-                                    {selectedMedicine.image_base64 ? (
+                                    {(Array.isArray(selectedMedicine.images) && selectedMedicine.images.length > 0) ? (
+                                        <div className="modal-gallery-layout">
+                                            <div className="modal-main-image-wrapper">
+                                                <img src={selectedMedicine.images[activeModalImageIndex]} alt={selectedMedicine.name} className="detail-main-img" />
+                                            </div>
+                                            {selectedMedicine.images.length > 1 && (
+                                                <div className="modal-thumbnails-wrapper">
+                                                    {selectedMedicine.images.map((img, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            className={`modal-thumbnail-btn ${activeModalImageIndex === idx ? 'active' : ''}`}
+                                                            onClick={(e) => { e.stopPropagation(); setActiveModalImageIndex(idx); }}
+                                                        >
+                                                            <img src={img} alt={`${selectedMedicine.name} thumb ${idx}`} />
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : selectedMedicine.image_base64 ? (
                                         <img src={selectedMedicine.image_base64} alt={selectedMedicine.name} className="detail-main-img" />
                                     ) : (
                                         <div className="detail-no-img">

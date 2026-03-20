@@ -115,7 +115,9 @@ function SurgicalProducts() {
                                     >
                                         <div className="product-image-section">
                                             <div className="product-image-container" onClick={() => setSelectedMedicine(medicine)}>
-                                                {medicine.image_base64 ? (
+                                                {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
+                                                    <img src={medicine.images[0]} alt={medicine.name} className="product-img" />
+                                                ) : medicine.image_base64 ? (
                                                     <img src={medicine.image_base64} alt={medicine.name} className="product-img" />
                                                 ) : (
                                                     <div className="product-placeholder"><Pill size={40} className="text-muted" /></div>
@@ -148,7 +150,7 @@ function SurgicalProducts() {
             {/* Reuse Cart and Modal Logic from Medicines.jsx or ideally a shared component. 
                 For speed and direct requirement fulfillment, I will simplify or include the essential ones.
             */}
-             <AnimatePresence>
+            <AnimatePresence>
                 {isCartOpen && (
                     <>
                         <motion.div className="cart-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} />
