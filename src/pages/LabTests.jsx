@@ -32,14 +32,31 @@ const playCartSound = (action) => {
 
 
 function LabTests() {
-    const { labTests, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
+    const { labTests, cart, addToCart, removeFromCart, clearCart, addOrder, uploadPrescription } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCondition, setSelectedCondition] = useState('All');
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
-    const [addedToCart, setAddedToCart] = useState(false);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+
+    const handlePrescriptionUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64 = reader.result;
+            const success = await uploadPrescription(base64);
+            if (success) {
+                alert('Prescription uploaded successfully! Our team will review it and contact you soon.');
+            } else {
+                alert('Upload failed. Please try again or call us directly.');
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+    const [addedToCart, setAddedToCart] = useState(false);
     const [showProceedConfirm, setShowProceedConfirm] = useState(false);
     const [showBackConfirm, setShowBackConfirm] = useState(false);
     const [customerDetails, setCustomerDetails] = useState({
@@ -183,9 +200,7 @@ function LabTests() {
                                 id="prescription-upload" 
                                 hidden 
                                 accept="image/*" 
-                                onChange={(e) => {
-                                    if(e.target.files[0]) alert('Prescription uploaded successfully! We will contact you soon.');
-                                }}
+                                onChange={handlePrescriptionUpload}
                             />
                             <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
                                 <Receipt size={20} />

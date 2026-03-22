@@ -9,6 +9,7 @@ export function AppProvider({ children }) {
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [prescriptions, setPrescriptions] = useState([]);
     const [cart, setCart] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -74,7 +75,12 @@ export function AppProvider({ children }) {
             if (ordersData) {
                 setOrders(ordersData);
             }
-
+            // Fetch prescriptions
+            const { data: presData, error: presError } = await supabase.from('prescriptions').select('*').order('created_at', { ascending: false });
+            if (presError) console.error("Error fetching prescriptions:", presError);
+            if (presData) {
+                setPrescriptions(presData);
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -198,6 +204,30 @@ export function AppProvider({ children }) {
             setOrders(prev => prev.map(order => order.id === id ? { ...order, status } : order));
         } else {
             console.error("Failed to update status", error);
+        }
+    };
+
+    const uploadPrescription = async (imageBase64) => {
+        const { data, error } = await supabase.from('prescriptions').insert([{
+            image_base64: imageBase64,
+            status: 'Pending'
+        }]).select();
+
+        if (data && !error) {
+            setPrescriptions(prev => [data[0], ...prev]);
+            return true;
+        } else {
+            console.error("Failed to upload prescription", error);
+            return false;
+        }
+    };
+
+    const updatePrescriptionStatus = async (id, status) => {
+        const { error } = await supabase.from('prescriptions').update({ status }).eq('id', id);
+        if (!error) {
+            setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status } : p));
+        } else {
+            console.error("Failed to update prescription status", error);
         }
     };
 
@@ -393,6 +423,9 @@ export function AppProvider({ children }) {
             orders,
             addOrder,
             updateOrderStatus,
+            prescriptions,
+            uploadPrescription,
+            updatePrescriptionStatus,
             loading
         }}>
             {children}
