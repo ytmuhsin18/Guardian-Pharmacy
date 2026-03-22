@@ -149,7 +149,7 @@ function Medicines() {
             address: customerDetails.address,
             pincode: customerDetails.pincode,
             email: customerDetails.email || null,
-            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, image: (Array.isArray(item.images) && item.images.length > 0) ? item.images[0] : (item.image_base64 || null) })),
             total_amount: cartTotal
         };
 

@@ -224,7 +224,16 @@ export function AppProvider({ children }) {
 
         if (data && data.length > 0) {
             const newMed = data[0];
-            setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock }]);
+            let parsedImages = [];
+            if (newMed.image_base64) {
+                try {
+                    const parsed = JSON.parse(newMed.image_base64);
+                    parsedImages = Array.isArray(parsed) ? parsed : [newMed.image_base64];
+                } catch (e) {
+                    parsedImages = [newMed.image_base64];
+                }
+            }
+            setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock, images: parsedImages }]);
             console.log("Medicine added successfully:", newMed);
             return true;
         }
@@ -300,8 +309,10 @@ export function AppProvider({ children }) {
                 availability_start: data[0].availability_start || '06:00 PM',
                 availability_end: data[0].availability_end || '10:00 PM'
             }]);
+            return true;
         } else {
             console.error("Failed to add doctor", error);
+            return false;
         }
     };
 
@@ -345,6 +356,17 @@ export function AppProvider({ children }) {
         }
     };
 
+    const deleteDoctor = async (id) => {
+        const { error } = await supabase.from('doctors').delete().eq('id', id);
+        if (!error) {
+            setDoctors(prev => prev.filter(doc => doc.id !== id));
+            return true;
+        } else {
+            console.error("Failed to delete doctor", error);
+            return false;
+        }
+    };
+
     return (
         <AppContext.Provider value={{
             medicines,
@@ -359,6 +381,7 @@ export function AppProvider({ children }) {
             updateDoctorImage,
             updateDoctorAvailability,
             updateDoctorData,
+            deleteDoctor,
             cart,
             addToCart,
             removeFromCart,

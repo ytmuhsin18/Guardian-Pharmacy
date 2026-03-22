@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Pill, Activity, Stethoscope, User, LogIn } from 'lucide-react';
+import { Home, Pill, Activity, Stethoscope, User, LogIn, Hash } from 'lucide-react';
 import './MobileNavbar.css';
 
 function MobileNavbar() {
@@ -21,6 +21,14 @@ function MobileNavbar() {
             <NavLink to="/lab-tests" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Activity size={20} />
                 <span>Lab Tests</span>
+            </NavLink>
+            <NavLink to="/surgical-products" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
+                <Stethoscope size={20} />
+                <span>Surgical</span>
+            </NavLink>
+            <NavLink to="/physiotherapy" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
+                <Activity size={20} />
+                <span>Physio</span>
             </NavLink>
 
         </div>

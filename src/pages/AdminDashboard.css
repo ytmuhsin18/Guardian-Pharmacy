@@ -78,9 +78,14 @@
     color: white;
 }
 
-.admin-sidebar-footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
+.mobile-logout-only {
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .mobile-logout-only {
+        margin-top: 0;
+    }
 }
 
 .text-danger {
@@ -351,59 +356,66 @@
 @media (max-width: 768px) {
     .admin-layout {
         flex-direction: column;
-        overflow-x: hidden;
     }
 
     .admin-sidebar {
         width: 100%;
         height: auto;
-        position: static;
+        position: sticky;
+        top: 72px;
+        z-index: 100;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        background: white;
+    }
+
+    .admin-profile {
+        display: none; /* Hide profile in mobile sidebar to save space */
+    }
+
+    .admin-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.5rem 1rem;
+        gap: 0.5rem;
+        scrollbar-width: none; /* Hide scrollbar Firefox */
+    }
+
+    .admin-nav::-webkit-scrollbar {
+        display: none; /* Hide scrollbar Chrome/Safari */
+    }
+
+    .admin-nav-item {
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+        font-size: 0.85rem;
+    }
+
+    .admin-sidebar-footer {
+        display: none; /* Hide logout in mobile list, maybe put in header? */
     }
 
     .admin-main {
         padding: 1rem;
-        overflow-x: hidden;
-        max-width: 100vw;
-    }
-
-    .admin-content {
-        overflow-x: hidden;
-    }
-
-    .appointments-table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        max-width: calc(100vw - 2rem);
-    }
-
-    .admin-table {
-        min-width: 600px;
-    }
-
-    .admin-table th,
-    .admin-table td {
-        padding: 0.75rem 0.75rem;
-        font-size: 0.8rem;
-    }
-
-    .doctors-edit-view {
-        overflow-x: hidden;
-    }
-
-    .doctors-edit-view .admin-table {
-        min-width: 600px;
-    }
-
-    .upload-form .form-row {
-        grid-template-columns: 1fr;
+        max-width: 100%;
     }
 
     .admin-header .title {
         font-size: 1.5rem;
     }
 
-    .medicines-scroll-wrapper {
-        max-height: 400px;
+    .appointments-table-wrapper {
+        max-width: calc(100vw - 2rem);
+    }
+
+    .admin-table {
+        min-width: 800px; /* Force scroll for wide data */
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
     }
 }
 

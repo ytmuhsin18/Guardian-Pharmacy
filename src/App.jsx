@@ -12,6 +12,7 @@ import MedicineDetails from './pages/MedicineDetails';
 import MobileNavbar from './components/MobileNavbar';
 import WhatsAppButton from './components/WhatsAppButton';
 import CustomerNotification from './components/CustomerNotification';
+import TokenStatus from './pages/TokenStatus';
 
 import SurgicalProducts from './pages/SurgicalProducts';
 import Physiotherapy from './pages/Physiotherapy';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/physiotherapy" element={<Physiotherapy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/tokens" element={<TokenStatus />} />
           </Routes>
         </main>
         <Footer />

@@ -194,16 +194,24 @@
 .location-content {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem;
-    padding: 4rem;
+    gap: 2rem;
+    padding: 2rem;
     background: white;
     border-radius: 2rem;
     align-items: center;
 }
 
+@media (max-width: 640px) {
+    .location-content {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+    }
+}
+
 @media (min-width: 992px) {
     .location-content {
         grid-template-columns: 1fr 1fr;
+        padding: 4rem;
     }
 }
 

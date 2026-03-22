@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, MapPin, Star, User, X, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import EmergencyBanner from '../components/EmergencyBanner';
 import './Doctors.css';
@@ -58,8 +59,13 @@ function Doctors() {
                 <div className="container text-center">
                     <h1 className="title">Our <span className="gradient-text">Specialists</span></h1>
                     <p className="subtitle" style={{ marginTop: '1rem', maxWidth: '600px', margin: '1rem auto 0' }}>
-                        Book a home appointment to visit our top-rated specialists at the hospital.
+                        Book appointments with our top-rated specialists or track your current status below.
                     </p>
+                    <div style={{ marginTop: '2rem' }}>
+                        <Link to="/tokens" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 8px 30px rgba(5, 150, 105, 0.25)' }}>
+                            <Hash size={20} /> CHECK LIVE TOKEN STATUS
+                        </Link>
+                    </div>
                 </div>
             </section>
 
@@ -80,32 +86,36 @@ function Doctors() {
                                         <div className="doc-exp-badge">{doc.experience}</div>
                                     </div>
 
-                                    <div className="doc-info">
-                                        <h3 className="doc-name">{doc.name}</h3>
-                                        <p className="doc-specialty text-primary">{doc.specialty}</p>
-
-                                        {/* Availability Badge */}
-                                        <div className="doc-availability-info">
-                                            <Clock size={14} className="text-primary" />
-                                            <span>Available: {doc.availability_start || '06:00 PM'} - {doc.availability_end || '10:00 PM'}</span>
+                                    <div className="doc-info" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <h3 className="doc-name" style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.5rem 0' }}>{doc.name.toUpperCase()}</h3>
+                                        <div className="doc-specialty-badge" style={{ 
+                                            background: '#f0fdfa', color: '#0d9488', padding: '4px 12px', 
+                                            borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, 
+                                            marginBottom: '1rem', border: '1px solid #ccfbf1' 
+                                        }}>
+                                            {doc.specialty.toUpperCase()}
                                         </div>
 
-                                        <div className="doc-stats">
-                                            <div className="stat">
-                                                <Star size={16} fill="#f59e0b" className="text-accent" />
-                                                <span>4.9</span>
-                                            </div>
-                                            <div className="stat">
-                                                <User size={16} className="text-muted" />
-                                                <span>10+ Reviews</span>
-                                            </div>
-                                        </div>
+                                        <p className="doc-about text-muted" style={{ fontSize: '0.85rem', marginBottom: '0.5rem', lineHeight: '1.4' }}>
+                                            {doc.about || "Expert clinical consultant specializing in advanced healthcare and patient care."}
+                                        </p>
+                                        
+                                        {doc.reg_no && (
+                                            <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+                                                REG NO: {doc.reg_no}
+                                            </p>
+                                        )}
 
                                         <button
-                                            className="btn btn-outline btn-block mt-4"
+                                            className="btn btn-primary btn-block mt-auto"
                                             onClick={() => setSelectedDoctor(doc)}
+                                            style={{ 
+                                                borderRadius: '12px', padding: '12px', fontWeight: 700, 
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                                gap: '8px', width: '100%', border: 'none'
+                                            }}
                                         >
-                                            View Profile & Book
+                                            <Calendar size={18} /> BOOK APPOINTMENT
                                         </button>
                                     </div>
                                 </motion.div>

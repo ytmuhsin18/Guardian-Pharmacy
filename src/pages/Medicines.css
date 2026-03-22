@@ -24,6 +24,30 @@
     }
 }
 
+.header-info-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .header-info-group {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+.header-banner-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    object-fit: cover;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+}
+
 .search-bar-container {
     display: flex;
     align-items: center;

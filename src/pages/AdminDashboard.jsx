@@ -7,7 +7,7 @@ import './AdminDashboard.css';
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const { appointments, updateAppointmentStatus, updateAppointmentToken, orders, updateOrderStatus, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock, medicines, doctors, updateDoctorImage, addDoctor, updateDoctorAvailability, updateDoctorData } = useApp();
+    const { appointments, updateAppointmentStatus, updateAppointmentToken, orders, updateOrderStatus, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock, medicines, doctors, updateDoctorImage, addDoctor, updateDoctorAvailability, updateDoctorData, deleteDoctor } = useApp();
     const [activeTab, setActiveTab] = useState('orders');
     const [newMedicine, setNewMedicine] = useState({
         name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: []
@@ -203,6 +203,15 @@ function AdminDashboard() {
         setEditingDoctorId(null);
     };
 
+    const handleDeleteDoctor = async (id, name) => {
+        if (window.confirm(`Are you sure you want to delete Dr. ${name}?`)) {
+            const success = await deleteDoctor(id);
+            if (!success) {
+                alert('Failed to delete doctor. Please try again.');
+            }
+        }
+    };
+
     const timeOptions = [
         '06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
         '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM',
@@ -252,14 +261,12 @@ function AdminDashboard() {
                         <Users size={20} />
                         Edit Doctors
                     </button>
-                </nav>
 
-                <div className="admin-sidebar-footer">
-                    <button className="admin-nav-item text-danger" onClick={handleLogout}>
+                    <button className="admin-nav-item text-danger mobile-logout-only" onClick={handleLogout}>
                         <LogOut size={20} />
                         Logout
                     </button>
-                </div>
+                </nav>
             </aside>
 
             {/* Main Content */}
@@ -304,11 +311,24 @@ function AdminDashboard() {
                                                         <span className="text-muted text-sm" style={{ whiteSpace: 'normal', display: 'inline-block', maxWidth: '200px' }}>{order.address}, {order.pincode}</span>
                                                     </td>
                                                     <td>
-                                                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem' }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                                             {order.items.map((item, idx) => (
-                                                                <li key={idx}>{item.name} x{item.quantity}</li>
+                                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                    {item.image ? (
+                                                                        <img
+                                                                            src={item.image}
+                                                                            alt={item.name}
+                                                                            style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', flexShrink: 0 }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                                            <Package size={16} style={{ color: '#94a3b8' }} />
+                                                                        </div>
+                                                                    )}
+                                                                    <span style={{ fontSize: '0.85rem' }}>{item.name} <strong>x{item.quantity}</strong></span>
+                                                                </div>
                                                             ))}
-                                                        </ul>
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <strong>₹{Number(order.total_amount).toFixed(2)}</strong>
@@ -523,7 +543,7 @@ function AdminDashboard() {
                                                     <option value="Home Care">Home Care</option>
                                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                                     <option value="Maternity Care">Maternity Care</option>
-                                                    <option value="Surgical Products">Surgical Products</option>
+                                                    <option value="Surgical Products">Ortho &amp; Surgical Products</option>
                                                     <option value="Physiotherapy">Physiotherapy</option>
                                                 </select>
                                             </div>
@@ -820,30 +840,32 @@ function AdminDashboard() {
                                                     accept="image/*"
                                                     className="input-field"
                                                     style={{ padding: '0.5rem' }}
-                                                    onChange={e => handleImageUpload(e, (base64) => setNewDoctor({ ...newDoctor, image_base64: base64 }))}
+                                                    onChange={e => handleImageUpload(e, (base64) => setNewDoctor(prev => ({ ...prev, image_base64: base64[0] })))}
                                                 />
                                             </div>
                                         </div>
                                         <div className="form-row">
                                             <div className="input-group">
                                                 <label className="input-label">Availability Start Time</label>
-                                                <select
+                                                <input
+                                                    type="text"
                                                     className="input-field"
+                                                    list="time-options"
+                                                    placeholder="e.g. 06:00 PM"
                                                     value={newDoctor.availability_start}
                                                     onChange={e => setNewDoctor({ ...newDoctor, availability_start: e.target.value })}
-                                                >
-                                                    {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                                                </select>
+                                                />
                                             </div>
                                             <div className="input-group">
                                                 <label className="input-label">Availability End Time</label>
-                                                <select
+                                                <input
+                                                    type="text"
                                                     className="input-field"
+                                                    list="time-options"
+                                                    placeholder="e.g. 10:00 PM"
                                                     value={newDoctor.availability_end}
                                                     onChange={e => setNewDoctor({ ...newDoctor, availability_end: e.target.value })}
-                                                >
-                                                    {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                                                </select>
+                                                />
                                             </div>
                                         </div>
                                         <div className="input-group">
@@ -906,21 +928,23 @@ function AdminDashboard() {
                                                         {editingAvailId === doc.id ? (
                                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                                                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                                                                    <select
+                                                                    <input
+                                                                        type="text"
+                                                                        list="time-options"
                                                                         value={availStart}
                                                                         onChange={e => setAvailStart(e.target.value)}
-                                                                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
-                                                                    >
-                                                                        {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                                                                    </select>
+                                                                        style={{ width: '100px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                                                        placeholder="Start"
+                                                                    />
                                                                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>to</span>
-                                                                    <select
+                                                                    <input
+                                                                        type="text"
+                                                                        list="time-options"
                                                                         value={availEnd}
                                                                         onChange={e => setAvailEnd(e.target.value)}
-                                                                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
-                                                                    >
-                                                                        {timeOptions.map(t => <option key={t} value={t}>{t}</option>)}
-                                                                    </select>
+                                                                        style={{ width: '100px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                                                        placeholder="End"
+                                                                    />
                                                                 </div>
                                                                 <div style={{ display: 'flex', gap: '4px' }}>
                                                                     <button className="btn-icon accept" onClick={() => handleAvailSave(doc.id)} style={{ width: '26px', height: '26px' }}><CheckCircle size={14} /></button>
@@ -966,6 +990,14 @@ function AdminDashboard() {
                                                                 />
                                                                 <Paperclip size={16} className="text-muted" />
                                                             </div>
+                                                            <button
+                                                                className="btn-icon reject"
+                                                                onClick={() => handleDeleteDoctor(doc.id, doc.name)}
+                                                                title="Delete Doctor"
+                                                                style={{ width: '32px', height: '32px', background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca' }}
+                                                            >
+                                                                <Trash2 size={16} />
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -974,6 +1006,10 @@ function AdminDashboard() {
                                     </table>
                                 </div>
                             </div>
+
+                            <datalist id="time-options">
+                                {timeOptions.map(t => <option key={t} value={t} />)}
+                            </datalist>
                         </motion.div>
                     )}
                 </div>

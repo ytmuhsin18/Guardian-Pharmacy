@@ -29,37 +29,7 @@ const playCartSound = (action) => {
     }
 };
 
-const conditionFilters = [
-    { label: 'Full Body Checkup', value: 'General', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Diabetes', value: 'Diabetes', icon: <Droplet className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Heart', value: 'Heart', icon: <Heart className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Blood Studies', value: 'Blood Studies', icon: <Droplet className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Vitamin', value: 'Immunity', icon: <Sun className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Thyroid', value: 'Thyroid', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Kidney', value: 'Kidney', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Liver', value: 'Liver', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Women\'s Health', value: 'Women', icon: <Users className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Senior Citizen', value: 'Senior Citizen', icon: <UserPlus className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Tax Saver', value: 'Tax Saver', icon: <Receipt className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Fever', value: 'Fever', icon: <Thermometer className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Hormone Screening', value: 'Hormone', icon: <TestTube className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Hairfall', value: 'Hairfall', icon: <User className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Dengue', value: 'Dengue', icon: <Bug className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Bone and Joint', value: 'Bone', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Allergy', value: 'Allergy', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Sexual Wellness', value: 'Sexual Wellness', icon: <Heart className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Immunity', value: 'Immunity', icon: <Shield className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Fever and Infection', value: 'Fever', icon: <Thermometer className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Reproductive & Fertility', value: 'Reproductive', icon: <Users className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Cancer Screening', value: 'Cancer', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Hepatitis Screening', value: 'Hepatitis', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Lungs', value: 'Lungs', icon: <Wind className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Weight Management...', value: 'Weight', icon: <Activity className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Iron Studies', value: 'Iron', icon: <Droplet className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'Covid 19', value: 'Covid', icon: <ShieldAlert className="health-icon" size={24} />, hasDiscount: false },
-    { label: 'PCOD Screening', value: 'PCOD', icon: <Activity className="health-icon" size={24} />, hasDiscount: true },
-    { label: 'Healthy 2024', value: 'Healthy 2024', icon: <Sparkles className="health-icon" size={24} />, hasDiscount: false, verified: true },
-];
+
 
 function LabTests() {
     const { labTests, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
@@ -138,7 +108,7 @@ function LabTests() {
             address: customerDetails.address,
             pincode: customerDetails.pincode,
             email: customerDetails.email || null,
-            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, image: (Array.isArray(item.images) && item.images.length > 0) ? item.images[0] : (item.image_base64 || null) })),
             total_amount: cartTotal
         };
 
@@ -164,152 +134,65 @@ function LabTests() {
                 <div className="container">
                     <div className="med-header-flex">
                         <div>
-                            <h1 className="title">Doctor Created <span className="gradient-text">Health Checks</span></h1>
-                            <p className="subtitle">Book lab tests from the comfort of your home.</p>
+                            <h1 className="title">Lab Tests &amp; <span className="gradient-text">Diagnostics</span></h1>
+                            <p className="subtitle">Book professional lab tests from the comfort of your home.</p>
                         </div>
 
-                        <div className="search-bar-container">
-                            <div className="search-input-wrapper">
-                                <Search className="search-icon text-muted" size={20} />
-                                <input
-                                    type="text"
-                                    className="input-field search-input"
-                                    placeholder="Search tests or checkups..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <button
-                                className="cart-btn"
-                                onClick={() => setIsCartOpen(true)}
-                            >
-                                <ShoppingCart size={24} className="text-primary" />
-                                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-                            </button>
-                        </div>
                     </div>
 
-                    {/* Condition Filters */}
-                    <div className="health-check-section" style={{ marginTop: '2.5rem' }}>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1.2rem', color: '#111827' }}>Doctor Created Health Check</h2>
-                        <div className="health-check-grid">
-                            {conditionFilters.map(filter => (
-                                <div
-                                    key={filter.label}
-                                    className={`health-check-card ${selectedCondition === filter.value || (selectedCondition === 'All' && filter.label === 'Full Body Checkup') ? 'active' : ''}`}
-                                    onClick={() => setSelectedCondition(filter.value)}
-                                >
-                                    <div style={{ position: 'relative', display: 'flex', minWidth: '24px' }}>
-                                        {filter.icon}
-                                        {filter.hasDiscount && (
-                                            <span style={{ position: 'absolute', bottom: -2, right: -4, background: '#f97316', color: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', border: '1px solid white' }}>%</span>
-                                        )}
-                                        {filter.verified && (
-                                            <span style={{ position: 'absolute', bottom: -2, right: -4, background: '#eab308', color: 'white', borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 'bold', border: '1px solid white' }}>✓</span>
-                                        )}
-                                    </div>
-                                    <span style={{ fontSize: '13.5px', fontWeight: 500, color: '#374151', lineHeight: 1.25, paddingLeft: '4px' }}>{filter.label}</span>
-                                </div>
-                            ))}
+                    <div className="quick-action-banners" style={{ 
+                        marginTop: '2.5rem', 
+                        display: 'flex', 
+                        gap: '1rem', 
+                        flexWrap: 'wrap',
+                        justifyContent: 'center'
+                    }}>
+                        <a href="tel:9487469098" className="action-banner-item" style={{ 
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                            maxWidth: '100%', textDecoration: 'none', color: 'inherit'
+                        }}>
+                            <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0 }}>
+                                <Phone size={20} />
+                            </div>
+                            <div style={{ overflow: 'hidden' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Book on Call</h3>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
+                            </div>
+                        </a>
+
+                        <div className="action-banner-item" style={{ 
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                            maxWidth: '100%'
+                        }} onClick={() => document.getElementById('prescription-upload').click()}>
+                            <input 
+                                type="file" 
+                                id="prescription-upload" 
+                                hidden 
+                                accept="image/*" 
+                                onChange={(e) => {
+                                    if(e.target.files[0]) alert('Prescription uploaded successfully! We will contact you soon.');
+                                }}
+                            />
+                            <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
+                                <Receipt size={20} />
+                            </div>
+                            <div style={{ overflow: 'hidden' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>JPG, PNG or PDF</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
             </section>
 
             {/* Products Grid */}
-            <section className="med-products">
-                <div className="container">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <h2>Top Booked Tests ({filteredTests.length})</h2>
-                    </div>
-                    <motion.div
-                        className="products-grid"
-                        layout
-                    >
-                        <AnimatePresence>
-                            {filteredTests.map((test) => (
-                                <motion.div
-                                    key={test.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="product-card"
-                                >
-                                    <div className="product-image-section">
-                                        <div className="bestseller-badge">Certified</div>
-                                        <div className="product-image-container">
-                                            <div className="product-placeholder">
-                                                <TestTube size={48} className="text-secondary" />
-                                            </div>
-                                        </div>
 
-                                        {(() => {
-                                            const cartItem = cart.find(item => item.id === test.id);
-                                            const quantity = cartItem ? cartItem.quantity : 0;
-
-                                            return quantity > 0 ? (
-                                                <div className="qty-selector-floating">
-                                                    <button className="qty-op-btn" onClick={() => removeFromCart(test.id)}>
-                                                        <Minus size={14} strokeWidth={3} />
-                                                    </button>
-                                                    <span className="qty-amount">{quantity}</span>
-                                                    <button className="qty-op-btn" onClick={() => addToCart(test)}>
-                                                        <Plus size={14} strokeWidth={3} />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    className="add-btn"
-                                                    onClick={() => {
-                                                        addToCart(test);
-                                                        playCartSound('add');
-                                                    }}
-                                                >
-                                                    <Plus size={20} strokeWidth={3} />
-                                                </button>
-                                            );
-                                        })()}
-                                    </div>
-
-                                    <div className="product-info-section">
-                                        <div className="product-price-row">
-                                            <span className="price-pill">₹{Number(test.price).toFixed(0)}</span>
-                                            <span className="mrp-old">₹{Number(test.originalPrice).toFixed(0)}</span>
-                                        </div>
-                                        <div className="savings-label">{test.discount} off</div>
-
-                                        <h3 className="product-name-new">{test.name}</h3>
-
-                                        <div className="product-meta-new">
-                                            <span className="pack-size">{test.testsIncluded} Tests Included</span>
-                                            <div className="product-tag-pill">{test.condition}</div>
-                                        </div>
-
-                                        <div className="product-footer-new" style={{ marginTop: 'auto' }}>
-                                            <div className="rating-row">
-                                                <div className="star-icon">★</div>
-                                                <span className="rating-val">4.9</span>
-                                                <span className="rating-count">(34.0k)</span>
-                                            </div>
-                                            <div className="no-fee">Home Sample Collection</div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </motion.div>
-
-                    {filteredTests.length === 0 && (
-                        <div className="empty-state">
-                            <div className="empty-icon"><Search size={48} className="text-muted" /></div>
-                            <h3>No lab tests found</h3>
-                            <p>We couldn't find any lab tests matching your criteria.</p>
-                        </div>
-                    )}
-                </div>
-            </section>
 
             {/* Slide-over Cart */}
             <AnimatePresence>

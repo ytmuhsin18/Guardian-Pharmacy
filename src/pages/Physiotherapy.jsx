@@ -29,33 +29,51 @@ function Physiotherapy() {
             <section className="med-header section-padding" style={{ background: '#f0fdfa' }}>
                 <div className="container">
                     <div className="med-header-flex">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                            <img src={physioBanner} alt="Physiotherapy" style={{ width: '120px', height: '120px', borderRadius: '20px', objectFit: 'cover', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+                        <div className="header-info-group">
+                            <img src={physioBanner} alt="Physiotherapy" className="header-banner-img" />
                             <div>
                                 <h1 className="title">Physiotherapy <span className="gradient-text">Studio</span></h1>
                                 <p className="subtitle">Premium equipment and tools for physiotherapy and recovery at home.</p>
                             </div>
                         </div>
 
-                        <div className="search-bar-container">
-                            <div className="search-input-wrapper">
-                                <Search className="search-icon text-muted" size={20} />
-                                <input
-                                    type="text"
-                                    className="input-field search-input"
-                                    placeholder="Search physiotherapy products..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
+                            <div className="search-bar-container">
+                                <div className="search-input-wrapper">
+                                    <Search className="search-icon text-muted" size={20} />
+                                    <input
+                                        type="text"
+                                        className="input-field search-input"
+                                        placeholder="Search physiotherapy products..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
+                                    <ShoppingCart size={24} className="text-primary" />
+                                    {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                                </button>
                             </div>
-                            <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
-                                <ShoppingCart size={24} className="text-primary" />
-                                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-                            </button>
+                        </div>
+
+                        {/* Quick Action: Home Appointment */}
+                        <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center' }}>
+                            <a href="tel:9487469098" className="action-banner-item" style={{ 
+                                background: 'white', border: '1px solid #0d9488', borderRadius: '24px', 
+                                padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', 
+                                cursor: 'pointer', boxShadow: '0 4px 15px rgba(13, 148, 136, 0.1)', 
+                                flex: '1', maxWidth: '450px', textDecoration: 'none', color: 'inherit'
+                            }}>
+                                <div style={{ background: '#f0fdfa', padding: '12px', borderRadius: '50%', color: '#0d9488', flexShrink: 0 }}>
+                                    <Activity size={24} />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Book Your Home Appointment</h3>
+                                    <p style={{ fontSize: '0.85rem', color: '#0d9488', margin: '4px 0 0 0', fontWeight: 600 }}>Professional Physiotherapy at Your Doorstep</p>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
             <section className="med-products">
                 <div className="container">

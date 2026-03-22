@@ -41,7 +41,7 @@ function SurgicalProducts() {
             address: customerDetails.address,
             pincode: customerDetails.pincode,
             email: customerDetails.email || null,
-            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, image: (Array.isArray(item.images) && item.images.length > 0) ? item.images[0] : (item.image_base64 || null) })),
             total_amount: cartTotal
         };
 
@@ -65,10 +65,10 @@ function SurgicalProducts() {
             <section className="med-header section-padding" style={{ background: '#f8fafc' }}>
                 <div className="container">
                     <div className="med-header-flex">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                            <img src={surgicalBanner} alt="Surgical Products" style={{ width: '120px', height: '120px', borderRadius: '20px', objectFit: 'cover', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }} />
+                        <div className="header-info-group">
+                            <img src={surgicalBanner} alt="Ortho & Surgical Products" className="header-banner-img" />
                             <div>
-                                <h1 className="title">Surgical <span className="gradient-text">Products</span></h1>
+                                <h1 className="title">Ortho &amp; <span className="gradient-text">Surgical Products</span></h1>
                                 <p className="subtitle">High-quality clinical and surgical equipment for healthcare needs.</p>
                             </div>
                         </div>
@@ -98,7 +98,7 @@ function SurgicalProducts() {
                     {filteredMedicines.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-icon"><AlertCircle size={48} className="text-muted" /></div>
-                            <h3>No surgical products found</h3>
+                            <h3>No ortho &amp; surgical products found</h3>
                             <p>We are currently updating our surgical equipment inventory. Please check back soon.</p>
                         </div>
                     ) : (

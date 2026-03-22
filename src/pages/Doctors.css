@@ -75,27 +75,32 @@
     margin-bottom: 0.25rem;
 }
 
-.doc-specialty {
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 0.75rem;
+/* Specialty Badge & About Text */
+.doc-specialty-badge {
+    background: #f0fdfa;
+    color: #0d9488;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border: 1px solid #ccfbf1;
+    text-transform: uppercase;
 }
 
-/* Doctor Availability Info on Card */
-.doc-availability-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: linear-gradient(135deg, #eff6ff, #e0f2fe);
-    border: 1px solid #bfdbfe;
-    border-radius: var(--border-radius-full);
-    font-size: 0.78rem;
+.doc-about {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.doc-reg {
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--primary-dark);
-    margin-bottom: 1rem;
-    white-space: nowrap;
-    width: fit-content;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
 }
 
 .doc-stats {
@@ -277,8 +282,14 @@
 
 .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 .icon-input-wrapper {
