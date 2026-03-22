@@ -5,24 +5,36 @@ import { useApp } from '../context/AppContext';
 import './Doctors.css'; // Reusing some doctor styles
 
 function TokenStatus() {
-    const { appointments, doctors } = useApp();
+    const { appointments, fetchData } = useApp();
     const [searchPhone, setSearchPhone] = useState('');
     const [foundAppointments, setFoundAppointments] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
+    const handleSearch = async (e) => {
+        if (e) e.preventDefault();
         setIsSearching(true);
         
-        // Filter appointments by phone number (last 10 digits to be safe)
-        const results = appointments.filter(apt => {
-            const aptPhone = apt.phone.replace(/\D/g, '').slice(-10);
-            const searchVal = searchPhone.replace(/\D/g, '').slice(-10);
-            return aptPhone === searchVal && searchVal.length >= 10;
-        });
+        // Fetch fresh data from context to make sure we see latest tokens
+        await fetchData();
         
-        setFoundAppointments(results);
-        setIsSearching(false);
+        // Use a small timeout to let state re-sync if needed (though context should be enough)
+        setTimeout(() => {
+            const cleanSearch = searchPhone.replace(/\D/g, '').slice(-10);
+            
+            if (cleanSearch.length < 10) {
+                setIsSearching(false);
+                return;
+            }
+
+            const results = appointments.filter(apt => {
+                const aptPhone = apt.phone.replace(/\D/g, '').slice(-10);
+                const aptWhatsapp = (apt.whatsapp || "").replace(/\D/g, '').slice(-10);
+                return aptPhone === cleanSearch || aptWhatsapp === cleanSearch;
+            });
+            
+            setFoundAppointments(results);
+            setIsSearching(false);
+        }, 300);
     };
 
     return (

@@ -426,7 +426,8 @@ export function AppProvider({ children }) {
             prescriptions,
             uploadPrescription,
             updatePrescriptionStatus,
-            loading
+            loading,
+            fetchData
         }}>
             {children}
         </AppContext.Provider>
