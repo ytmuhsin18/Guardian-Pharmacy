@@ -128,17 +128,27 @@ function LabTests() {
     };
 
     return (
-        <div className="medicines-page">
+        <motion.div 
+            className="medicines-page"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+        >
             {/* Header and Search */}
             <section className="med-header section-padding">
                 <div className="container">
-                    <div className="med-header-flex">
+                    <motion.div 
+                        className="med-header-flex"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                    >
                         <div>
                             <h1 className="title">Lab Tests &amp; <span className="gradient-text">Diagnostics</span></h1>
                             <p className="subtitle">Book professional lab tests from the comfort of your home.</p>
                         </div>
 
-                    </div>
+                    </motion.div>
 
                     <div className="quick-action-banners" style={{ 
                         marginTop: '2.5rem', 
@@ -469,7 +479,7 @@ function LabTests() {
                     </div>
                 </div>
             </section>
-        </div>
+        </motion.div>
     );
 }
 

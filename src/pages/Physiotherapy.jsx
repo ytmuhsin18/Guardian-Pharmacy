@@ -25,10 +25,20 @@ function Physiotherapy() {
     const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
     return (
-        <div className="medicines-page">
+        <motion.div 
+            className="medicines-page"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+        >
             <section className="med-header section-padding" style={{ background: '#f0fdfa' }}>
                 <div className="container">
-                    <div className="med-header-flex">
+                    <motion.div 
+                        className="med-header-flex"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                    >
                         <div className="header-info-group">
                             <img src={physioBanner} alt="Physiotherapy" className="header-banner-img" />
                             <div>
@@ -53,7 +63,7 @@ function Physiotherapy() {
                                     {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
                                 </button>
                             </div>
-                        </div>
+                    </motion.div>
 
                         {/* Quick Action: Home Appointment */}
                         <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center' }}>
@@ -128,7 +138,7 @@ function Physiotherapy() {
                     )}
                 </div>
             </section>
-        </div>
+        </motion.div>
     );
 }
 

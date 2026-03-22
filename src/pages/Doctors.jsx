@@ -53,11 +53,23 @@ function Doctors() {
     };
 
     return (
-        <div className="doctors-page">
+        <motion.div 
+            className="doctors-page"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+        >
             <EmergencyBanner />
             <section className="docs-header section-padding">
                 <div className="container text-center">
-                    <h1 className="title">Our <span className="gradient-text">Specialists</span></h1>
+                    <motion.h1 
+                        className="title"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        Our <span className="gradient-text">Specialists</span>
+                    </motion.h1>
                     <p className="subtitle" style={{ marginTop: '1rem', maxWidth: '600px', margin: '1rem auto 0' }}>
                         Book appointments with our top-rated specialists or track your current status below.
                     </p>
@@ -274,7 +286,7 @@ function Doctors() {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }
 
