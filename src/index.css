@@ -112,6 +112,30 @@ ul {
   border-radius: var(--border-radius-full);
   transition: var(--transition);
   gap: 0.5rem;
+  transform: scale(1);
+}
+
+.btn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.action-banner-item {
+  transition: var(--transition) !important;
+}
+
+.action-banner-item:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+  border-color: var(--primary) !important;
+}
+
+.action-banner-item:active {
+  transform: translateY(-2px) scale(0.99);
 }
 
 .btn-primary {
