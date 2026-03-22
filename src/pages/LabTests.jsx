@@ -145,7 +145,7 @@ function LabTests() {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="medicines-page"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,7 +154,7 @@ function LabTests() {
             {/* Header and Search */}
             <section className="med-header section-padding">
                 <div className="container">
-                    <motion.div 
+                    <motion.div
                         className="med-header-flex"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -167,16 +167,16 @@ function LabTests() {
 
                     </motion.div>
 
-                    <div className="quick-action-banners" style={{ 
-                        marginTop: '2.5rem', 
-                        display: 'flex', 
-                        gap: '1rem', 
+                    <div className="quick-action-banners" style={{
+                        marginTop: '2.5rem',
+                        display: 'flex',
+                        gap: '1rem',
                         flexWrap: 'wrap',
                         justifyContent: 'center'
                     }}>
-                        <a href="tel:9487469098" className="action-banner-item" style={{ 
-                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
-                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                        <a href="tel:9487469098" className="action-banner-item" style={{
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
                             cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
                             maxWidth: '100%', textDecoration: 'none', color: 'inherit'
                         }}>
@@ -189,17 +189,17 @@ function LabTests() {
                             </div>
                         </a>
 
-                        <div className="action-banner-item" style={{ 
-                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
-                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                        <div className="action-banner-item" style={{
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
                             cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
                             maxWidth: '100%'
                         }} onClick={() => document.getElementById('prescription-upload').click()}>
-                            <input 
-                                type="file" 
-                                id="prescription-upload" 
-                                hidden 
-                                accept="image/*" 
+                            <input
+                                type="file"
+                                id="prescription-upload"
+                                hidden
+                                accept="image/*"
                                 onChange={handlePrescriptionUpload}
                             />
                             <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, AlertCircle, Pill } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, AlertCircle, Pill, Phone, Receipt, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css';
 
@@ -57,13 +57,32 @@ const pharmacyCategories = [
 
 function Medicines() {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder, uploadPrescription } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedCondition, setSelectedCondition] = useState('All');
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
+    const [uploadComplete, setUploadComplete] = useState(false);
+
+    const handlePrescriptionUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64 = reader.result;
+            const success = await uploadPrescription(base64);
+            if (success) {
+                setUploadComplete(true);
+                setTimeout(() => setUploadComplete(false), 4000);
+            } else {
+                alert('Upload failed. Please try again or call us directly.');
+            }
+        };
+        reader.readAsDataURL(file);
+    };
     const [addedToCart, setAddedToCart] = useState(null); // stores the product just added
     const [selectedMedicine, setSelectedMedicine] = useState(null); // for quick view detail modal
     const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
@@ -200,6 +219,56 @@ function Medicines() {
                         </div>
                     </div>
 
+                    <div className="quick-action-banners" style={{ 
+                        marginTop: '2.5rem', 
+                        display: 'flex', 
+                        gap: '1rem', 
+                        flexWrap: 'wrap',
+                        justifyContent: 'center'
+                    }}>
+                        <a href="tel:9487469098" className="action-banner-item" style={{ 
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                            maxWidth: '400px', textDecoration: 'none', color: 'inherit'
+                        }}>
+                            <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0 }}>
+                                <Phone size={20} />
+                            </div>
+                            <div style={{ overflow: 'hidden' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
+                            </div>
+                        </a>
+
+                        <div className="action-banner-item" style={{ 
+                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px', 
+                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', 
+                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                            maxWidth: '400px'
+                        }} onClick={() => document.getElementById('prescription-upload').click()}>
+                            <input 
+                                type="file" 
+                                id="prescription-upload" 
+                                hidden 
+                                accept="image/*" 
+                                onChange={handlePrescriptionUpload}
+                            />
+                            <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
+                                <Receipt size={20} />
+                            </div>
+                            <div style={{ overflow: 'hidden' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>Order with camera</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Categories and Filters Section */}
+            <section className="med-categories">
+                <div className="container">
                     {/* Categories Grid Section - "This Model" */}
                     <div className="categories-section">
                         <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 700 }}>Shop by Category</h2>
@@ -848,6 +917,29 @@ function Medicines() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            {/* Prescription Upload Success Modal */}
+            <AnimatePresence>
+                {uploadComplete && (
+                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 10001 }}>
+                        <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
+                            <motion.div
+                                initial={{ scale: 0, rotate: -30 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                style={{ color: '#ec4899', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}
+                            >
+                                <Sparkles size={72} fill="#ec4899" color="white" />
+                            </motion.div>
+                            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#ec4899', fontWeight: 800 }}>Thank you for your upload!</h2>
+                            <p style={{ fontSize: '1.1rem', color: '#475569', lineHeight: 1.6, fontWeight: 500 }}>Our admin will respond to you within a few minutes.</p>
+                            <div style={{ marginTop: '1.5rem', padding: '10px 20px', background: '#fdf2f8', borderRadius: '12px', color: '#be185d', fontSize: '0.9rem', fontWeight: 600 }}>
+                                Prescription Received Successfully
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 }
