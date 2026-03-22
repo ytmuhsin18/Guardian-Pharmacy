@@ -14,17 +14,17 @@ function MobileNavbar() {
                 <Pill size={20} />
                 <span>Medicines</span>
             </NavLink>
+            <NavLink to="/surgical-products" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
+                <Stethoscope size={20} />
+                <span>Ortho</span>
+            </NavLink>
             <NavLink to="/doctors" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Stethoscope size={20} />
                 <span>Doctors</span>
             </NavLink>
             <NavLink to="/lab-tests" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Activity size={20} />
-                <span>Lab Tests</span>
-            </NavLink>
-            <NavLink to="/surgical-products" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
-                <Stethoscope size={20} />
-                <span>Surgical</span>
+                <span>Labs</span>
             </NavLink>
             <NavLink to="/physiotherapy" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Activity size={20} />

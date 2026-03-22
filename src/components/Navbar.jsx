@@ -18,9 +18,9 @@ function Navbar() {
                 <div className="nav-links desktop-only">
                     <Link to="/" className="nav-link">Home</Link>
                     <Link to="/medicines" className="nav-link">Medicines</Link>
+                    <Link to="/surgical-products" className="nav-link">Ortho &amp; Surgical Products</Link>
                     <Link to="/lab-tests" className="nav-link">Lab Tests</Link>
                     <Link to="/doctors" className="nav-link">Doctors</Link>
-                    <Link to="/surgical-products" className="nav-link">Ortho &amp; Surgical Products</Link>
                     <Link to="/physiotherapy" className="nav-link">Physiotherapy</Link>
                 </div>
 
