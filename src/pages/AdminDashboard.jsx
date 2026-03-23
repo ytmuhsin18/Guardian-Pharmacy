@@ -525,14 +525,14 @@ function AdminDashboard() {
                                                         <span className="text-muted text-sm">{new Date(pres.created_at).toLocaleTimeString()}</span>
                                                     </td>
                                                     <td>
-                                                        <div 
+                                                        <div
                                                             className="prescription-thumbnail"
                                                             style={{ cursor: 'pointer', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', width: '120px', height: '120px' }}
                                                             onClick={() => window.open(pres.image_base64, '_blank')}
                                                         >
-                                                            <img 
-                                                                src={pres.image_base64} 
-                                                                alt="Prescription" 
+                                                            <img
+                                                                src={pres.image_base64}
+                                                                alt="Prescription"
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             />
                                                         </div>

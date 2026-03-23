@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash } from 'lucide-react';
+import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import EmergencyBanner from '../components/EmergencyBanner';
@@ -74,9 +74,34 @@ function Doctors() {
                         Book appointments with our top-rated specialists or track your current status below.
                     </p>
                     <div style={{ marginTop: '2rem' }}>
-                        <Link to="/tokens" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', borderRadius: '14px', textDecoration: 'none', boxShadow: '0 8px 30px rgba(5, 150, 105, 0.25)' }}>
-                            <Hash size={20} /> CHECK LIVE TOKEN STATUS
-                        </Link>
+                        <motion.div
+                            animate={{ scale: [1, 1.02, 1] }}
+                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                            style={{ display: 'inline-block' }}
+                        >
+                            <Link to="/tokens" className="btn btn-primary" style={{ 
+                                display: 'inline-flex', alignItems: 'center', gap: '14px', 
+                                padding: '12px 28px', borderRadius: '18px', textDecoration: 'none', 
+                                boxShadow: '0 8px 30px rgba(5, 150, 105, 0.25)',
+                                background: 'linear-gradient(135deg, #10b981, #059669)'
+                            }}>
+                                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px', borderRadius: '12px' }}>
+                                    <Hash size={24} color="white" />
+                                </div>
+                                <div style={{ textAlign: 'left' }}>
+                                    <div style={{ color: 'white', fontWeight: 800, fontSize: '1rem', letterSpacing: '0.5px' }}>CHECK LIVE TOKEN STATUS</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                                        <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'rgba(255,255,255,0.9)', letterSpacing: '1px' }}>TAP HERE</span>
+                                        <motion.div
+                                            animate={{ x: [0, 4, 0] }}
+                                            transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                                        >
+                                            <Hand size={14} color="white" fill="white" fillOpacity={0.2} />
+                                        </motion.div>
+                                    </div>
+                                </div>
+                            </Link>
+                        </motion.div>
                     </div>
                 </div>
             </section>

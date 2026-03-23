@@ -1,8 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Pill, User, Menu, LogIn } from 'lucide-react';
+import { 
+    Home, 
+    Pill, 
+    ShieldPlus, 
+    FlaskConical, 
+    UserRound, 
+    Accessibility,
+    Menu,
+    Sparkles
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 import logo from '../assets/gp-logo-new.png';
+
+const NavLink = ({ to, children, IconComponent }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    return (
+        <Link 
+            to={to} 
+            className="nav-link" 
+            style={{ 
+                position: 'relative', 
+                padding: '8px 12px',
+                borderRadius: '12px',
+                transition: 'color 0.3s ease',
+                color: isHovered ? 'var(--primary)' : 'var(--text-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                overflow: 'hidden',
+                minWidth: 'fit-content'
+            }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 2 }}>
+                <div style={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    <AnimatePresence>
+                        {isHovered && IconComponent && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0, x: -10 }}
+                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                exit={{ opacity: 0, scale: 0, x: -10 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                style={{ position: 'absolute' }}
+                            >
+                                <IconComponent size={16} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                <motion.span
+                    animate={{ x: isHovered ? 0 : -10 }}
+                    style={{ fontWeight: 600, transition: 'all 0.3s ease' }}
+                >
+                    {children}
+                </motion.span>
+            </div>
+            
+            <AnimatePresence>
+                {isHovered && (
+                    <motion.div
+                        layoutId="nav-hover-pill"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(16, 185, 129, 0.08)',
+                            borderRadius: '14px',
+                            zIndex: 1,
+                            border: '1px solid rgba(16, 185, 129, 0.1)'
+                        }}
+                    />
+                )}
+            </AnimatePresence>
+        </Link>
+    );
+};
 
 function Navbar() {
     return (
@@ -15,17 +92,17 @@ function Navbar() {
                     </span>
                 </Link>
 
-                <div className="nav-links desktop-only">
-                    <Link to="/" className="nav-link">Home</Link>
-                    <Link to="/medicines" className="nav-link">Medicines</Link>
-                    <Link to="/surgical-products" className="nav-link">Ortho &amp; Surgical Products</Link>
-                    <Link to="/lab-tests" className="nav-link">Lab Tests</Link>
-                    <Link to="/doctors" className="nav-link">Doctors</Link>
-                    <Link to="/physiotherapy" className="nav-link">Physiotherapy</Link>
+                <div className="nav-links desktop-only" style={{ gap: '0.75rem' }}>
+                    <NavLink to="/" IconComponent={Home}>Home</NavLink>
+                    <NavLink to="/medicines" IconComponent={Pill}>Medicines</NavLink>
+                    <NavLink to="/surgical-products" IconComponent={ShieldPlus}>Ortho &amp; Surgical Products</NavLink>
+                    <NavLink to="/lab-tests" IconComponent={FlaskConical}>Lab Tests</NavLink>
+                    <NavLink to="/doctors" IconComponent={UserRound}>Doctors</NavLink>
+                    <NavLink to="/physiotherapy" IconComponent={Accessibility}>Physiotherapy</NavLink>
                 </div>
 
                 <div className="nav-actions desktop-only">
-
+                    {/* Secondary actions can be added here */}
                 </div>
             </div>
         </nav>

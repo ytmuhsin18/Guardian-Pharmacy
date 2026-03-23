@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, Thermometer, Shield, AlertCircle, Pill } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Heart, Thermometer, Shield, AlertCircle, Pill, Hand } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css'; // Reuse existing styles
 import physioBanner from '../assets/physiotherapy.png';
@@ -73,12 +73,18 @@ function Physiotherapy() {
                                 cursor: 'pointer', boxShadow: '0 4px 15px rgba(13, 148, 136, 0.1)', 
                                 flex: '1', maxWidth: '450px', textDecoration: 'none', color: 'inherit'
                             }}>
-                                <div style={{ background: '#f0fdfa', padding: '12px', borderRadius: '50%', color: '#0d9488', flexShrink: 0 }}>
-                                    <Activity size={24} />
-                                </div>
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Book Your Home Appointment</h3>
                                     <p style={{ fontSize: '0.85rem', color: '#0d9488', margin: '4px 0 0 0', fontWeight: 600 }}>Professional Physiotherapy at Your Doorstep</p>
+                                </div>
+                                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', color: '#0d9488', background: '#f0fdfa', padding: '8px 12px', borderRadius: '16px' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 900, letterSpacing: '0.5px' }}>TAP TO BOOK</span>
+                                    <motion.div
+                                        animate={{ x: [0, 4, 0] }}
+                                        transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                                    >
+                                        <Hand size={18} fill="currentColor" fillOpacity={0.1} />
+                                    </motion.div>
                                 </div>
                             </a>
                         </div>
@@ -89,7 +95,6 @@ function Physiotherapy() {
                 <div className="container">
                     {filteredMedicines.length === 0 ? (
                         <div className="empty-state">
-                            <div className="empty-icon"><Activity size={48} className="text-muted" /></div>
                             <h3>No physiotherapy products found</h3>
                             <p>We are currently updating our physiotherapy inventory. Please check back soon.</p>
                         </div>
