@@ -120,6 +120,7 @@
     border-radius: var(--border-radius-md);
     background: white;
     box-shadow: var(--shadow-sm);
+    contain: content;
 }
 
 .admin-table {
@@ -269,6 +270,7 @@
     overflow-y: auto;
     border-radius: var(--border-radius-md);
     border: 1px solid var(--border-color);
+    content-visibility: auto;
 }
 
 .medicines-scroll-wrapper::-webkit-scrollbar {

@@ -5,6 +5,11 @@ import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, The
 import { useApp } from '../context/AppContext';
 import './Medicines.css';
 
+// Modular Components
+import ProductCard from '../components/medicines/ProductCard';
+import CartDrawer from '../components/medicines/CartDrawer';
+import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
+
 const playCartSound = (action) => {
     try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -30,60 +35,70 @@ const playCartSound = (action) => {
     }
 };
 
-const conditionFilters = [
-    { label: 'All', value: 'All' },
-    { label: 'Fever', value: 'Fever' },
-    { label: 'Heart', value: 'Heart' },
-    { label: 'Immunity', value: 'Immunity' },
-    { label: 'Allergy', value: 'Allergy' },
-    { label: 'Diabetes', value: 'Diabetes' },
-    { label: 'Thyroid', value: 'Thyroid' }
-];
 
-const pharmacyCategories = [
-    { id: 1, label: 'Baby Care', value: 'Baby Care', image: 'https://images.unsplash.com/photo-1515488442478-d069dc52331b?q=80&w=200&auto=format&fit=crop', color: '#fef2f2' },
-    { id: 2, label: 'Pharma & Wellness', value: 'Pharmacy', image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&auto=format&fit=crop', color: '#eefcfd' },
-    { id: 3, label: 'Skin Care', value: 'Skin Care', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&auto=format&fit=crop', color: '#f0f9ff' },
-    { id: 4, label: 'Vitamins', value: 'Vitamins', image: 'https://images.unsplash.com/photo-1471864190281-ad599f73bc24?q=80&w=200&auto=format&fit=crop', color: '#fdfaea' },
-    { id: 5, label: 'Personal Care', value: 'Personal Care', image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=200&auto=format&fit=crop', color: '#f5f3ff' },
-    { id: 6, label: 'Ayurvedic', value: 'Ayurvedic', image: 'https://images.unsplash.com/photo-1540348563406-ed430266472b?q=80&w=200&auto=format&fit=crop', color: '#f0fdf4' },
-    { id: 7, label: 'Pain Relief', value: 'Pain Relief', image: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?q=80&w=200&auto=format&fit=crop', color: '#fff7ed' },
-    { id: 8, label: 'First Aid', value: 'First Aid', image: 'https://images.unsplash.com/photo-1603398938378-e54eab446fec?q=80&w=200&auto=format&fit=crop', color: '#fefce8' },
-    { id: 9, label: 'Devices', value: 'Healthcare Devices', image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?q=80&w=200&auto=format&fit=crop', color: '#ecfeff' },
-    { id: 10, label: 'Home Care', value: 'Home Care', image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=200&auto=format&fit=crop', color: '#fdf4ff' },
-    { id: 11, label: 'Sexual Wellness', value: 'Sexual Wellness', image: 'https://images.unsplash.com/photo-1576091160550-217359f4ecf8?q=80&w=200&auto=format&fit=crop', color: '#fff1f2' },
-    { id: 12, label: 'Maternity', value: 'Maternity Care', image: 'https://images.unsplash.com/photo-1515488442478-d069dc52331b?q=80&w=200&auto=format&fit=crop', color: '#fdf2f8' },
-];
+const TypewriterPlaceholder = ({ searchTerm, setSearchTerm }) => {
+    const placeholders = [
+        "Search Paracetamol...",
+        "Search Ibuprofen...",
+        "Search Amoxicillin...",
+        "Search Vitamin C...",
+        "Search Baby Care...",
+        "Search First Aid...",
+        "Search Skin Care...",
+        "Search for medicines...",
+        "Search for categories..."
+    ];
+
+    const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+    const [currentText, setCurrentText] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [speed, setSpeed] = useState(150);
+
+    useEffect(() => {
+        const handleType = () => {
+            const i = currentPlaceholderIndex % placeholders.length;
+            const fullText = placeholders[i];
+
+            if (isDeleting) {
+                setCurrentText(fullText.substring(0, currentText.length - 1));
+                setSpeed(50);
+            } else {
+                setCurrentText(fullText.substring(0, currentText.length + 1));
+                setSpeed(150);
+            }
+
+            if (!isDeleting && currentText === fullText) {
+                setTimeout(() => setIsDeleting(true), 1500);
+            } else if (isDeleting && currentText === "") {
+                setIsDeleting(false);
+                setCurrentPlaceholderIndex(i + 1);
+                setSpeed(500);
+            }
+        };
+
+        const timer = setTimeout(handleType, speed);
+        return () => clearTimeout(timer);
+    }, [currentText, isDeleting, currentPlaceholderIndex, speed, placeholders]);
+
+    return (
+        <input
+            type="text"
+            className="input-field search-input"
+            placeholder={searchTerm ? "" : currentText}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+        />
+    );
+};
 
 function Medicines() {
     const navigate = useNavigate();
     const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder, uploadPrescription } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const [selectedCondition, setSelectedCondition] = useState('All');
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
-    const [uploadComplete, setUploadComplete] = useState(false);
 
-    const handlePrescriptionUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-            const base64 = reader.result;
-            const success = await uploadPrescription(base64);
-            if (success) {
-                setUploadComplete(true);
-                setTimeout(() => setUploadComplete(false), 4000);
-            } else {
-                alert('Upload failed. Please try again or call us directly.');
-            }
-        };
-        reader.readAsDataURL(file);
-    };
-    const [addedToCart, setAddedToCart] = useState(null); // stores the product just added
     const [selectedMedicine, setSelectedMedicine] = useState(null); // for quick view detail modal
     const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
@@ -95,13 +110,13 @@ function Medicines() {
 
     // Prevent body scrolling when a modal or drawer is open
     useEffect(() => {
-        if (isCartOpen || showProceedConfirm || showBackConfirm || addedToCart || selectedMedicine || orderComplete) {
+        if (isCartOpen || showProceedConfirm || showBackConfirm || selectedMedicine || orderComplete) {
             document.body.classList.add('modal-open');
         } else {
             document.body.classList.remove('modal-open');
         }
         return () => document.body.classList.remove('modal-open');
-    }, [isCartOpen, showProceedConfirm, showBackConfirm, addedToCart, selectedMedicine, orderComplete]);
+    }, [isCartOpen, showProceedConfirm, showBackConfirm, selectedMedicine, orderComplete]);
 
     const scrollToProducts = () => {
         const prodSection = document.getElementById('products-listing-start');
@@ -110,13 +125,7 @@ function Medicines() {
         }
     };
 
-    const handleCategoryClick = (catValue) => {
-        const newValue = catValue === selectedCategory ? 'All' : catValue;
-        setSelectedCategory(newValue);
-        if (newValue !== 'All') {
-            setTimeout(scrollToProducts, 100);
-        }
-    };
+
 
     const handleAddToCartItem = (item) => {
         addToCart(item);
@@ -128,13 +137,12 @@ function Medicines() {
         playCartSound('remove');
     };
 
-    const filteredMedicines = medicines.filter(med => {
-        const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            med.category.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCondition = selectedCondition === 'All' || med.condition === selectedCondition;
-        const matchesCategory = selectedCategory === 'All' || med.category.toLowerCase().includes(selectedCategory.toLowerCase());
-        return matchesSearch && matchesCondition && matchesCategory;
-    });
+    const filteredMedicines = React.useMemo(() => {
+        return medicines.filter(med => {
+            return med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                med.category.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    }, [medicines, searchTerm]);
 
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -199,119 +207,103 @@ function Medicines() {
                         </div>
 
                         <div className="search-bar-container">
-                            <div className="search-input-wrapper">
-                                <Search className="search-icon text-muted" size={20} />
-                                <input
-                                    type="text"
-                                    className="input-field search-input"
-                                    placeholder="Search medicines or categories..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                            <motion.div 
+                                className="search-input-wrapper"
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileFocus={{ scale: 1.08, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+                                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                                style={{ position: 'relative', flexGrow: 1 }}
+                            >
+                                <Search 
+                                    className="search-icon text-muted" 
+                                    size={20} 
+                                    style={{ 
+                                        position: 'absolute', left: '1rem', top: '50%', 
+                                        transform: 'translateY(-50%)', zIndex: 10,
+                                        pointerEvents: 'none'
+                                    }}
                                 />
-                            </div>
-                            <button
+                                <TypewriterPlaceholder 
+                                    searchTerm={searchTerm}
+                                    setSearchTerm={setSearchTerm}
+                                />
+                                {searchTerm && (
+                                    <button 
+                                        onClick={() => setSearchTerm('')}
+                                        style={{ 
+                                            position: 'absolute', right: '1rem', top: '50%', 
+                                            transform: 'translateY(-50%)', background: 'none', 
+                                            border: 'none', color: '#64748b', cursor: 'pointer',
+                                            zIndex: 20, display: 'flex', alignItems: 'center'
+                                        }}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                )}
+                            </motion.div>
+                            <motion.button
                                 className="cart-btn"
                                 onClick={() => setIsCartOpen(true)}
+                                whileHover={{ scale: 1.2 }}
+                                whileTap={{ scale: 0.9 }}
                             >
                                 <ShoppingCart size={24} className="text-primary" />
                                 {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-                            </button>
+                            </motion.button>
                         </div>
                     </div>
 
-                    <div className="quick-action-banners" style={{
-                        marginTop: '2.5rem',
-                        display: 'flex',
-                        gap: '1rem',
-                        flexWrap: 'wrap',
-                        justifyContent: 'center'
-                    }}>
-                        <a href="tel:9487469098" className="action-banner-item" style={{
-                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                            maxWidth: '400px', textDecoration: 'none', color: 'inherit'
-                        }}>
-                            <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0 }}>
-                                <Phone size={20} />
-                            </div>
-                            <div style={{ overflow: 'hidden' }}>
-                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
-                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
-                            </div>
-                        </a>
-
-                        <div className="action-banner-item" style={{
-                            background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                            padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                            maxWidth: '400px'
-                        }} onClick={() => document.getElementById('prescription-upload').click()}>
-                            <input
-                                type="file"
-                                id="prescription-upload"
-                                hidden
-                                accept="image/*"
-                                onChange={handlePrescriptionUpload}
-                            />
-                            <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
-                                <Receipt size={20} />
-                            </div>
-                            <div style={{ overflow: 'hidden' }}>
-                                <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
-                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>Order with camera</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Categories and Filters Section */}
-            <section className="med-categories">
-                <div className="container">
-                    {/* Categories Grid Section - "This Model" */}
-                    <div className="categories-section">
-                        <h2 className="section-title" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 700 }}>Shop by Category</h2>
-                        <div className="category-grid">
-                            {pharmacyCategories.map(cat => (
-                                <motion.div
-                                    key={cat.id}
-                                    className={`category-item ${selectedCategory === cat.value ? 'active' : ''}`}
-                                    onClick={() => handleCategoryClick(cat.value)}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <div className="category-image-wrapper" style={{ backgroundColor: cat.color }}>
-                                        <img src={cat.image} alt={cat.label} className="category-img" />
-                                    </div>
-                                    <span className="category-label">{cat.label}</span>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Condition Filters */}
-                    <div className="condition-filters" style={{ marginTop: '20px', display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
-                        {conditionFilters.map(filter => (
-                            <button
-                                key={filter.value}
-                                className={`pill-btn ${selectedCondition === filter.value ? 'active' : ''}`}
-                                onClick={() => setSelectedCondition(filter.value)}
+                    <AnimatePresence>
+                        {!searchTerm && (
+                            <motion.div 
+                                className="quick-action-banners" 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
                                 style={{
-                                    display: 'inline-block',
-                                    padding: '8px 16px', borderRadius: 'var(--border-radius-full)',
-                                    border: '1px solid var(--border-color)',
-                                    backgroundColor: selectedCondition === filter.value ? 'var(--primary)' : 'var(--surface-color)',
-                                    color: selectedCondition === filter.value ? 'white' : 'var(--text-main)',
-                                    cursor: 'pointer', whiteSpace: 'nowrap', transition: 'var(--transition)'
+                                    marginTop: '2.5rem',
+                                    display: 'flex',
+                                    gap: '1rem',
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'center',
+                                    overflow: 'hidden'
                                 }}
                             >
-                                {filter.label}
-                            </button>
-                        ))}
-                    </div>
+                                <a href="tel:9487469098" className="action-banner-item" style={{
+                                    background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                                    padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+                                    cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                                    maxWidth: '400px', textDecoration: 'none', color: 'inherit'
+                                }}>
+                                    <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0 }}>
+                                        <Phone size={20} />
+                                    </div>
+                                    <div style={{ overflow: 'hidden' }}>
+                                        <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
+                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
+                                    </div>
+                                </a>
+
+                                <a href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines." target="_blank" rel="noopener noreferrer" className="action-banner-item" style={{
+                                    background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                                    padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+                                    cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                                    maxWidth: '400px', textDecoration: 'none', color: 'inherit'
+                                }}>
+                                    <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
+                                        <Receipt size={20} />
+                                    </div>
+                                    <div style={{ overflow: 'hidden' }}>
+                                        <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
+                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>Send on WhatsApp</p>
+                                    </div>
+                                </a>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </section>
+
 
             {/* Products Grid */}
             <section className="med-products" id="products-listing-start">
@@ -325,101 +317,14 @@ function Medicines() {
                         >
                             <AnimatePresence>
                                 {filteredMedicines.map((medicine) => (
-                                    <motion.div
+                                    <ProductCard 
                                         key={medicine.id}
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.9 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="product-card"
-                                    >
-                                        {(() => {
-                                            const cartItem = cart.find(item => item.id === medicine.id);
-                                            const quantity = cartItem ? cartItem.quantity : 0;
-
-                                            return (
-                                                <div className="product-image-section">
-                                                    {/* Bestseller Badge */}
-                                                    {(medicine.price > 100 || medicine.discount > 5) && (
-                                                        <div className="bestseller-badge">Bestseller</div>
-                                                    )}
-
-                                                    <div
-                                                        className="product-image-container"
-                                                        onClick={() => { setSelectedMedicine(medicine); setActiveModalImageIndex(0); }}
-                                                    >
-                                                        {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
-                                                            <img src={medicine.images[0]} alt={medicine.name} className="product-img" />
-                                                        ) : medicine.image_base64 ? (
-                                                            <img src={medicine.image_base64} alt={medicine.name} className="product-img" />
-                                                        ) : (
-                                                            <div className="product-placeholder">
-                                                                <Pill size={40} className="text-muted" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Floating Add/Quantity Button */}
-                                                    {medicine.inStock ? (
-                                                        quantity > 0 ? (
-                                                            <div className="qty-selector-floating" onClick={e => e.stopPropagation()}>
-                                                                <button className="qty-op-btn" onClick={() => removeFromCart(medicine.id)}>
-                                                                    <Minus size={14} strokeWidth={3} />
-                                                                </button>
-                                                                <span className="qty-amount">{quantity}</span>
-                                                                <button className="qty-op-btn" onClick={() => addToCart(medicine)}>
-                                                                    <Plus size={14} strokeWidth={3} />
-                                                                </button>
-                                                            </div>
-                                                        ) : (
-                                                            <button
-                                                                className="add-btn"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    addToCart(medicine);
-                                                                    playCartSound('add');
-                                                                }}
-                                                            >
-                                                                <Plus size={20} strokeWidth={3} />
-                                                            </button>
-                                                        )
-                                                    ) : (
-                                                        <div className="out-of-stock-label">Out of Stock</div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
-
-                                        <div className="product-info-section" onClick={() => { setSelectedMedicine(medicine); setActiveModalImageIndex(0); }}>
-                                            <div className="product-price-row">
-                                                <span className="price-pill">₹{Number(medicine.price).toFixed(0)}</span>
-                                                {medicine.discount > 0 && (
-                                                    <span className="mrp-old">₹{(medicine.price / (1 - medicine.discount / 100)).toFixed(0)}</span>
-                                                )}
-                                            </div>
-
-                                            {medicine.discount > 0 && (
-                                                <div className="savings-label">₹{(medicine.price * medicine.discount / 100).toFixed(0)} OFF</div>
-                                            )}
-
-                                            <h3 className="product-name-new">{medicine.name}</h3>
-
-                                            <div className="product-meta-new">
-                                                <span className="pack-size">1 pack ({medicine.combination?.split('+')[0] || '10 tabs'})</span>
-                                                <div className="product-tag-pill">{medicine.category}</div>
-                                            </div>
-
-                                            <div className="product-footer-new">
-                                                <div className="rating-row">
-                                                    <div className="star-icon">★</div>
-                                                    <span className="rating-val">4.8</span>
-                                                    <span className="rating-count">(100+)</span>
-                                                </div>
-                                                <div className="no-fee">No Convenience Fee</div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
+                                        medicine={medicine}
+                                        cart={cart}
+                                        onAddToCart={handleAddToCartItem}
+                                        onRemoveFromCart={handleRemoveFromCartItem}
+                                        onQuickView={(med) => { setSelectedMedicine(med); setActiveModalImageIndex(0); }}
+                                    />
                                 ))}
                             </AnimatePresence>
                         </motion.div>
@@ -436,191 +341,28 @@ function Medicines() {
             </section>
 
             {/* Slide-over Cart */}
-            <AnimatePresence>
-                {isCartOpen && (
-                    <>
-                        <motion.div
-                            className="cart-overlay"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
-                        />
-                        <motion.div
-                            className="cart-drawer"
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        >
-                            <div className="cart-header">
-                                <h2>{showCheckoutForm ? 'Delivery Details' : `Your Cart (${totalItems})`}</h2>
-                                <button className="close-btn" onClick={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}>
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            {!showCheckoutForm ? (
-                                <>
-                                    <div className="cart-items">
-                                        {cart.length === 0 ? (
-                                            <motion.div className="empty-cart" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                                <ShoppingCart size={48} className="text-muted" />
-                                                <p>Your cart is empty.</p>
-                                            </motion.div>
-                                        ) : (
-                                            <AnimatePresence>
-                                                {cart.map(item => (
-                                                    <motion.div
-                                                        key={item.id}
-                                                        className="cart-item"
-                                                        layout
-                                                        initial={{ opacity: 0, scale: 0.8 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        exit={{ opacity: 0, scale: 0.8, x: -50 }}
-                                                        transition={{ duration: 0.2 }}
-                                                    >
-                                                        <div className="item-details">
-                                                            <h4>{item.name}</h4>
-                                                            <p className="text-muted">₹{Number(item.price).toFixed(2)}</p>
-                                                        </div>
-                                                        <div className="item-actions">
-                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn" onClick={() => handleRemoveFromCartItem(item.id)}>
-                                                                <Minus size={16} />
-                                                            </motion.button>
-                                                            <span className="quantity">{item.quantity}</span>
-                                                            <motion.button whileTap={{ scale: 0.8 }} className="qty-btn qty-btn-plus" onClick={() => handleAddToCartItem(item)}>
-                                                                <Plus size={16} />
-                                                            </motion.button>
-                                                        </div>
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
-                                        )}
-                                    </div>
-
-                                    {cart.length > 0 && (
-                                        <div className="cart-footer">
-                                            <div className="cart-summary">
-                                                <span>Total:</span>
-                                                <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
-                                            </div>
-                                            <button
-                                                className="btn btn-primary btn-block checkout-btn"
-                                                onClick={handleProceedToCheckout}
-                                            >
-                                                Proceed to Checkout
-                                            </button>
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <form onSubmit={handleCheckout} className="checkout-form">
-                                    <div className="cart-items" style={{ gap: '0.75rem' }}>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">Full Name *</label>
-                                            <input
-                                                type="text"
-                                                className="input-field"
-                                                placeholder="Enter your full name"
-                                                required
-                                                value={customerDetails.name}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, name: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">Phone Number *</label>
-                                            <input
-                                                type="tel"
-                                                className="input-field"
-                                                placeholder="Enter your phone number"
-                                                required
-                                                value={customerDetails.phone}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, phone: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">WhatsApp Number *</label>
-                                            <input
-                                                type="tel"
-                                                className="input-field"
-                                                placeholder="Enter your WhatsApp number"
-                                                required
-                                                value={customerDetails.whatsapp}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, whatsapp: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">Delivery Address *</label>
-                                            <textarea
-                                                className="input-field"
-                                                placeholder="Enter your full delivery address"
-                                                required
-                                                rows="3"
-                                                value={customerDetails.address}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, address: e.target.value })}
-                                            ></textarea>
-                                        </div>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">Pincode *</label>
-                                            <input
-                                                type="text"
-                                                className="input-field"
-                                                placeholder="Enter your pincode"
-                                                required
-                                                maxLength="6"
-                                                value={customerDetails.pincode}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, pincode: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="checkout-form-group">
-                                            <label className="input-label">Email <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(Optional)</span></label>
-                                            <input
-                                                type="email"
-                                                className="input-field"
-                                                placeholder="Enter your email (optional)"
-                                                value={customerDetails.email}
-                                                onChange={e => setCustomerDetails({ ...customerDetails, email: e.target.value })}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="cart-footer">
-                                        <div className="cart-summary">
-                                            <span>Total:</span>
-                                            <span className="cart-total">₹{cartTotal.toFixed(2)}</span>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                            <button
-                                                type="button"
-                                                className="btn btn-outline"
-                                                style={{ flex: 1 }}
-                                                onClick={handleBackClick}
-                                            >
-                                                Back
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="btn btn-primary checkout-btn"
-                                                style={{ flex: 2 }}
-                                                disabled={isCheckingOut}
-                                            >
-                                                {isCheckingOut ? 'Processing...' : 'Place Order'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            )}
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+            <CartDrawer 
+                isOpen={isCartOpen}
+                onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
+                cart={cart}
+                totalItems={totalItems}
+                cartTotal={cartTotal}
+                onAdd={handleAddToCartItem}
+                onRemove={handleRemoveFromCartItem}
+                onCheckout={handleProceedToCheckout}
+                showCheckoutForm={showCheckoutForm}
+                customerDetails={customerDetails}
+                setCustomerDetails={setCustomerDetails}
+                onHandleCheckout={handleCheckout}
+                isCheckingOut={isCheckingOut}
+                onBack={handleBackClick}
+            />
 
             {/* Proceed to Checkout Confirmation Modal */}
             <AnimatePresence>
                 {showProceedConfirm && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
                             <div className="modal-icon-wrapper text-primary">
                                 <ShoppingCart size={40} />
                             </div>
@@ -639,7 +381,7 @@ function Medicines() {
             <AnimatePresence>
                 {showBackConfirm && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
                             <div className="modal-icon-wrapper text-muted">
                                 <AlertCircle size={40} />
                             </div>
@@ -674,271 +416,38 @@ function Medicines() {
                 )}
             </AnimatePresence>
 
-            {/* Add to Cart Modal */}
+            {/* Medicine Detail Quick View Modal */}
+            <MedicineDetailModal 
+                medicine={selectedMedicine}
+                isOpen={!!selectedMedicine}
+                onClose={() => setSelectedMedicine(null)}
+                cart={cart}
+                onAdd={handleAddToCartItem}
+                onRemove={handleRemoveFromCartItem}
+                activeImageIndex={activeModalImageIndex}
+                setActiveImageIndex={setActiveModalImageIndex}
+            />
+
+            {/* Success Toast -> Prominent Order Confirmed Modal */}
             <AnimatePresence>
-                {addedToCart && (
-                    <motion.div
-                        className="modal-overlay"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setAddedToCart(null)}
-                    >
-                        <motion.div
-                            className="atc-modal glass-panel"
-                            initial={{ scale: 0.85, opacity: 0, y: 40 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.85, opacity: 0, y: 40 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {/* Close Button */}
-                            <button
-                                className="atc-close-btn"
-                                onClick={() => setAddedToCart(null)}
-                                aria-label="Close"
-                            >
-                                <X size={20} />
-                            </button>
-
-                            {/* Success Badge */}
-                            <div className="atc-success-badge">
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.15, type: 'spring', stiffness: 300 }}
-                                >
-                                    <CheckCircle size={40} />
-                                </motion.div>
-                                <span>Item Added to Cart Successfully!</span>
-                            </div>
-
-                            {/* Product Info */}
-                            <div className="atc-product">
-                                {(Array.isArray(addedToCart.images) && addedToCart.images.length > 0) ? (
-                                    <img
-                                        src={addedToCart.images[0]}
-                                        alt={addedToCart.name}
-                                        className="atc-product-img"
-                                    />
-                                ) : addedToCart.image_base64 ? (
-                                    <img
-                                        src={addedToCart.image_base64}
-                                        alt={addedToCart.name}
-                                        className="atc-product-img"
-                                    />
-                                ) : (
-                                    <div className="atc-product-img atc-no-img">
-                                        <ShoppingCart size={32} className="text-muted" />
-                                    </div>
-                                )}
-                                <div className="atc-product-details">
-                                    <span className="badge" style={{ marginBottom: '4px', display: 'inline-block' }}>{addedToCart.category}</span>
-                                    <h3 className="atc-product-name">{addedToCart.name}</h3>
-                                    {addedToCart.combination && (
-                                        <p className="atc-combination text-muted">{addedToCart.combination}</p>
-                                    )}
-                                    <p className="atc-price">
-                                        ₹{Number(addedToCart.price).toFixed(2)}
-                                        {addedToCart.discount > 0 && (
-                                            <span className="atc-discount">-{addedToCart.discount}% OFF</span>
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="atc-actions">
-                                <button
-                                    className="btn btn-outline"
-                                    onClick={() => setAddedToCart(null)}
-                                >
-                                    Continue Shopping
-                                </button>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => { setAddedToCart(null); setIsCartOpen(true); }}
-                                >
-                                    <ShoppingCart size={18} />
-                                    View Cart ({totalItems})
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Medicine Detail Modal */}
-            <AnimatePresence>
-                {selectedMedicine && (
-                    <motion.div
-                        className="modal-overlay"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelectedMedicine(null)}
-                    >
-                        <motion.div
-                            className="med-detail-modal glass-panel"
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <button className="atc-close-btn" onClick={() => setSelectedMedicine(null)}>
-                                <X size={20} />
-                            </button>
-
-                            <div className="detail-grid">
-                                <div className="detail-image-sec">
-                                    {(Array.isArray(selectedMedicine.images) && selectedMedicine.images.length > 0) ? (
-                                        <div className="modal-gallery-layout">
-                                            <div className="modal-main-image-wrapper">
-                                                <img src={selectedMedicine.images[activeModalImageIndex]} alt={selectedMedicine.name} className="detail-main-img" />
-                                            </div>
-                                            {selectedMedicine.images.length > 1 && (
-                                                <div className="modal-thumbnails-wrapper">
-                                                    {selectedMedicine.images.map((img, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            className={`modal-thumbnail-btn ${activeModalImageIndex === idx ? 'active' : ''}`}
-                                                            onClick={(e) => { e.stopPropagation(); setActiveModalImageIndex(idx); }}
-                                                        >
-                                                            <img src={img} alt={`${selectedMedicine.name} thumb ${idx}`} />
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : selectedMedicine.image_base64 ? (
-                                        <img src={selectedMedicine.image_base64} alt={selectedMedicine.name} className="detail-main-img" />
-                                    ) : (
-                                        <div className="detail-no-img">
-                                            <Pill size={64} className="text-muted" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="detail-info-sec">
-                                    <div className="detail-header">
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                            <span className="badge">{selectedMedicine.category}</span>
-                                            {selectedMedicine.discount > 0 && (
-                                                <span className="atc-discount" style={{ fontSize: '0.85rem' }}>{selectedMedicine.discount}% OFF</span>
-                                            )}
-                                        </div>
-                                        <h2 className="detail-title">{selectedMedicine.name}</h2>
-                                        {selectedMedicine.combination && (
-                                            <p className="detail-combination text-muted">{selectedMedicine.combination}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="detail-price-row">
-                                        <div className="price-item">
-                                            <span className="detail-price">₹{Number(selectedMedicine.price).toFixed(2)}</span>
-                                            {selectedMedicine.discount > 0 && (
-                                                <span className="mrp-strikethrough">MRP <del>₹{(selectedMedicine.price / (1 - selectedMedicine.discount / 100)).toFixed(2)}</del></span>
-                                            )}
-                                        </div>
-                                        <div className="rating-badge">
-                                            <Activity size={14} /> 4.9 (34.0k)
-                                        </div>
-                                    </div>
-
-                                    <div className="detail-body">
-                                        <div className="section-divider"></div>
-                                        <h4>Product Details</h4>
-                                        <p className="product-modal-desc">{selectedMedicine.description || 'Highly effective healthcare product sourced from authorized distributors and stored in climate-controlled environments.'}</p>
-
-                                        <div className="detail-highlights">
-                                            <div className="highlight-item">
-                                                <Shield size={18} className="text-primary" />
-                                                <span>100% Genuine</span>
-                                            </div>
-                                            <div className="highlight-item">
-                                                <Thermometer size={18} className="text-primary" />
-                                                <span>Cold-Chain Maintained</span>
-                                            </div>
-                                            <div className="highlight-item">
-                                                <AlertCircle size={18} className="text-primary" />
-                                                <span>Doctor Consult Advised</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="detail-actions-footer">
-                                        {selectedMedicine.inStock ? (
-                                            (() => {
-                                                const cartItem = cart.find(item => item.id === selectedMedicine.id);
-                                                const quantity = cartItem ? cartItem.quantity : 0;
-
-                                                return quantity > 0 ? (
-                                                    <div className="detail-qty-row">
-                                                        <div className="qty-control-large">
-                                                            <button className="qty-btn-lg" onClick={() => removeFromCart(selectedMedicine.id)}>
-                                                                <Minus size={20} />
-                                                            </button>
-                                                            <span className="qty-val-lg">{quantity} in Cart</span>
-                                                            <button className="qty-btn-lg" onClick={() => addToCart(selectedMedicine)}>
-                                                                <Plus size={20} />
-                                                            </button>
-                                                        </div>
-                                                        <button
-                                                            className="btn btn-primary"
-                                                            style={{ flex: 1 }}
-                                                            onClick={() => { setSelectedMedicine(null); setIsCartOpen(true); }}
-                                                        >
-                                                            Checkout
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <button
-                                                        className="btn btn-primary btn-lg btn-block"
-                                                        onClick={() => {
-                                                            addToCart(selectedMedicine);
-                                                            playCartSound('add');
-                                                            // Optional: don't close so they can see the qty change
-                                                            // setSelectedMedicine(null);
-                                                        }}
-                                                    >
-                                                        <ShoppingCart size={20} /> Add to Cart
-                                                    </button>
-                                                );
-                                            })()
-                                        ) : (
-                                            <button className="btn btn-block btn-lg" disabled style={{ background: '#f1f5f9', color: '#94a3b8' }}>
-                                                Out of Stock
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            {/* Prescription Upload Success Modal */}
-            <AnimatePresence>
-                {uploadComplete && (
+                {orderComplete && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 10001 }}>
                         <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
                             <motion.div
-                                initial={{ scale: 0, rotate: -30 }}
-                                animate={{ scale: 1, rotate: 0 }}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                style={{ color: '#ec4899', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}
+                                style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
                             >
-                                <Sparkles size={72} fill="#ec4899" color="white" />
+                                <CheckCircle size={64} fill="currentColor" color="white" />
                             </motion.div>
-                            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#ec4899', fontWeight: 800 }}>Thank you for your upload!</h2>
-                            <p style={{ fontSize: '1.1rem', color: '#475569', lineHeight: 1.6, fontWeight: 500 }}>Our admin will respond to you within a few minutes.</p>
-                            <div style={{ marginTop: '1.5rem', padding: '10px 20px', background: '#fdf2f8', borderRadius: '12px', color: '#be185d', fontSize: '0.9rem', fontWeight: 600 }}>
-                                Prescription Received Successfully
-                            </div>
+                            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--success-color, #28a745)' }}>Order Confirmed!</h2>
+                            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Thank you for your order. We'll be in touch soon.</p>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
 
         </div>
     );

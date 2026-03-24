@@ -40,22 +40,7 @@ function LabTests() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
-    const handlePrescriptionUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
 
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-            const base64 = reader.result;
-            const success = await uploadPrescription(base64);
-            if (success) {
-                alert('Prescription uploaded successfully! Our team will review it and contact you soon.');
-            } else {
-                alert('Upload failed. Please try again or call us directly.');
-            }
-        };
-        reader.readAsDataURL(file);
-    };
     const [addedToCart, setAddedToCart] = useState(false);
     const [showProceedConfirm, setShowProceedConfirm] = useState(false);
     const [showBackConfirm, setShowBackConfirm] = useState(false);
@@ -189,27 +174,20 @@ function LabTests() {
                             </div>
                         </a>
 
-                        <div className="action-banner-item" style={{
+                        <a href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20book%20a%20lab%20test." target="_blank" rel="noopener noreferrer" className="action-banner-item" style={{
                             background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
                             padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
                             cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                            maxWidth: '100%'
-                        }} onClick={() => document.getElementById('prescription-upload').click()}>
-                            <input
-                                type="file"
-                                id="prescription-upload"
-                                hidden
-                                accept="image/*"
-                                onChange={handlePrescriptionUpload}
-                            />
+                            maxWidth: '100%', textDecoration: 'none', color: 'inherit'
+                        }}>
                             <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
                                 <Receipt size={20} />
                             </div>
                             <div style={{ overflow: 'hidden' }}>
                                 <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
-                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>JPG, PNG or PDF</p>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>Send on WhatsApp</p>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
 
@@ -404,7 +382,7 @@ function LabTests() {
             <AnimatePresence>
                 {showProceedConfirm && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
                             <div className="modal-icon-wrapper text-primary">
                                 <ShoppingCart size={40} />
                             </div>
@@ -423,7 +401,7 @@ function LabTests() {
             <AnimatePresence>
                 {showBackConfirm && (
                     <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.9, y: 50 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}>
+                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
                             <div className="modal-icon-wrapper text-muted">
                                 <AlertCircle size={40} />
                             </div>
@@ -488,9 +466,37 @@ function LabTests() {
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Need assistance booking a test?</h2>
                             <p style={{ opacity: 0.9 }}>Our health advisors are available 24/7 to help you choose the right tests.</p>
                         </div>
-                        <a href="tel:9487469098" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'white', color: 'var(--primary)', padding: '1rem 2rem', borderRadius: 'var(--border-radius-full)', fontWeight: 700, textDecoration: 'none', boxShadow: 'var(--shadow-md)' }}>
-                            <Phone size={20} /> CALL TO BOOK 9487469098
-                        </a>
+                        <motion.a 
+                            href="tel:9487469098" 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{ 
+                                display: 'inline-flex', alignItems: 'center', gap: '0.75rem', 
+                                background: 'white', color: 'var(--primary)', padding: '1rem 2rem', 
+                                borderRadius: 'var(--border-radius-full)', fontWeight: 700, 
+                                textDecoration: 'none', boxShadow: 'var(--shadow-md)' 
+                            }}
+                        >
+                            <motion.div
+                                animate={{ 
+                                    rotate: [0, -15, 15, -15, 15, 0],
+                                    scale: [1, 1.2, 1] 
+                                }}
+                                transition={{ 
+                                    duration: 1.2,
+                                    repeat: Infinity,
+                                    repeatDelay: 2,
+                                    ease: "easeInOut"
+                                }}
+                                style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    backgroundColor: '#e0f2fe', padding: '8px', borderRadius: '50%'
+                                }}
+                            >
+                                <Phone size={20} color="var(--primary)" />
+                            </motion.div>
+                            CALL TO BOOK 9487469098
+                        </motion.a>
                     </div>
                 </div>
             </section>
