@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Pill, LogOut, Package, Paperclip } from 'lucide-react';
+import { LayoutDashboard, Users, Pill, LogOut, Package } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './AdminDashboard.css';
 
 // Import sub-components
 import OrdersTab from '../components/admin/OrdersTab';
 import AppointmentsTab from '../components/admin/AppointmentsTab';
-import PrescriptionsTab from '../components/admin/PrescriptionsTab';
 import MedicinesTab from '../components/admin/MedicinesTab';
 import DoctorsTab from '../components/admin/DoctorsTab';
 
@@ -16,7 +15,6 @@ function AdminDashboard() {
     const { 
         appointments, updateAppointmentStatus, updateAppointmentToken, 
         orders, updateOrderStatus, 
-        prescriptions, updatePrescriptionStatus, 
         medicines, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock,
         doctors, addDoctor, updateDoctorAvailability, updateDoctorData, updateDoctorImage, deleteDoctor
     } = useApp();
@@ -66,14 +64,6 @@ function AdminDashboard() {
                     </button>
 
                     <button
-                        className={`admin-nav-item ${activeTab === 'prescriptions' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('prescriptions')}
-                    >
-                        <Paperclip size={20} />
-                        Prescriptions
-                    </button>
-
-                    <button
                         className={`admin-nav-item ${activeTab === 'upload' ? 'active' : ''}`}
                         onClick={() => setActiveTab('upload')}
                     >
@@ -115,13 +105,6 @@ function AdminDashboard() {
                             appointments={appointments} 
                             updateAppointmentStatus={updateAppointmentStatus} 
                             updateAppointmentToken={updateAppointmentToken} 
-                        />
-                    )}
-
-                    {activeTab === 'prescriptions' && (
-                        <PrescriptionsTab 
-                            prescriptions={prescriptions} 
-                            updatePrescriptionStatus={updatePrescriptionStatus} 
                         />
                     )}
 

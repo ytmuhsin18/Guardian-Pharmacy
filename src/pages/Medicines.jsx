@@ -8,7 +8,9 @@ import './Medicines.css';
 // Modular Components
 import ProductCard from '../components/medicines/ProductCard';
 import CartDrawer from '../components/medicines/CartDrawer';
+import SearchInput from '../components/medicines/SearchInput';
 import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
+import FloatingCartBar from '../components/FloatingCartBar';
 
 const playCartSound = (action) => {
     try {
@@ -33,62 +35,6 @@ const playCartSound = (action) => {
     } catch (e) {
         console.error(e);
     }
-};
-
-
-const TypewriterPlaceholder = ({ searchTerm, setSearchTerm }) => {
-    const placeholders = [
-        "Search Paracetamol...",
-        "Search Ibuprofen...",
-        "Search Amoxicillin...",
-        "Search Vitamin C...",
-        "Search Baby Care...",
-        "Search First Aid...",
-        "Search Skin Care...",
-        "Search for medicines...",
-        "Search for categories..."
-    ];
-
-    const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-    const [currentText, setCurrentText] = useState("");
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [speed, setSpeed] = useState(150);
-
-    useEffect(() => {
-        const handleType = () => {
-            const i = currentPlaceholderIndex % placeholders.length;
-            const fullText = placeholders[i];
-
-            if (isDeleting) {
-                setCurrentText(fullText.substring(0, currentText.length - 1));
-                setSpeed(50);
-            } else {
-                setCurrentText(fullText.substring(0, currentText.length + 1));
-                setSpeed(150);
-            }
-
-            if (!isDeleting && currentText === fullText) {
-                setTimeout(() => setIsDeleting(true), 1500);
-            } else if (isDeleting && currentText === "") {
-                setIsDeleting(false);
-                setCurrentPlaceholderIndex(i + 1);
-                setSpeed(500);
-            }
-        };
-
-        const timer = setTimeout(handleType, speed);
-        return () => clearTimeout(timer);
-    }, [currentText, isDeleting, currentPlaceholderIndex, speed, placeholders]);
-
-    return (
-        <input
-            type="text"
-            className="input-field search-input"
-            placeholder={searchTerm ? "" : currentText}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-        />
-    );
 };
 
 function Medicines() {
@@ -148,11 +94,6 @@ function Medicines() {
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleProceedToCheckout = () => {
-        setShowProceedConfirm(true);
-    };
-
-    const confirmProceed = () => {
-        setShowProceedConfirm(false);
         setShowCheckoutForm(true);
     };
 
@@ -207,32 +148,32 @@ function Medicines() {
                         </div>
 
                         <div className="search-bar-container">
-                            <motion.div 
+                            <motion.div
                                 className="search-input-wrapper"
                                 whileHover={{ scale: 1.05, y: -2 }}
                                 whileFocus={{ scale: 1.08, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                                 style={{ position: 'relative', flexGrow: 1 }}
                             >
-                                <Search 
-                                    className="search-icon text-muted" 
-                                    size={20} 
-                                    style={{ 
-                                        position: 'absolute', left: '1rem', top: '50%', 
-                                        transform: 'translateY(-50%)', zIndex: 10,
-                                        pointerEvents: 'none'
-                                    }}
+                                <Search
+                                    className="search-icon text-muted"
+                                    size={20}
                                 />
-                                <TypewriterPlaceholder 
+                                <SearchInput
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}
+                                    placeholders={[
+                                        "Search Paracetamol...", "Search Baby Care...", "Search Pampers...",
+                                        "Search Adult Diapers...", "Search Horlicks...", "Search Diabetes Care...",
+                                        "Search First Aid...", "Search Skin Care...", "Search for medicines..."
+                                    ]}
                                 />
                                 {searchTerm && (
-                                    <button 
+                                    <button
                                         onClick={() => setSearchTerm('')}
-                                        style={{ 
-                                            position: 'absolute', right: '1rem', top: '50%', 
-                                            transform: 'translateY(-50%)', background: 'none', 
+                                        style={{
+                                            position: 'absolute', right: '1rem', top: '50%',
+                                            transform: 'translateY(-50%)', background: 'none',
                                             border: 'none', color: '#64748b', cursor: 'pointer',
                                             zIndex: 20, display: 'flex', alignItems: 'center'
                                         }}
@@ -241,22 +182,13 @@ function Medicines() {
                                     </button>
                                 )}
                             </motion.div>
-                            <motion.button
-                                className="cart-btn"
-                                onClick={() => setIsCartOpen(true)}
-                                whileHover={{ scale: 1.2 }}
-                                whileTap={{ scale: 0.9 }}
-                            >
-                                <ShoppingCart size={24} className="text-primary" />
-                                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-                            </motion.button>
                         </div>
                     </div>
 
                     <AnimatePresence>
                         {!searchTerm && (
-                            <motion.div 
-                                className="quick-action-banners" 
+                            <motion.div
+                                className="quick-action-banners"
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
@@ -269,35 +201,61 @@ function Medicines() {
                                     overflow: 'hidden'
                                 }}
                             >
-                                <a href="tel:9487469098" className="action-banner-item" style={{
-                                    background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                                    padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                                    cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                                    maxWidth: '400px', textDecoration: 'none', color: 'inherit'
-                                }}>
-                                    <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0 }}>
-                                        <Phone size={20} />
-                                    </div>
+                                <motion.a
+                                    href="tel:9487469098"
+                                    className="action-banner-item"
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    style={{
+                                        background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                                        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                                        maxWidth: '400px', textDecoration: 'none', color: 'inherit'
+                                    }}>
+                                    <motion.div
+                                        animate={{
+                                            boxShadow: ['0 0 0 0 rgba(14, 165, 233, 0.4)', '0 0 0 10px rgba(14, 165, 233, 0)'],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        style={{ background: '#f0f9ff', padding: '12px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        <Phone size={24} />
+                                    </motion.div>
                                     <div style={{ overflow: 'hidden' }}>
-                                        <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
-                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
                                     </div>
-                                </a>
+                                </motion.a>
 
-                                <a href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines." target="_blank" rel="noopener noreferrer" className="action-banner-item" style={{
-                                    background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                                    padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                                    cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                                    maxWidth: '400px', textDecoration: 'none', color: 'inherit'
-                                }}>
-                                    <div style={{ background: '#fdf2f8', padding: '10px', borderRadius: '50%', color: '#ec4899', flexShrink: 0 }}>
-                                        <Receipt size={20} />
-                                    </div>
+                                <motion.a
+                                    href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines."
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="action-banner-item"
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    style={{
+                                        background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
+                                        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
+                                        maxWidth: '400px', textDecoration: 'none', color: 'inherit'
+                                    }}>
+                                    <motion.div
+                                        animate={{
+                                            boxShadow: ['0 0 0 0 rgba(236, 72, 153, 0.4)', '0 0 0 10px rgba(236, 72, 153, 0)'],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                                        style={{ background: '#fdf2f8', padding: '12px', borderRadius: '50%', color: '#ec4899', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        <Receipt size={24} />
+                                    </motion.div>
                                     <div style={{ overflow: 'hidden' }}>
-                                        <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
-                                        <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '2px 0 0 0' }}>Send on WhatsApp</p>
+                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0 0' }}>Send on WhatsApp</p>
                                     </div>
-                                </a>
+                                </motion.a>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -317,7 +275,7 @@ function Medicines() {
                         >
                             <AnimatePresence>
                                 {filteredMedicines.map((medicine) => (
-                                    <ProductCard 
+                                    <ProductCard
                                         key={medicine.id}
                                         medicine={medicine}
                                         cart={cart}
@@ -341,7 +299,7 @@ function Medicines() {
             </section>
 
             {/* Slide-over Cart */}
-            <CartDrawer 
+            <CartDrawer
                 isOpen={isCartOpen}
                 onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
                 cart={cart}
@@ -357,25 +315,6 @@ function Medicines() {
                 isCheckingOut={isCheckingOut}
                 onBack={handleBackClick}
             />
-
-            {/* Proceed to Checkout Confirmation Modal */}
-            <AnimatePresence>
-                {showProceedConfirm && (
-                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
-                            <div className="modal-icon-wrapper text-primary">
-                                <ShoppingCart size={40} />
-                            </div>
-                            <h3>Ready to Checkout?</h3>
-                            <p>You have {totalItems} items in your cart totaling ₹{cartTotal.toFixed(2)}.</p>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
-                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmProceed}>Confirm</button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Back Confirmation Modal */}
             <AnimatePresence>
@@ -417,7 +356,7 @@ function Medicines() {
             </AnimatePresence>
 
             {/* Medicine Detail Quick View Modal */}
-            <MedicineDetailModal 
+            <MedicineDetailModal
                 medicine={selectedMedicine}
                 isOpen={!!selectedMedicine}
                 onClose={() => setSelectedMedicine(null)}
@@ -448,7 +387,8 @@ function Medicines() {
                 )}
             </AnimatePresence>
 
-
+            {/* Floating Cart Bar (for mobile parity) */}
+            {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}
         </div>
     );
 }

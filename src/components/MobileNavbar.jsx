@@ -16,7 +16,7 @@ function MobileNavbar() {
             </NavLink>
             <NavLink to="/surgical-products" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Bone size={20} />
-                <span>Ortho</span>
+                <span>Categories</span>
             </NavLink>
             <NavLink to="/doctors" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <Stethoscope size={20} />
@@ -25,10 +25,6 @@ function MobileNavbar() {
             <NavLink to="/lab-tests" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
                 <TestTube size={20} />
                 <span>Labs</span>
-            </NavLink>
-            <NavLink to="/physiotherapy" className={({ isActive }) => (isActive ? "mobile-nav-item active" : "mobile-nav-item")}>
-                <Accessibility size={20} />
-                <span>Physio</span>
             </NavLink>
         </div>
     );

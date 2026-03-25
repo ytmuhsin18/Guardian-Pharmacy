@@ -82,11 +82,6 @@ function LabTests() {
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
     const handleProceedToCheckout = () => {
-        setShowProceedConfirm(true);
-    };
-
-    const confirmProceed = () => {
-        setShowProceedConfirm(false);
         setShowCheckoutForm(true);
     };
 
@@ -378,24 +373,7 @@ function LabTests() {
                 )}
             </AnimatePresence>
 
-            {/* Proceed to Checkout Confirmation Modal */}
-            <AnimatePresence>
-                {showProceedConfirm && (
-                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
-                            <div className="modal-icon-wrapper text-primary">
-                                <ShoppingCart size={40} />
-                            </div>
-                            <h3>Ready to Checkout?</h3>
-                            <p>You have {totalItems} items in your cart totaling ₹{cartTotal.toFixed(2)}.</p>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowProceedConfirm(false)}>Cancel</button>
-                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmProceed}>Confirm</button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Confirmation Modals removed for speed */}
 
             {/* Back Confirmation Modal */}
             <AnimatePresence>

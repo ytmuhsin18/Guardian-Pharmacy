@@ -1,0 +1,77 @@
+.floating-cart-bar {
+    position: fixed;
+    bottom: 53px; /* Flush with standard mobile navbar height */
+    left: 0;
+    right: 0;
+    background: #166534;
+    padding: 12px 20px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.2s ease, background 0.2s ease;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .floating-cart-bar {
+        max-width: 400px;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 25px; /* Above the footer/screen bottom */
+    }
+    
+    .floating-cart-bar:hover {
+        background: #154c2b;
+        transform: translateX(-50%) translateY(-3px);
+    }
+}
+
+.cart-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.cart-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cart-bar-icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+}
+
+.cart-bar-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.item-count {
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.total-amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.cart-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

@@ -159,8 +159,9 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Home Care">Home Care</option>
                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                     <option value="Maternity Care">Maternity Care</option>
-                                    <option value="Surgical Products">Ortho & Surgical Products</option>
+                                    <option value="Surgical Products">Categories</option>
                                     <option value="Physiotherapy">Physiotherapy</option>
+                                    <option value="Teeth Care">Teeth Care</option>
                                 </select>
                             </div>
                         </div>

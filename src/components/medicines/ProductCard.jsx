@@ -1,10 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Minus, Pill } from 'lucide-react';
 
-const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQuickView }) => {
+const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => {
+    const navigate = useNavigate();
     const cartItem = cart.find(item => item.id === medicine.id);
     const quantity = cartItem ? cartItem.quantity : 0;
+
+    const handleCardClick = () => {
+        navigate(`/medicine/${medicine.id}`);
+    };
 
     return (
         <motion.div
@@ -18,7 +24,8 @@ const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart,
             <div className="product-image-section">
                 <div
                     className="product-image-container"
-                    onClick={() => onQuickView(medicine)}
+                    onClick={handleCardClick}
+                    style={{ cursor: 'pointer' }}
                 >
                     {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
                         <img src={medicine.images[0]} alt={medicine.name} className="product-img" loading="lazy" />
@@ -58,7 +65,7 @@ const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart,
                 )}
             </div>
 
-            <div className="product-info-section" onClick={() => onQuickView(medicine)}>
+            <div className="product-info-section" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
                 <div className="product-price-row">
                     <span className="price-pill">₹{Number(medicine.price).toFixed(0)}</span>
                     {medicine.discount > 0 && (

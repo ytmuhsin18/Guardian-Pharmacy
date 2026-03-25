@@ -127,6 +127,12 @@ function Home() {
                             link="/doctors"
                         />
                         <ServiceCard
+                            icon={<ShieldCheck size={32} className="text-primary" />}
+                            title="Physiotherapy At Home"
+                            desc="Professional physiotherapy services and equipment delivered to your doorstep."
+                            link="/physiotherapy"
+                        />
+                        <ServiceCard
                             icon={<Clock size={32} className="text-primary" />}
                             title="24/7 Support"
                             desc="Our pharmacy is open round the clock to cater to your urgent medical needs."

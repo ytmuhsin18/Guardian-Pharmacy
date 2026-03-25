@@ -13,9 +13,33 @@ function MedicineDetails() {
     const [quantity, setQuantity] = useState(1);
     const [showSuccess, setShowSuccess] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isZoomed, setIsZoomed] = useState(false);
+
+    const applyZoomOrigin = (el, clientX, clientY) => {
+        const rect = el.getBoundingClientRect();
+        const x = ((clientX - rect.left) / rect.width) * 100;
+        const y = ((clientY - rect.top) / rect.height) * 100;
+        el.style.setProperty('--zoom-x', `${x}%`);
+        el.style.setProperty('--zoom-y', `${y}%`);
+    };
+
+    const handleImageClick = (e) => {
+        if (!isZoomed) {
+            applyZoomOrigin(e.currentTarget, e.clientX, e.clientY);
+        }
+        setIsZoomed(prev => !prev);
+    };
+
+    const handleImageTouch = (e) => {
+        if (!isZoomed) {
+            const touch = e.changedTouches[0];
+            applyZoomOrigin(e.currentTarget, touch.clientX, touch.clientY);
+        }
+        setIsZoomed(prev => !prev);
+    };
 
     useEffect(() => {
-        const found = medicines.find(m => m.id === parseInt(id));
+        const found = medicines.find(m => m.id?.toString() === id?.toString());
         if (found) {
             setProduct(found);
             window.scrollTo(0, 0);
@@ -64,9 +88,14 @@ function MedicineDetails() {
                     <div className="image-container">
                         {product.images && product.images.length > 0 ? (
                             <div className="gallery-layout">
-                                <div className="main-image-wrapper">
+                                <div
+                                    className={`main-image-wrapper${isZoomed ? ' zoomed' : ''}`}
+                                    onClick={handleImageClick}
+                                    onTouchEnd={handleImageTouch}
+                                >
                                     <img src={product.images[activeImageIndex]} alt={product.name} className="main-image" />
                                     {product.discount > 0 && <span className="discount-tag">-{product.discount}% OFF</span>}
+                                    <span className="zoom-hint">🔍 Click to zoom</span>
                                 </div>
                                 {product.images.length > 1 && (
                                     <div className="thumbnails-wrapper">
@@ -83,9 +112,14 @@ function MedicineDetails() {
                                 )}
                             </div>
                         ) : product.image_base64 ? (
-                            <div className="main-image-wrapper">
+                            <div
+                                className={`main-image-wrapper${isZoomed ? ' zoomed' : ''}`}
+                                onClick={handleImageClick}
+                                onTouchEnd={handleImageTouch}
+                            >
                                 <img src={product.image_base64} alt={product.name} className="main-image" />
                                 {product.discount > 0 && <span className="discount-tag">-{product.discount}% OFF</span>}
+                                <span className="zoom-hint">🔍 Click to zoom</span>
                             </div>
                         ) : (
                             <div className="placeholder-image">
@@ -103,7 +137,7 @@ function MedicineDetails() {
                     transition={{ delay: 0.2 }}
                 >
                     <div className="info-header">
-                        <span className="category-label">{product.category}</span>
+                        <span className="category-label">Categories</span>
                         <h1 className="medicine-name">{product.name}</h1>
                         {product.combination && <p className="combination-text">{product.combination}</p>}
                     </div>

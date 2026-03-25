@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-    Home, 
-    Pill, 
-    ShieldPlus, 
-    FlaskConical, 
-    UserRound, 
+import {
+    Home,
+    Pill,
+    ShieldPlus,
+    FlaskConical,
+    UserRound,
     Accessibility,
     Menu,
-    Sparkles
+    Sparkles,
+    Truck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
@@ -17,11 +18,11 @@ import logo from '../assets/gp-logo-new.png';
 const NavLink = ({ to, children, IconComponent }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
-        <Link 
-            to={to} 
-            className="nav-link" 
-            style={{ 
-                position: 'relative', 
+        <Link
+            to={to}
+            className="nav-link"
+            style={{
+                position: 'relative',
                 padding: '8px 12px',
                 borderRadius: '12px',
                 transition: 'color 0.3s ease',
@@ -58,7 +59,7 @@ const NavLink = ({ to, children, IconComponent }) => {
                     {children}
                 </motion.span>
             </div>
-            
+
             <AnimatePresence>
                 {isHovered && (
                     <motion.div
@@ -83,29 +84,43 @@ const NavLink = ({ to, children, IconComponent }) => {
 
 function Navbar() {
     return (
-        <nav className="navbar">
-            <div className="container nav-content">
-                <Link to="/" className="nav-logo">
-                    <img src={logo} alt="Guardian Pharmacy Logo" className="brand-logo" />
-                    <span className="logo-text">
-                        Guardian <span className="text-primary">Pharmacy</span>
-                    </span>
-                </Link>
-
-                <div className="nav-links desktop-only" style={{ gap: '0.75rem' }}>
-                    <NavLink to="/" IconComponent={Home}>Home</NavLink>
-                    <NavLink to="/medicines" IconComponent={Pill}>Medicines</NavLink>
-                    <NavLink to="/surgical-products" IconComponent={ShieldPlus}>Ortho &amp; Surgical Products</NavLink>
-                    <NavLink to="/lab-tests" IconComponent={FlaskConical}>Lab Tests</NavLink>
-                    <NavLink to="/doctors" IconComponent={UserRound}>Doctors</NavLink>
-                    <NavLink to="/physiotherapy" IconComponent={Accessibility}>Physiotherapy</NavLink>
-                </div>
-
-                <div className="nav-actions desktop-only">
-                    {/* Secondary actions can be added here */}
-                </div>
+        <>
+            <div className="promo-banner">
+                <motion.div 
+                    className="promo-content"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Sparkles size={14} className="text-yellow-400" />
+                    <span>Free Home Delivery on all orders above <strong>₹500</strong></span>
+                    <Truck size={14} />
+                </motion.div>
             </div>
-        </nav>
+            <nav className="navbar">
+                <div className="container nav-content">
+                    <Link to="/" className="nav-logo">
+                        <img src={logo} alt="Guardian Pharmacy Logo" className="brand-logo" />
+                        <span className="logo-text">
+                            Guardian <span className="text-primary">Pharmacy</span>
+                        </span>
+                    </Link>
+
+                    <div className="nav-links desktop-only" style={{ gap: '0.75rem' }}>
+                        <NavLink to="/" IconComponent={Home}>Home</NavLink>
+                        <NavLink to="/medicines" IconComponent={Pill}>Medicines</NavLink>
+                        <NavLink to="/surgical-products" IconComponent={ShieldPlus}>Categories</NavLink>
+                        <NavLink to="/lab-tests" IconComponent={FlaskConical}>Lab Tests</NavLink>
+                        <NavLink to="/doctors" IconComponent={UserRound}>Doctors</NavLink>
+                        <NavLink to="/physiotherapy" IconComponent={Accessibility}>PHYSIOTHERAPY</NavLink>
+                    </div>
+
+                    <div className="nav-actions desktop-only">
+                        {/* Secondary actions can be added here */}
+                    </div>
+                </div>
+            </nav>
+        </>
     );
 }
 
