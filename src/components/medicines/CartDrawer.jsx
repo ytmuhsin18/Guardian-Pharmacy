@@ -4,10 +4,10 @@ import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, S
 
 const FREE_DELIVERY_THRESHOLD = 500;
 
-const CartDrawer = ({ 
-    isOpen, onClose, cart, totalItems, cartTotal, 
-    onAdd, onRemove, onCheckout, showCheckoutForm, 
-    customerDetails, setCustomerDetails, onHandleCheckout, 
+const CartDrawer = ({
+    isOpen, onClose, cart, totalItems, cartTotal,
+    onAdd, onRemove, onCheckout, showCheckoutForm,
+    customerDetails, setCustomerDetails, onHandleCheckout,
     isCheckingOut, onBack
 }) => {
     const remainingForFree = Math.max(0, FREE_DELIVERY_THRESHOLD - cartTotal);
@@ -42,7 +42,7 @@ const CartDrawer = ({
                             <>
                                 <div className="cart-items-scroll">
                                     {cart.length > 0 && (
-                                        <motion.div 
+                                        <motion.div
                                             className="free-delivery-card"
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -52,14 +52,14 @@ const CartDrawer = ({
                                                     <span>Add <strong>₹{remainingForFree}</strong> more to get <span className="free-text-glow">FREE Delivery</span></span>
                                                 ) : (
                                                     <span className="free-unlocked-text">
-                                                        <Sparkles size={16} className="sparkle-anim" /> 
-                                                        FREE Delivery Unlocked! 
+                                                        <Sparkles size={16} className="sparkle-anim" />
+                                                        FREE Delivery Unlocked!
                                                         <Sparkles size={16} className="sparkle-anim" />
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="delivery-progress-track">
-                                                <motion.div 
+                                                <motion.div
                                                     className="delivery-progress-fill"
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${deliveryProgress}%` }}
@@ -67,8 +67,8 @@ const CartDrawer = ({
                                                 />
                                                 <div className={`delivery-lock-icon ${deliveryProgress >= 100 ? 'unlocked' : ''}`}>
                                                     {deliveryProgress >= 100 ? (
-                                                        <motion.div 
-                                                            initial={{ scale: 0 }} 
+                                                        <motion.div
+                                                            initial={{ scale: 0 }}
                                                             animate={{ scale: [1, 1.2, 1] }}
                                                             transition={{ repeat: Infinity, duration: 2 }}
                                                         >
@@ -84,14 +84,14 @@ const CartDrawer = ({
                                     )}
 
                                     {cart.length === 0 ? (
-                                        <motion.div 
-                                            className="empty-cart-container" 
-                                            initial={{ opacity: 0, y: 20 }} 
+                                        <motion.div
+                                            className="empty-cart-container"
+                                            initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                         >
                                             <div className="empty-cart-visual">
                                                 <ShoppingCart size={80} strokeWidth={1} className="empty-icon" />
-                                                <motion.div 
+                                                <motion.div
                                                     className="empty-ring"
                                                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
                                                     transition={{ duration: 3, repeat: Infinity }}
@@ -125,7 +125,7 @@ const CartDrawer = ({
                                                             <div className="item-footer-row">
                                                                 <div className="item-price-group">
                                                                     <span className="item-price">₹{Number(item.price).toFixed(0)}</span>
-                                                                    {item.discount > 0 && <span className="item-old-price">₹{(item.price / (1 - item.discount/100)).toFixed(0)}</span>}
+                                                                    {item.discount > 0 && <span className="item-old-price">₹{(item.price / (1 - item.discount / 100)).toFixed(0)}</span>}
                                                                 </div>
                                                                 <div className="premium-qty-control">
                                                                     <button className="p-qty-btn" onClick={() => onRemove(item.id)}><Minus size={14} /></button>
@@ -174,7 +174,7 @@ const CartDrawer = ({
                                                         <span className="value">₹{cartTotal.toFixed(2)}</span>
                                                     </div>
                                                     {totalDiscountAmount > 0 && (
-                                                        <motion.div 
+                                                        <motion.div
                                                             className="savings-badge"
                                                             initial={{ scale: 0.9, opacity: 0 }}
                                                             animate={{ scale: 1, opacity: 1 }}
@@ -186,7 +186,7 @@ const CartDrawer = ({
                                                 </div>
                                             );
                                         })()}
-                                        
+
                                         <button
                                             className="btn-checkout-premium"
                                             onClick={onCheckout}
@@ -202,7 +202,7 @@ const CartDrawer = ({
                                                 </div>
                                             </div>
                                         </button>
-                                        
+
                                         <div className="safety-guarantee">
                                             <Truck size={14} />
                                             <span>Guaranteed safe and contactless delivery within 24-48 hours</span>

@@ -1,0 +1,326 @@
+/* Premium Medicine Detail Modal Styles */
+.med-detail-modal {
+    position: relative;
+    width: 95%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px -20px rgba(15, 23, 42, 0.25);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 100%;
+    overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+    .modal-grid {
+        grid-template-columns: 1fr 1.1fr;
+        overflow: hidden;
+    }
+}
+
+/* Image Section */
+.modal-image-gallery {
+    background: #f8fafc;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #e2e8f0;
+}
+
+.main-image-container {
+    width: 100%;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.main-modal-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08));
+}
+
+.discount-badge-large {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ef4444;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.thumbnail-grid {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.thumb-item {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: 2px solid #f1f5f9;
+    padding: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.thumb-item.active {
+    border-color: #10b981;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+}
+
+/* Info Section */
+.modal-info-scroll {
+    padding: 3rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.brand-tag {
+    color: #10b981;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.modal-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    color: #1e293b;
+    margin-top: 0.5rem;
+}
+
+.modal-meta-chips {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.chip {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.modal-pricing-section {
+    background: #f0fdf4;
+    padding: 1.5rem;
+    border-radius: 24px;
+    border: 1px solid #dcfce7;
+}
+
+.price-row-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.current-price {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: #059669;
+}
+
+.mrp-old-large {
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-size: 1.1rem;
+}
+
+.tax-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+/* Actions */
+.modal-action-row {
+    margin-top: 1rem;
+}
+
+.add-to-cart-big {
+    width: 100%;
+    height: 64px;
+    border-radius: 20px;
+    background: #10b981;
+    color: white;
+    border: none;
+    font-size: 1.25rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+    transition: all 0.3s;
+}
+
+.add-to-cart-big:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(16, 185, 129, 0.3);
+}
+
+.quantity-control-large {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.q-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    color: #1e293b;
+}
+
+.q-val {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #1e293b;
+}
+
+/* Features */
+.modal-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.feat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+}
+
+.feat-icon {
+    width: 48px;
+    height: 48px;
+    background: #f0f9ff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0ea5e9;
+}
+
+.feat-item span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.modal-description-section h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.highlight-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.highlight-list li {
+    font-size: 0.95rem;
+    color: #64748b;
+    padding-left: 24px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.highlight-list li::before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #10b981;
+    font-weight: 900;
+}
+
+@media (max-width: 767px) {
+    .modal-info-scroll {
+        padding: 1.5rem;
+    }
+
+    .modal-name {
+        font-size: 1.75rem;
+    }
+
+    .main-image-container {
+        height: 240px;
+    }
+}

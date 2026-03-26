@@ -11,7 +11,11 @@ export function AppProvider({ children }) {
     const [orders, setOrders] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [cart, setCart] = useState([]);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
     useEffect(() => {
         fetchData();
@@ -416,6 +420,10 @@ export function AppProvider({ children }) {
             addToCart,
             removeFromCart,
             clearCart,
+            isCartOpen,
+            setIsCartOpen,
+            totalItems,
+            cartTotal,
             appointments,
             addAppointment,
             updateAppointmentStatus,

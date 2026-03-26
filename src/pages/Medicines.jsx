@@ -5,12 +5,9 @@ import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Activity, Heart, The
 import { useApp } from '../context/AppContext';
 import './Medicines.css';
 
-// Modular Components
 import ProductCard from '../components/medicines/ProductCard';
-import CartDrawer from '../components/medicines/CartDrawer';
 import SearchInput from '../components/medicines/SearchInput';
 import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
-import FloatingCartBar from '../components/FloatingCartBar';
 
 const playCartSound = (action) => {
     try {
@@ -39,39 +36,10 @@ const playCartSound = (action) => {
 
 function Medicines() {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder, uploadPrescription } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const [isCheckingOut, setIsCheckingOut] = useState(false);
-    const [orderComplete, setOrderComplete] = useState(false);
-
-    const [selectedMedicine, setSelectedMedicine] = useState(null); // for quick view detail modal
+    const [selectedMedicine, setSelectedMedicine] = useState(null); 
     const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
-    const [showCheckoutForm, setShowCheckoutForm] = useState(false);
-    const [showProceedConfirm, setShowProceedConfirm] = useState(false);
-    const [showBackConfirm, setShowBackConfirm] = useState(false);
-    const [customerDetails, setCustomerDetails] = useState({
-        name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
-    });
-
-    // Prevent body scrolling when a modal or drawer is open
-    useEffect(() => {
-        if (isCartOpen || showProceedConfirm || showBackConfirm || selectedMedicine || orderComplete) {
-            document.body.classList.add('modal-open');
-        } else {
-            document.body.classList.remove('modal-open');
-        }
-        return () => document.body.classList.remove('modal-open');
-    }, [isCartOpen, showProceedConfirm, showBackConfirm, selectedMedicine, orderComplete]);
-
-    const scrollToProducts = () => {
-        const prodSection = document.getElementById('products-listing-start');
-        if (prodSection) {
-            prodSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    };
-
-
 
     const handleAddToCartItem = (item) => {
         addToCart(item);
@@ -89,52 +57,6 @@ function Medicines() {
                 med.category.toLowerCase().includes(searchTerm.toLowerCase());
         });
     }, [medicines, searchTerm]);
-
-    const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-
-    const handleProceedToCheckout = () => {
-        setShowCheckoutForm(true);
-    };
-
-    const handleBackClick = () => {
-        setShowBackConfirm(true);
-    };
-
-    const confirmBack = () => {
-        setShowBackConfirm(false);
-        setShowCheckoutForm(false);
-    };
-
-    const handleCheckout = async (e) => {
-        e.preventDefault();
-        setIsCheckingOut(true);
-
-        const orderDetails = {
-            customer_name: customerDetails.name,
-            phone: customerDetails.phone,
-            whatsapp: customerDetails.whatsapp,
-            address: customerDetails.address,
-            pincode: customerDetails.pincode,
-            email: customerDetails.email || null,
-            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, image: (Array.isArray(item.images) && item.images.length > 0) ? item.images[0] : (item.image_base64 || null) })),
-            total_amount: cartTotal
-        };
-
-        const success = await addOrder(orderDetails);
-        setIsCheckingOut(false);
-
-        if (success) {
-            clearCart();
-            setOrderComplete(true);
-            setShowCheckoutForm(false);
-            setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '' });
-            setTimeout(() => setOrderComplete(false), 3000);
-            setIsCartOpen(false);
-        } else {
-            alert("Failed to place order. Please try again.");
-        }
-    };
 
     return (
         <div className="medicines-page">
@@ -206,25 +128,20 @@ function Medicines() {
                                     className="action-banner-item"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
-                                    style={{
-                                        background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                                        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                                        maxWidth: '400px', textDecoration: 'none', color: 'inherit'
-                                    }}>
+                                >
                                     <motion.div
+                                        className="action-icon-wrapper call-icon"
                                         animate={{
                                             boxShadow: ['0 0 0 0 rgba(14, 165, 233, 0.4)', '0 0 0 10px rgba(14, 165, 233, 0)'],
                                             scale: [1, 1.05, 1]
                                         }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        style={{ background: '#f0f9ff', padding: '12px', borderRadius: '50%', color: '#0ea5e9', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     >
-                                        <Phone size={24} />
+                                        <Phone className="action-icon" size={24} />
                                     </motion.div>
-                                    <div style={{ overflow: 'hidden' }}>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Order on Call</h3>
-                                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0 0' }}>94874 69098</p>
+                                    <div className="action-text-wrapper">
+                                        <h3>Order on Call</h3>
+                                        <p>94874 69098</p>
                                     </div>
                                 </motion.a>
 
@@ -235,25 +152,20 @@ function Medicines() {
                                     className="action-banner-item"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
-                                    style={{
-                                        background: 'white', border: '1px solid #e2e8f0', borderRadius: '24px',
-                                        padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
-                                        cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', flex: '1', minWidth: '260px',
-                                        maxWidth: '400px', textDecoration: 'none', color: 'inherit'
-                                    }}>
+                                >
                                     <motion.div
+                                        className="action-icon-wrapper wa-icon"
                                         animate={{
                                             boxShadow: ['0 0 0 0 rgba(236, 72, 153, 0.4)', '0 0 0 10px rgba(236, 72, 153, 0)'],
                                             scale: [1, 1.05, 1]
                                         }}
                                         transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                                        style={{ background: '#fdf2f8', padding: '12px', borderRadius: '50%', color: '#ec4899', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     >
-                                        <Receipt size={24} />
+                                        <Receipt className="action-icon" size={24} />
                                     </motion.div>
-                                    <div style={{ overflow: 'hidden' }}>
-                                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, whiteSpace: 'nowrap' }}>Upload Prescription</h3>
-                                        <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '2px 0 0 0' }}>Send on WhatsApp</p>
+                                    <div className="action-text-wrapper">
+                                        <h3>Upload Prescription</h3>
+                                        <p>Send on WhatsApp</p>
                                     </div>
                                 </motion.a>
                             </motion.div>
@@ -261,7 +173,6 @@ function Medicines() {
                     </AnimatePresence>
                 </div>
             </section>
-
 
             {/* Products Grid */}
             <section className="med-products" id="products-listing-start">
@@ -298,63 +209,6 @@ function Medicines() {
                 </div>
             </section>
 
-            {/* Slide-over Cart */}
-            <CartDrawer
-                isOpen={isCartOpen}
-                onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
-                cart={cart}
-                totalItems={totalItems}
-                cartTotal={cartTotal}
-                onAdd={handleAddToCartItem}
-                onRemove={handleRemoveFromCartItem}
-                onCheckout={handleProceedToCheckout}
-                showCheckoutForm={showCheckoutForm}
-                customerDetails={customerDetails}
-                setCustomerDetails={setCustomerDetails}
-                onHandleCheckout={handleCheckout}
-                isCheckingOut={isCheckingOut}
-                onBack={handleBackClick}
-            />
-
-            {/* Back Confirmation Modal */}
-            <AnimatePresence>
-                {showBackConfirm && (
-                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel" initial={{ scale: 0.5, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0, y: -20 }} transition={{ type: "spring", bounce: 0.5, duration: 0.4 }}>
-                            <div className="modal-icon-wrapper text-muted">
-                                <AlertCircle size={40} />
-                            </div>
-                            <h3>Why are you going back?</h3>
-                            <p>You haven't placed your order yet! Are you sure you want to go back to the cart?</p>
-                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                                <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowBackConfirm(false)}>Stay Here</button>
-                                <button className="btn btn-primary" style={{ flex: 1, backgroundColor: 'var(--text-muted)' }} onClick={confirmBack}>Yes, Go Back</button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Success Toast -> Prominent Order Confirmed Modal */}
-            <AnimatePresence>
-                {orderComplete && (
-                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
-                            >
-                                <CheckCircle size={64} fill="currentColor" color="white" />
-                            </motion.div>
-                            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--success-color, #28a745)' }}>Order Confirmed!</h2>
-                            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Thank you for your order. We'll be in touch soon.</p>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
             {/* Medicine Detail Quick View Modal */}
             <MedicineDetailModal
                 medicine={selectedMedicine}
@@ -366,29 +220,6 @@ function Medicines() {
                 activeImageIndex={activeModalImageIndex}
                 setActiveImageIndex={setActiveModalImageIndex}
             />
-
-            {/* Success Toast -> Prominent Order Confirmed Modal */}
-            <AnimatePresence>
-                {orderComplete && (
-                    <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ zIndex: 10001 }}>
-                        <motion.div className="confirm-modal glass-panel text-center" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", bounce: 0.5 }}>
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                style={{ color: 'var(--success-color, #28a745)', marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}
-                            >
-                                <CheckCircle size={64} fill="currentColor" color="white" />
-                            </motion.div>
-                            <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--success-color, #28a745)' }}>Order Confirmed!</h2>
-                            <p style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Thank you for your order. We'll be in touch soon.</p>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Floating Cart Bar (for mobile parity) */}
-            {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}
         </div>
     );
 }

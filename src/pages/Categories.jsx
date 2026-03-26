@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Search, ShoppingCart, Plus, Minus, X, CheckCircle, 
-    Activity, Heart, Thermometer, Shield, AlertCircle, Pill, 
+import {
+    Search, ShoppingCart, Plus, Minus, X, CheckCircle,
+    Activity, Heart, Thermometer, Shield, AlertCircle, Pill,
     Baby, User, Zap, Sparkles, ShieldPlus, Smile, Accessibility, Home as HomeIcon, ChevronRight
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -42,12 +42,12 @@ function SurgicalProducts() {
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (med.combination && med.combination.toLowerCase().includes(searchTerm.toLowerCase()));
-        
+
         if (activeTab === 'all') return matchesSearch;
-        
+
         const currentTabConfig = CAT_TABS.find(t => t.id === activeTab);
         const matchesCategory = currentTabConfig.dbCats.includes(med.category);
-        
+
         return matchesCategory && matchesSearch;
     });
 
@@ -139,11 +139,11 @@ function SurgicalProducts() {
                                         transition: 'all 0.3s ease'
                                     }}>
                                         {tab.id === 'skin' ? (
-                                            <div style={{ 
-                                                width: '100%', 
-                                                height: '100%', 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
+                                            <div style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                display: 'flex',
+                                                alignItems: 'center',
                                                 justifyContent: 'center',
                                                 background: 'linear-gradient(45deg, #ec4899, #3b82f6)',
                                                 WebkitMaskImage: 'url("https://cdn-icons-png.flaticon.com/512/833/833472.png")',
@@ -156,21 +156,21 @@ function SurgicalProducts() {
                                                 maskPosition: 'center'
                                             }} />
                                         ) : (
-                                            <img 
-                                                src={tab.image} 
-                                                alt={tab.label} 
-                                                style={{ 
-                                                    width: '100%', 
-                                                    height: '100%', 
+                                            <img
+                                                src={tab.image}
+                                                alt={tab.label}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
                                                     objectFit: 'contain',
                                                     filter: isActive ? 'none' : 'grayscale(0.2)'
-                                                }} 
+                                                }}
                                             />
                                         )}
                                     </div>
-                                    <span style={{ 
-                                        fontSize: '0.82rem', 
-                                        fontWeight: isActive ? 800 : 600, 
+                                    <span style={{
+                                        fontSize: '0.82rem',
+                                        fontWeight: isActive ? 800 : 600,
                                         color: isActive ? 'var(--primary)' : '#475569',
                                         whiteSpace: 'nowrap',
                                         textAlign: 'center'
@@ -284,7 +284,7 @@ function SurgicalProducts() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            
+
             {orderComplete && (
                 <div className="toast success-toast floating-toast">
                     <CheckCircle size={20} />

@@ -11,7 +11,6 @@ function MedicineDetails() {
     const { medicines, addToCart } = useApp();
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
-    const [showSuccess, setShowSuccess] = useState(false);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
 
@@ -63,8 +62,6 @@ function MedicineDetails() {
         for (let i = 0; i < quantity; i++) {
             addToCart(product);
         }
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
     };
 
     return (
@@ -197,18 +194,6 @@ function MedicineDetails() {
                 </motion.div>
             </div>
 
-            {/* Success Notification */}
-            {showSuccess && (
-                <motion.div
-                    className="toast success-toast floating-toast"
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 50, opacity: 0 }}
-                >
-                    <CheckCircle size={20} />
-                    <span>Added {quantity} unit(s) to your cart!</span>
-                </motion.div>
-            )}
         </div>
     );
 }

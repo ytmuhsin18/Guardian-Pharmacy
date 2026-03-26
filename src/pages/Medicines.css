@@ -141,6 +141,102 @@
     justify-content: center;
 }
 
+/* Quick Action Banners */
+.action-banner-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    min-width: 260px;
+    max-width: 400px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.action-icon-wrapper {
+    padding: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.call-icon {
+    background: #f0f9ff;
+    color: #0ea5e9;
+}
+
+.wa-icon {
+    background: #fdf2f8;
+    color: #ec4899;
+}
+
+.action-text-wrapper {
+    overflow: hidden;
+}
+
+.action-text-wrapper h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.action-text-wrapper p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 2px 0 0 0;
+}
+
+/* Mobile Adjustments for Pharmacy Header */
+@media (max-width: 480px) {
+    .med-header {
+        padding: 1.5rem 0;
+    }
+
+    .search-input {
+        height: 48px;
+        font-size: 0.95rem;
+        padding-left: 2.75rem;
+    }
+
+    .action-banner-item {
+        min-width: 140px;
+        max-width: 100%;
+        padding: 12px 14px;
+        border-radius: 16px;
+        gap: 10px;
+        flex: 1 1 calc(50% - 0.5rem);
+    }
+
+    .action-icon-wrapper {
+        padding: 8px;
+    }
+
+    .action-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .action-text-wrapper h3 {
+        font-size: 0.85rem;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .action-text-wrapper p {
+        font-size: 0.7rem;
+    }
+}
+
+
 /* Products */
 .med-products {
     padding: 4rem 0;
@@ -1592,8 +1688,13 @@
 }
 
 @keyframes textPop {
-    0% { transform: scale(0.8); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(0.8);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .delivery-progress-track {
@@ -1602,7 +1703,7 @@
     border-radius: 10px;
     position: relative;
     margin: 1.25rem 0 0.5rem;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .delivery-progress-fill {
@@ -1650,4 +1751,20 @@
 .sparkle-anim {
     color: #fde047;
     filter: drop-shadow(0 0 5px rgba(253, 224, 71, 0.5));
+}
+
+background: #f0fdf4;
+color: #166534;
+font-size: 1rem;
+font-weight: 800;
+}
+
+/* Category Tabs Utility */
+.category-tabs-container::-webkit-scrollbar {
+    display: none;
+}
+
+.category-tabs-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

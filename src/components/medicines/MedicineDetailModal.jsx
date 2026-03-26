@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Shield, AlertCircle, Heart, Thermometer, ShoppingCart, Plus, Minus } from 'lucide-react';
+import { X, CheckCircle, Shield, AlertCircle, Heart, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap } from 'lucide-react';
+import './MedicineDetailModal.css';
 
-const MedicineDetailModal = ({ 
-    medicine, isOpen, onClose, cart, onAdd, onRemove, 
-    activeImageIndex, setActiveImageIndex 
+const MedicineDetailModal = ({
+    medicine, isOpen, onClose, cart, onAdd, onRemove,
+    activeImageIndex, setActiveImageIndex
 }) => {
     if (!medicine) return null;
-    
+
     const cartItem = cart.find(item => item.id === medicine.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 

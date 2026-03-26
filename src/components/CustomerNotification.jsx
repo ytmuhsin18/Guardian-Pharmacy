@@ -6,16 +6,16 @@ import './CustomerNotification.css';
 
 function CustomerNotification() {
     const [notifications, setNotifications] = useState([]);
-    
+
     // Check orders and appointments every 8 seconds
     useEffect(() => {
         let isMounted = true;
         const intervalId = setInterval(async () => {
             if (!isMounted) return;
-            
+
             // Check Orders
             await checkUpdates('my_guardian_orders', 'notified_guardian_orders', 'orders', 'Order');
-            
+
             // Check Appointments
             await checkUpdates('my_guardian_appointments', 'notified_guardian_appointments', 'appointments', 'Appointment');
 
@@ -30,21 +30,21 @@ function CustomerNotification() {
     const checkUpdates = async (myItemsKey, notifiedItemsKey, tableName, entityName) => {
         const myItemsJSON = localStorage.getItem(myItemsKey);
         if (!myItemsJSON) return;
-        
+
         let myItemIds = [];
         try {
             myItemIds = JSON.parse(myItemsJSON);
         } catch (e) {
             return;
         }
-        
+
         if (myItemIds.length === 0) return;
-        
+
         const notifiedItemsJSON = localStorage.getItem(notifiedItemsKey) || '[]';
         let notifiedItems = [];
         try {
             notifiedItems = JSON.parse(notifiedItemsJSON);
-        } catch (e) {}
+        } catch (e) { }
 
         const itemsToCheck = myItemIds.filter(id => !notifiedItems.includes(id));
         if (itemsToCheck.length === 0) return;
@@ -54,7 +54,7 @@ function CustomerNotification() {
                 .from(tableName)
                 .select('id, status')
                 .in('id', itemsToCheck);
-            
+
             if (error) {
                 console.error(`Error fetching ${tableName} status:`, error);
                 return;
@@ -69,7 +69,7 @@ function CustomerNotification() {
                         anyNotified = true;
                     }
                 });
-                
+
                 if (anyNotified) {
                     localStorage.setItem(notifiedItemsKey, JSON.stringify(notifiedItems));
                 }
@@ -87,9 +87,9 @@ function CustomerNotification() {
             message: item.status === 'Confirmed' ? `Your ${entityName} was Accepted!` : `Your ${entityName} was Cancelled.`,
             isSuccess: item.status === 'Confirmed'
         };
-        
+
         setNotifications(prev => [...prev, newNotif]);
-        
+
         // Auto-remove after 6 seconds
         setTimeout(() => {
             removeNotification(newNotif.id);

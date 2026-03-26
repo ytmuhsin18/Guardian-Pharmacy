@@ -444,23 +444,23 @@ function LabTests() {
                             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Need assistance booking a test?</h2>
                             <p style={{ opacity: 0.9 }}>Our health advisors are available 24/7 to help you choose the right tests.</p>
                         </div>
-                        <motion.a 
-                            href="tel:9487469098" 
+                        <motion.a
+                            href="tel:9487469098"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            style={{ 
-                                display: 'inline-flex', alignItems: 'center', gap: '0.75rem', 
-                                background: 'white', color: 'var(--primary)', padding: '1rem 2rem', 
-                                borderRadius: 'var(--border-radius-full)', fontWeight: 700, 
-                                textDecoration: 'none', boxShadow: 'var(--shadow-md)' 
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
+                                background: 'white', color: 'var(--primary)', padding: '1rem 2rem',
+                                borderRadius: 'var(--border-radius-full)', fontWeight: 700,
+                                textDecoration: 'none', boxShadow: 'var(--shadow-md)'
                             }}
                         >
                             <motion.div
-                                animate={{ 
+                                animate={{
                                     rotate: [0, -15, 15, -15, 15, 0],
-                                    scale: [1, 1.2, 1] 
+                                    scale: [1, 1.2, 1]
                                 }}
-                                transition={{ 
+                                transition={{
                                     duration: 1.2,
                                     repeat: Infinity,
                                     repeatDelay: 2,
