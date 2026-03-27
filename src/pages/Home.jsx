@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
     Pill, Activity, Clock, ShieldCheck, ArrowRight, MapPin, Phone,
-    Star, Truck, TestTube, Accessibility, LayoutGrid, Stethoscope
+    Star, Truck, Accessibility, LayoutGrid, Stethoscope
 } from 'lucide-react';
 import './Home.css';
 import heroImg1 from '../assets/Screenshot 2026-02-11 083435.png';

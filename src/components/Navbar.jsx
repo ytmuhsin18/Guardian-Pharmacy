@@ -116,8 +116,8 @@ function Navbar() {
                         <NavLink to="/" IconComponent={Home}>Home</NavLink>
                         <NavLink to="/medicines" IconComponent={Pill}>Medicines</NavLink>
                         <NavLink to="/surgical-products" IconComponent={LayoutGrid}>Categories</NavLink>
-                        <NavLink to="/lab-tests" IconComponent={FlaskConical}>Lab Tests</NavLink>
                         <NavLink to="/doctors" IconComponent={UserRound}>Doctors</NavLink>
+                        <NavLink to="/lab-tests" IconComponent={FlaskConical}>Lab Tests</NavLink>
                         <NavLink to="/physiotherapy" IconComponent={Accessibility}>PHYSIOTHERAPY</NavLink>
                     </div>
 

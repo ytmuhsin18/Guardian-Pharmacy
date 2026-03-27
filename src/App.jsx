@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import Navbar from './components/Navbar';
@@ -63,6 +64,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="page-layout">
 
         <Navbar />
@@ -106,18 +108,18 @@ function App() {
         {/* Success Modal */}
         <AnimatePresence>
           {orderComplete && (
-            <motion.div 
-              className="modal-overlay" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              className="modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               style={{ zIndex: 10001, backdropFilter: 'blur(20px)' }}
             >
-              <motion.div 
-                className="confirm-modal glass-panel text-center" 
-                initial={{ scale: 0.2, opacity: 0, rotate: -10 }} 
-                animate={{ scale: 1, opacity: 1, rotate: 0 }} 
-                exit={{ scale: 0.5, opacity: 0 }} 
+              <motion.div
+                className="confirm-modal glass-panel text-center"
+                initial={{ scale: 0.2, opacity: 0, rotate: -10 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 0.5, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
                 style={{
                   maxWidth: '400px',
@@ -134,7 +136,7 @@ function App() {
                 >
                   <div style={{ position: 'relative' }}>
                     <CheckCircle size={80} fill="#10b981" color="white" />
-                    <motion.div 
+                    <motion.div
                       style={{ position: 'absolute', inset: -10, border: '4px solid #10b981', borderRadius: '50%' }}
                       initial={{ scale: 1, opacity: 0.8 }}
                       animate={{ scale: 1.5, opacity: 0 }}

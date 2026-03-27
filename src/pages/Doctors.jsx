@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,8 +6,78 @@ import { useApp } from '../context/AppContext';
 import EmergencyBanner from '../components/EmergencyBanner';
 import './Doctors.css';
 
+// Default image if none exists (moved outside for DoctorCard to use)
+const getDefaultImage = (idx) => {
+    const fallbacks = [
+        'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=300&h=300',
+        'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300',
+        'https://images.unsplash.com/photo-1594824436951-7f1262d04840?auto=format&fit=crop&q=80&w=300&h=300',
+        'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300'
+    ];
+    return fallbacks[idx % fallbacks.length];
+};
+
+const DoctorCard = memo(({ doc, idx, onSelect, fetchImage }) => {
+    const [imageSrc, setImageSrc] = useState(doc.image_base64 || getDefaultImage(idx));
+
+    useEffect(() => {
+        if (!doc.image_base64 && doc.id) {
+            fetchImage(doc.id).then(base64Image => {
+                if (base64Image) {
+                    setImageSrc(base64Image);
+                }
+            });
+        }
+    }, [doc.id, doc.image_base64, fetchImage]);
+
+    return (
+        <motion.div
+            className="doctor-card glass-panel"
+            whileHover={{ y: -5, boxShadow: 'var(--shadow-lg)' }}
+        >
+            <div className="doc-img-wrapper">
+                <img src={imageSrc} alt={doc.name} className="doc-image" />
+                <div className="doc-exp-badge">{doc.experience}</div>
+            </div>
+
+            <div className="doc-info" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h3 className="doc-name" style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.5rem 0' }}>{doc.name.toUpperCase()}</h3>
+                <div className="doc-specialty-badge" style={{
+                    background: '#f0fdfa', color: '#0d9488', padding: '4px 12px',
+                    borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700,
+                    marginBottom: '1rem', border: '1px solid #ccfbf1'
+                }}>
+                    {doc.specialty.toUpperCase()}
+                </div>
+
+                <p className="doc-about text-muted" style={{ fontSize: '0.85rem', marginBottom: '0.5rem', lineHeight: '1.4' }}>
+                    {doc.about || "Expert clinical consultant specializing in advanced healthcare and patient care."}
+                </p>
+
+                {doc.reg_no && (
+                    <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+                        REG NO: {doc.reg_no}
+                    </p>
+                )}
+
+                <button
+                    className="btn btn-primary btn-block mt-auto"
+                    onClick={() => onSelect(doc)}
+                    style={{
+                        borderRadius: '12px', padding: '12px', fontWeight: 700,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        gap: '8px', width: '100%', border: 'none'
+                    }}
+                >
+                    <Calendar size={18} /> BOOK APPOINTMENT
+                </button>
+            </div>
+        </motion.div>
+    );
+});
+
 function Doctors() {
-    const { addAppointment, doctors, loading } = useApp();
+    const { addAppointment, doctors, loading, fetchDoctorImage } = useApp();
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [bookingFormData, setBookingFormData] = useState({
         patientName: '',
@@ -39,17 +109,6 @@ function Doctors() {
             setSelectedDoctor(null);
             setBookingFormData({ patientName: '', date: '', phone: '', reason: '' });
         }, 3000);
-    };
-
-    // Default image if none exists
-    const getDefaultImage = (idx) => {
-        const fallbacks = [
-            'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=300&h=300',
-            'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=300&h=300',
-            'https://images.unsplash.com/photo-1594824436951-7f1262d04840?auto=format&fit=crop&q=80&w=300&h=300',
-            'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300'
-        ];
-        return fallbacks[idx % fallbacks.length];
     };
 
     return (
@@ -113,56 +172,19 @@ function Doctors() {
                     ) : (
                         <div className="doctors-grid">
                             {doctors.map((doc, idx) => (
-                                <motion.div
-                                    key={doc.id}
-                                    className="doctor-card glass-panel"
-                                    whileHover={{ y: -5, boxShadow: 'var(--shadow-lg)' }}
-                                >
-                                    <div className="doc-img-wrapper">
-                                        <img src={doc.image_base64 || getDefaultImage(idx)} alt={doc.name} className="doc-image" />
-                                        <div className="doc-exp-badge">{doc.experience}</div>
-                                    </div>
-
-                                    <div className="doc-info" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <h3 className="doc-name" style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.5rem 0' }}>{doc.name.toUpperCase()}</h3>
-                                        <div className="doc-specialty-badge" style={{ 
-                                            background: '#f0fdfa', color: '#0d9488', padding: '4px 12px', 
-                                            borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, 
-                                            marginBottom: '1rem', border: '1px solid #ccfbf1' 
-                                        }}>
-                                            {doc.specialty.toUpperCase()}
-                                        </div>
-
-                                        <p className="doc-about text-muted" style={{ fontSize: '0.85rem', marginBottom: '0.5rem', lineHeight: '1.4' }}>
-                                            {doc.about || "Expert clinical consultant specializing in advanced healthcare and patient care."}
-                                        </p>
-                                        
-                                        {doc.reg_no && (
-                                            <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
-                                                REG NO: {doc.reg_no}
-                                            </p>
-                                        )}
-
-                                        <button
-                                            className="btn btn-primary btn-block mt-auto"
-                                            onClick={() => setSelectedDoctor(doc)}
-                                            style={{ 
-                                                borderRadius: '12px', padding: '12px', fontWeight: 700, 
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                                                gap: '8px', width: '100%', border: 'none'
-                                            }}
-                                        >
-                                            <Calendar size={18} /> BOOK APPOINTMENT
-                                        </button>
-                                    </div>
-                                </motion.div>
+                                <DoctorCard 
+                                    key={doc.id} 
+                                    doc={doc} 
+                                    idx={idx} 
+                                    onSelect={setSelectedDoctor} 
+                                    fetchImage={fetchDoctorImage}
+                                />
                             ))}
                         </div>
                     )}
                 </div>
             </section>
 
-            {/* Booking / Profile Modal */}
             <AnimatePresence>
                 {selectedDoctor && (
                     <div className="modal-overlay">

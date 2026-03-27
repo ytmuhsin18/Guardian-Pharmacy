@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useEffect, memo } from 'react';
+import { useApp } from '../../context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Shield, AlertCircle, Heart, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap } from 'lucide-react';
 import './MedicineDetailModal.css';
 
-const MedicineDetailModal = ({
+const MedicineDetailModal = memo(({
     medicine, isOpen, onClose, cart, onAdd, onRemove,
     activeImageIndex, setActiveImageIndex
 }) => {
+    const { fetchMedicineImage } = useApp();
     if (!medicine) return null;
 
     const cartItem = cart.find(item => item.id === medicine.id);
     const quantity = cartItem ? cartItem.quantity : 0;
+
+    useEffect(() => {
+        if (isOpen && (!medicine.images || medicine.images.length === 0)) {
+            fetchMedicineImage(medicine.id);
+        }
+    }, [isOpen, medicine.id, medicine.images, fetchMedicineImage]);
 
     return (
         <AnimatePresence>
@@ -137,6 +145,6 @@ const MedicineDetailModal = ({
             )}
         </AnimatePresence>
     );
-};
+});
 
-export default React.memo(MedicineDetailModal);
+export default MedicineDetailModal;

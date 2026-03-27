@@ -36,7 +36,7 @@ const playCartSound = (action) => {
 
 function Medicines() {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedMedicine, setSelectedMedicine] = useState(null); 
     const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
@@ -53,8 +53,10 @@ function Medicines() {
 
     const filteredMedicines = React.useMemo(() => {
         return medicines.filter(med => {
-            return med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                med.category.toLowerCase().includes(searchTerm.toLowerCase());
+            const name = med.name || '';
+            const category = med.category || '';
+            return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                category.toLowerCase().includes(searchTerm.toLowerCase());
         });
     }, [medicines, searchTerm]);
 
@@ -177,8 +179,10 @@ function Medicines() {
             {/* Products Grid */}
             <section className="med-products" id="products-listing-start">
                 <div className="container">
-                    {medicines.length === 0 ? (
+                    {loading && medicines.length === 0 ? (
                         <div className="text-center py-8">Loading Medicines...</div>
+                    ) : medicines.length === 0 ? (
+                        <div className="text-center py-8">No medicines available in the store.</div>
                     ) : (
                         <motion.div
                             className="products-grid"

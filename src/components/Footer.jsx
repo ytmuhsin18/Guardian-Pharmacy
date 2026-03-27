@@ -15,7 +15,7 @@ function Footer() {
                         </span>
                     </div>
                     <p className="footer-desc">
-                        Your trusted partner in healthcare. Providing quality medicines, precise lab tests, and seamless doctor appointments.
+                        Your trusted partner in healthcare. Providing quality medicines and seamless doctor appointments.
                     </p>
                     <div className="review-badge">
                         <Star className="text-accent" fill="#f59e0b" size={18} />

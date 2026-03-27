@@ -1,6 +1,103 @@
 import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Pill, CheckCircle, Save, X, Search, ToggleRight, ToggleLeft, Edit2, Trash2, Paperclip } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
+
+const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
+    const { fetchMedicineImage } = useApp();
+    const [imageSrc, setImageSrc] = React.useState(
+        (Array.isArray(med.images) && med.images.length > 0) ? med.images[0] : med.image_base64
+    );
+    const [isVisible, setIsVisible] = React.useState(false);
+    const rowRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (rowRef.current) {
+            observer.observe(rowRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    React.useEffect(() => {
+        if (isVisible && !imageSrc) {
+            fetchMedicineImage(med.id).then(base64 => {
+                if (base64) setImageSrc(base64);
+            });
+        }
+    }, [isVisible, med.id, imageSrc, fetchMedicineImage]);
+
+    return (
+        <tr ref={rowRef}>
+            <td>
+                {imageSrc ? (
+                    <img
+                        src={imageSrc}
+                        alt={med.name}
+                        style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px', background: 'white', border: '1px solid #e2e8f0' }}
+                        loading="lazy"
+                    />
+                ) : (
+                    <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
+                        <Pill size={20} color="#94a3b8" />
+                    </div>
+                )}
+            </td>
+            <td>
+                <strong>{med.name}</strong><br />
+                {med.combination && <span className="text-muted text-sm">{med.combination}</span>}
+            </td>
+            <td>{med.category}</td>
+            <td>
+                ₹{med.price}
+                {med.discount > 0 && <span style={{ marginLeft: '8px', color: '#ea580c', fontSize: '0.8rem', fontWeight: 'bold' }}>-{med.discount}%</span>}
+            </td>
+            <td>
+                <button
+                    className={`stock-toggle-btn ${med.inStock ? 'in-stock' : 'out-of-stock'}`}
+                    onClick={() => onToggleStock(med.id, med.inStock)}
+                    title={med.inStock ? 'Click to mark Out of Stock' : 'Click to mark In Stock'}
+                >
+                    {med.inStock ? (
+                        <><ToggleRight size={20} /> In Stock</>
+                    ) : (
+                        <><ToggleLeft size={20} /> Out of Stock</>
+                    )}
+                </button>
+            </td>
+            <td>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        className="btn-icon accept"
+                        onClick={() => onEdit(med)}
+                        title="Edit Medicine"
+                        style={{ background: '#e0f2fe', color: 'var(--primary)', border: '1px solid #bae6fd' }}
+                    >
+                        <Edit2 size={16} />
+                    </button>
+                    <button
+                        className="btn-icon reject"
+                        onClick={() => onDelete(med.id, med.name)}
+                        title="Delete Medicine"
+                        style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca' }}
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
+            </td>
+        </tr>
+    );
+});
 
 const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock }) => {
     const [newMedicine, setNewMedicine] = useState({
@@ -97,9 +194,9 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
 
     const filteredMedicines = useMemo(() => {
         return medicines.filter(m =>
-            m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (m.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (m.combination && m.combination.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            m.category.toLowerCase().includes(searchTerm.toLowerCase())
+            (m.category || '').toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [medicines, searchTerm]);
 
@@ -159,7 +256,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Home Care">Home Care</option>
                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                     <option value="Maternity Care">Maternity Care</option>
-                                    <option value="Surgical Products">Categories</option>
+                                    <option value="Surgical Products">Surgical Products</option>
                                     <option value="Physiotherapy">Physiotherapy</option>
                                     <option value="Teeth Care">Teeth Care</option>
                                 </select>
@@ -321,58 +418,13 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                             </thead>
                             <tbody>
                                 {filteredMedicines.map(med => (
-                                    <tr key={med.id}>
-                                        <td>
-                                            <img
-                                                src={(Array.isArray(med.images) && med.images.length > 0) ? med.images[0] : (med.image_base64 || 'https://via.placeholder.com/50')}
-                                                alt={med.name}
-                                                style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px', background: 'white', border: '1px solid #e2e8f0' }}
-                                                loading="lazy"
-                                            />
-                                        </td>
-                                        <td>
-                                            <strong>{med.name}</strong><br />
-                                            {med.combination && <span className="text-muted text-sm">{med.combination}</span>}
-                                        </td>
-                                        <td>{med.category}</td>
-                                        <td>
-                                            ₹{med.price}
-                                            {med.discount > 0 && <span style={{ marginLeft: '8px', color: '#ea580c', fontSize: '0.8rem', fontWeight: 'bold' }}>-{med.discount}%</span>}
-                                        </td>
-                                        <td>
-                                            <button
-                                                className={`stock-toggle-btn ${med.inStock ? 'in-stock' : 'out-of-stock'}`}
-                                                onClick={() => toggleMedicineStock(med.id, med.inStock)}
-                                                title={med.inStock ? 'Click to mark Out of Stock' : 'Click to mark In Stock'}
-                                            >
-                                                {med.inStock ? (
-                                                    <><ToggleRight size={20} /> In Stock</>
-                                                ) : (
-                                                    <><ToggleLeft size={20} /> Out of Stock</>
-                                                )}
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button
-                                                    className="btn-icon accept"
-                                                    onClick={() => handleEditMedicine(med)}
-                                                    title="Edit Medicine"
-                                                    style={{ background: '#e0f2fe', color: 'var(--primary)', border: '1px solid #bae6fd' }}
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    className="btn-icon reject"
-                                                    onClick={() => handleDeleteMedicine(med.id, med.name)}
-                                                    title="Delete Medicine"
-                                                    style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca' }}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <MedicineTableRow
+                                        key={med.id}
+                                        med={med}
+                                        onEdit={handleEditMedicine}
+                                        onDelete={handleDeleteMedicine}
+                                        onToggleStock={toggleMedicineStock}
+                                    />
                                 ))}
                                 {filteredMedicines.length === 0 && (
                                     <tr>

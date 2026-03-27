@@ -12,13 +12,13 @@ import DoctorsTab from '../components/admin/DoctorsTab';
 
 function AdminDashboard() {
     const navigate = useNavigate();
-    const { 
-        appointments, updateAppointmentStatus, updateAppointmentToken, 
-        orders, updateOrderStatus, 
-        medicines, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock,
+    const {
+        appointments, updateAppointmentStatus, updateAppointmentToken,
+        orders, updateOrderStatus,
+        medicines, addMedicine, bulkAddMedicines, updateMedicineData, deleteMedicine, toggleMedicineStock,
         doctors, addDoctor, updateDoctorAvailability, updateDoctorData, updateDoctorImage, deleteDoctor
     } = useApp();
-    
+
     const [activeTab, setActiveTab] = useState('orders');
 
     useEffect(() => {
@@ -89,9 +89,9 @@ function AdminDashboard() {
             <main className="admin-main">
                 <header className="admin-header">
                     <h1 className="title">
-                        {activeTab === 'orders' ? 'Customer Orders' : 
-                         activeTab === 'appointments' ? 'Doctor Appointments' : 
-                         activeTab === 'upload' ? 'Manage Medicines' : 'Edit Doctors'}
+                        {activeTab === 'orders' ? 'Customer Orders' :
+                            activeTab === 'appointments' ? 'Doctor Appointments' :
+                                activeTab === 'upload' ? 'Manage Medicines' : 'Edit Doctors'}
                     </h1>
                 </header>
 
@@ -101,25 +101,26 @@ function AdminDashboard() {
                     )}
 
                     {activeTab === 'appointments' && (
-                        <AppointmentsTab 
-                            appointments={appointments} 
-                            updateAppointmentStatus={updateAppointmentStatus} 
-                            updateAppointmentToken={updateAppointmentToken} 
+                        <AppointmentsTab
+                            appointments={appointments}
+                            updateAppointmentStatus={updateAppointmentStatus}
+                            updateAppointmentToken={updateAppointmentToken}
                         />
                     )}
 
                     {activeTab === 'upload' && (
-                        <MedicinesTab 
-                            medicines={medicines} 
-                            addMedicine={addMedicine} 
-                            updateMedicineData={updateMedicineData} 
+                        <MedicinesTab
+                            medicines={medicines}
+                            addMedicine={addMedicine}
+                            bulkAddMedicines={bulkAddMedicines}
+                            updateMedicineData={updateMedicineData}
                             deleteMedicine={deleteMedicine}
                             toggleMedicineStock={toggleMedicineStock}
                         />
                     )}
 
                     {activeTab === 'doctors' && (
-                        <DoctorsTab 
+                        <DoctorsTab
                             doctors={doctors}
                             addDoctor={addDoctor}
                             updateDoctorData={updateDoctorData}

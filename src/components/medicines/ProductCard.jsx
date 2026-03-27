@@ -1,12 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Minus, Pill } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
-const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => {
+const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => {
+    const { fetchMedicineImage } = useApp();
     const navigate = useNavigate();
     const cartItem = cart.find(item => item.id === medicine.id);
     const quantity = cartItem ? cartItem.quantity : 0;
+
+    const [isVisible, setIsVisible] = useState(false);
+    const cardRef = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (cardRef.current) observer.observe(cardRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (isVisible && (!medicine.images || medicine.images.length === 0) && !medicine.image_base64) {
+            fetchMedicineImage(medicine.id);
+        }
+    }, [isVisible, medicine.id, medicine.images, medicine.image_base64, fetchMedicineImage]);
 
     const handleCardClick = () => {
         navigate(`/medicine/${medicine.id}`);
@@ -14,6 +40,7 @@ const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart 
 
     return (
         <motion.div
+            ref={cardRef}
             layout
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -80,7 +107,6 @@ const ProductCard = React.memo(({ medicine, cart, onAddToCart, onRemoveFromCart 
                 <h3 className="product-name-new">{medicine.name}</h3>
 
                 <div className="product-meta-new">
-                    <span className="pack-size">1 pack ({medicine.combination?.split('+')[0] || '10 tabs'})</span>
                     <div className="product-tag-pill">{medicine.category}</div>
                 </div>
 

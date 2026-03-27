@@ -5,7 +5,7 @@ const AppContext = createContext();
 
 export function AppProvider({ children }) {
     const [medicines, setMedicines] = useState([]);
-    const [labTests, setLabTests] = useState([]);
+
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [orders, setOrders] = useState([]);
@@ -24,69 +24,91 @@ export function AppProvider({ children }) {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Fetch medicines
-            const { data: medsData, error: medsError } = await supabase.from('medicines').select('*').order('id', { ascending: true });
-            if (medsError) console.error("Error fetching medicines:", medsError);
-            if (medsData) {
-                setMedicines(medsData.map(m => {
-                    let parsedImages = [];
-                    if (m.image_base64) {
-                        try {
-                            const parsed = JSON.parse(m.image_base64);
-                            parsedImages = Array.isArray(parsed) ? parsed : [m.image_base64];
-                        } catch (e) {
-                            parsedImages = [m.image_base64];
-                        }
+            // 1. Fetch medicines - BASIC DATA ONLY
+            try {
+                const { data: medsData, error: medsError } = await supabase
+                    .from('medicines')
+                    .select('id, name, combination, category, condition, price, discount, description, instock')
+                    .order('id', { ascending: false })
+                    .limit(50);
+
+                if (medsError) throw medsError;
+                if (medsData) setMedicines(medsData.map(m => mapMedicineToFrontend(m)));
+            } catch (error) {
+                console.error("Error fetching medicines:", error);
+            }
+
+            // 2. Fetch doctors - BASIC DATA ONLY
+            try {
+                const { data: docsData, error: docsError } = await supabase
+                    .from('doctors')
+                    .select('id, name, specialty, experience, about, availability_start, availability_end')
+                    .order('id', { ascending: true });
+
+                if (docsError) throw docsError;
+                if (docsData) setDoctors(docsData.map(d => mapDoctorToFrontend(d)));
+            } catch (error) {
+                console.error("Error fetching doctors:", error);
+            }
+
+            // 3. Fetch appointments
+            try {
+                const { data: aptsData, error: aptsError } = await supabase
+                    .from('appointments')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (aptsError) throw aptsError;
+                if (aptsData) {
+                    setAppointments(aptsData.map(a => ({
+                        ...a,
+                        patientName: a.patientname,
+                        doctorId: a.doctorid,
+                        doctorName: a.doctorname,
+                        token_number: a.token_number || null
+                    })));
+                }
+            } catch (error) {
+                console.error("Error fetching appointments:", error);
+            }
+
+            // 4. Fetch orders
+            try {
+                const { data: ordersData, error: ordersError } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (ordersError) throw ordersError;
+                if (ordersData) setOrders(ordersData);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+
+            // 5. Fetch prescriptions (Handle missing table gracefully)
+            try {
+                const { data: presData, error: presError } = await supabase
+                    .from('prescriptions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (presError) {
+                    if (presError.code === 'PGRST116' || presError.code === '42P01' || presError.message?.includes('not find')) {
+                        console.warn("Prescriptions service currently unavailable (table missing)");
+                    } else {
+                        console.error("Error fetching prescriptions:", presError);
                     }
-                    return { ...m, inStock: m.instock, images: parsedImages };
-                }));
+                } else if (presData) {
+                    setPrescriptions(presData.map(p => ({
+                        ...p,
+                        image_base64: ensureBase64Prefix(p.image_base64)
+                    })));
+                }
+            } catch (error) {
+                console.warn("Soft fail on prescriptions:", error.message);
             }
-
-            // Fetch lab tests
-            const { data: testsData, error: testsError } = await supabase.from('lab_tests').select('*').order('id', { ascending: true });
-            if (testsError) console.error("Error fetching lab tests:", testsError);
-            if (testsData) {
-                setLabTests(testsData.map(t => ({ ...t, originalPrice: t.originalprice, testsIncluded: t.testsincluded })));
-            }
-
-            // Fetch doctors
-            const { data: docsData, error: docsError } = await supabase.from('doctors').select('*').order('id', { ascending: true });
-            if (docsError) console.error("Error fetching doctors:", docsError);
-            if (docsData) {
-                setDoctors(docsData.map(d => ({
-                    ...d,
-                    availability_start: d.availability_start || '06:00 PM',
-                    availability_end: d.availability_end || '10:00 PM'
-                })));
-            }
-
-            // Fetch appointments
-            const { data: aptsData, error: aptsError } = await supabase.from('appointments').select('*').order('created_at', { ascending: false });
-            if (aptsError) console.error("Error fetching appointments:", aptsError);
-            if (aptsData) {
-                setAppointments(aptsData.map(a => ({
-                    ...a,
-                    patientName: a.patientname,
-                    doctorId: a.doctorid,
-                    doctorName: a.doctorname,
-                    token_number: a.token_number || null
-                })));
-            }
-
-            // Fetch orders
-            const { data: ordersData, error: ordersError } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-            if (ordersError) console.error("Error fetching orders:", ordersError);
-            if (ordersData) {
-                setOrders(ordersData);
-            }
-            // Fetch prescriptions
-            const { data: presData, error: presError } = await supabase.from('prescriptions').select('*').order('created_at', { ascending: false });
-            if (presError) console.error("Error fetching prescriptions:", presError);
-            if (presData) {
-                setPrescriptions(presData);
-            }
-        } catch (error) {
-            console.error("Error fetching data:", error);
+        } catch (globalError) {
+            console.error("Critical error in fetchData:", globalError);
         } finally {
             setLoading(false);
         }
@@ -248,31 +270,92 @@ export function AppProvider({ children }) {
             image_base64: medicine.images ? JSON.stringify(medicine.images) : (medicine.image_base64 || null)
         };
 
-        console.log("Inserting medicine:", dbMedicine);
         const { data, error } = await supabase.from('medicines').insert([dbMedicine]).select();
-
-        if (error) {
-            console.error("Failed to add medicine - DB Error:", error);
-            return false;
-        }
+        if (error) return false;
 
         if (data && data.length > 0) {
-            const newMed = data[0];
-            let parsedImages = [];
-            if (newMed.image_base64) {
-                try {
-                    const parsed = JSON.parse(newMed.image_base64);
-                    parsedImages = Array.isArray(parsed) ? parsed : [newMed.image_base64];
-                } catch (e) {
-                    parsedImages = [newMed.image_base64];
-                }
-            }
-            setMedicines(prev => [...prev, { ...newMed, inStock: newMed.instock, images: parsedImages }]);
-            console.log("Medicine added successfully:", newMed);
+            setMedicines(prev => [mapMedicineToFrontend(data[0]), ...prev]);
             return true;
         }
-
         return false;
+    };
+
+    const bulkAddMedicines = async (medicinesList) => {
+        const dbMedicines = medicinesList.map(med => ({
+            name: med.name,
+            combination: med.combination || null,
+            category: med.category || 'Pharmacy',
+            condition: med.condition || 'All',
+            price: parseFloat(med.price) || 0,
+            discount: med.discount ? parseFloat(med.discount) : 0,
+            description: med.description || null,
+            instock: med.inStock !== undefined ? med.inStock : true,
+            image_base64: med.images ? JSON.stringify(med.images) : (med.image_base64 || null)
+        }));
+
+        // Chunk processing for 5000+ items
+        const chunkSize = 500;
+        let successCount = 0;
+        for (let i = 0; i < dbMedicines.length; i += chunkSize) {
+            const chunk = dbMedicines.slice(i, i + chunkSize);
+            const { data, error } = await supabase.from('medicines').insert(chunk).select();
+            if (data) successCount += data.length;
+            if (error) console.error(`Chunk error at ${i}:`, error);
+        }
+
+        if (successCount > 0) {
+            await fetchData();
+            return true;
+        }
+        return false;
+    };
+
+    const ensureBase64Prefix = (img) => {
+        if (!img) return null;
+        if (img.startsWith('data:image/') || img.startsWith('http') || img.startsWith('blob:')) {
+            return img;
+        }
+        // If it looks like base64 but misses prefix
+        return `data:image/png;base64,${img}`;
+    };
+
+    const mapMedicineToFrontend = (m) => {
+        let parsedImages = [];
+        if (m.image_base64) {
+            try {
+                // Check if it's a JSON array of images
+                if (m.image_base64.startsWith('[') && m.image_base64.endsWith(']')) {
+                    const parsed = JSON.parse(m.image_base64);
+                    parsedImages = Array.isArray(parsed) ? parsed : [m.image_base64];
+                } else {
+                    parsedImages = [m.image_base64];
+                }
+            } catch (e) {
+                parsedImages = [m.image_base64];
+            }
+        }
+
+        // Ensure all images are valid base64 with prefix
+        const processedImages = parsedImages.map(img => ensureBase64Prefix(img));
+
+        return {
+            ...m,
+            name: m.name || 'Unknown',
+            category: m.category || 'Pharmacy',
+            combination: m.combination || '',
+            inStock: m.instock !== false && m.instock !== null,
+            images: processedImages,
+            image_base64: processedImages[0] || null
+        };
+    };
+
+    const mapDoctorToFrontend = (d) => {
+        return {
+            ...d,
+            availability_start: d.availability_start || '06:00 PM',
+            availability_end: d.availability_end || '10:00 PM',
+            image_base64: ensureBase64Prefix(d.image_base64)
+        };
     };
 
     const updateMedicineData = async (id, updatedData) => {
@@ -286,9 +369,9 @@ export function AppProvider({ children }) {
             instock: updatedData.inStock !== undefined ? updatedData.inStock : true,
             image_base64: updatedData.images ? JSON.stringify(updatedData.images) : (updatedData.image_base64 || null)
         };
-        const { error } = await supabase.from('medicines').update(dbUpdate).eq('id', id);
-        if (!error) {
-            setMedicines(prev => prev.map(med => med.id === id ? { ...med, ...updatedData, inStock: updatedData.inStock } : med));
+        const { data, error } = await supabase.from('medicines').update(dbUpdate).eq('id', id).select();
+        if (!error && data) {
+            setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
             return true;
         } else {
             console.error("Failed to update medicine", error);
@@ -298,9 +381,9 @@ export function AppProvider({ children }) {
 
     const toggleMedicineStock = async (id, currentStatus) => {
         const newStatus = !currentStatus;
-        const { error } = await supabase.from('medicines').update({ instock: newStatus }).eq('id', id);
-        if (!error) {
-            setMedicines(prev => prev.map(med => med.id === id ? { ...med, inStock: newStatus } : med));
+        const { data, error } = await supabase.from('medicines').update({ instock: newStatus }).eq('id', id).select();
+        if (!error && data) {
+            setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
             return true;
         } else {
             console.error("Failed to toggle stock status", error);
@@ -309,9 +392,9 @@ export function AppProvider({ children }) {
     };
 
     const updateMedicineImage = async (id, base64Image) => {
-        const { error } = await supabase.from('medicines').update({ image_base64: base64Image }).eq('id', id);
-        if (!error) {
-            setMedicines(prev => prev.map(med => med.id === id ? { ...med, image_base64: base64Image } : med));
+        const { data, error } = await supabase.from('medicines').update({ image_base64: base64Image }).eq('id', id).select();
+        if (!error && data) {
+            setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
         }
     };
 
@@ -326,6 +409,27 @@ export function AppProvider({ children }) {
         }
     };
 
+    const fetchMedicineImage = async (id) => {
+        try {
+            const { data, error } = await supabase
+                .from('medicines')
+                .select('image_base64')
+                .eq('id', id)
+                .single();
+
+            if (!error && data) {
+                const processed = mapMedicineToFrontend(data);
+                setMedicines(prev => prev.map(med =>
+                    med.id === id ? { ...med, image_base64: processed.image_base64, images: processed.images } : med
+                ));
+                return processed.image_base64;
+            }
+        } catch (e) {
+            console.error("Error fetching medicine image:", e);
+        }
+        return null;
+    };
+
     const addDoctor = async (doctor) => {
         const dbDoctor = {
             name: doctor.name,
@@ -338,11 +442,7 @@ export function AppProvider({ children }) {
         };
         const { data, error } = await supabase.from('doctors').insert([dbDoctor]).select();
         if (data && !error) {
-            setDoctors(prev => [...prev, {
-                ...data[0],
-                availability_start: data[0].availability_start || '06:00 PM',
-                availability_end: data[0].availability_end || '10:00 PM'
-            }]);
+            setDoctors(prev => [...prev, mapDoctorToFrontend(data[0])]);
             return true;
         } else {
             console.error("Failed to add doctor", error);
@@ -351,9 +451,9 @@ export function AppProvider({ children }) {
     };
 
     const updateDoctorImage = async (id, base64Image) => {
-        const { error } = await supabase.from('doctors').update({ image_base64: base64Image }).eq('id', id);
-        if (!error) {
-            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, image_base64: base64Image } : doc));
+        const { data, error } = await supabase.from('doctors').update({ image_base64: base64Image }).eq('id', id).select();
+        if (!error && data) {
+            setDoctors(prev => prev.map(doc => doc.id === id ? mapDoctorToFrontend(data[0]) : doc));
         } else {
             console.error("Failed to update doctor image", error);
         }
@@ -380,14 +480,35 @@ export function AppProvider({ children }) {
             availability_start: updatedData.availability_start,
             availability_end: updatedData.availability_end
         };
-        const { error } = await supabase.from('doctors').update(dbUpdate).eq('id', id);
-        if (!error) {
-            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, ...updatedData } : doc));
+        const { data, error } = await supabase.from('doctors').update(dbUpdate).eq('id', id).select();
+        if (!error && data) {
+            setDoctors(prev => prev.map(doc => doc.id === id ? mapDoctorToFrontend(data[0]) : doc));
             return true;
         } else {
             console.error("Failed to update doctor details", error);
             return false;
         }
+    };
+
+    const fetchDoctorImage = async (id) => {
+        try {
+            const { data, error } = await supabase
+                .from('doctors')
+                .select('image_base64')
+                .eq('id', id)
+                .single();
+
+            if (!error && data) {
+                const processed = mapDoctorToFrontend(data);
+                setDoctors(prev => prev.map(doc =>
+                    doc.id === id ? { ...doc, image_base64: processed.image_base64 } : doc
+                ));
+                return processed.image_base64;
+            }
+        } catch (e) {
+            console.error("Error fetching doctor image:", e);
+        }
+        return null;
     };
 
     const deleteDoctor = async (id) => {
@@ -405,17 +526,20 @@ export function AppProvider({ children }) {
         <AppContext.Provider value={{
             medicines,
             addMedicine,
+            bulkAddMedicines,
             updateMedicineImage,
             updateMedicineData,
             deleteMedicine,
             toggleMedicineStock,
-            labTests,
+            fetchMedicineImage,
+
             doctors,
             addDoctor,
             updateDoctorImage,
             updateDoctorAvailability,
             updateDoctorData,
             deleteDoctor,
+            fetchDoctorImage,
             cart,
             addToCart,
             removeFromCart,
