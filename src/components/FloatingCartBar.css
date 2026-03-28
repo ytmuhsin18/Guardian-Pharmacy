@@ -1,17 +1,19 @@
 .floating-cart-bar {
     position: fixed;
-    bottom: 53px; /* Flush with standard mobile navbar height */
-    left: 0;
-    right: 0;
+    bottom: 100px; /* Elevated further up as requested */
+    left: 10px;
+    right: 10px;
     background: #166534;
-    padding: 12px 20px;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
-    z-index: 999;
+    padding: 14px 20px;
+    box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
     display: flex;
     align-items: center;
     justify-content: space-between;
     transition: transform 0.2s ease, background 0.2s ease;
     cursor: pointer;
+    border-radius: 16px; /* Rounded for a more modern floating look */
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (min-width: 768px) {

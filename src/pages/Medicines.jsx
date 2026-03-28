@@ -38,15 +38,16 @@ function Medicines() {
     const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
 
-    const handleAddToCartItem = (item) => {
+    const handleAddToCartItem = React.useCallback((item) => {
         addToCart(item);
+        setIsCartOpen(true); // Automatically show cart on add for direct feedback
         playCartSound('add');
-    };
+    }, [addToCart, setIsCartOpen]);
 
-    const handleRemoveFromCartItem = (id) => {
+    const handleRemoveFromCartItem = React.useCallback((id) => {
         removeFromCart(id);
         playCartSound('remove');
-    };
+    }, [removeFromCart]);
 
     const filteredMedicines = React.useMemo(() => {
         return medicines.filter(med => {

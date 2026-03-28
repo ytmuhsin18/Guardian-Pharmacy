@@ -128,28 +128,17 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
                 <div className="product-price-row">
                     <span className="price-pill">₹{Number(medicine.price).toFixed(0)}</span>
                     {medicine.discount > 0 && (
-                        <span className="mrp-old">₹{(medicine.price / (1 - medicine.discount / 100)).toFixed(0)}</span>
+                        <span className="mrp-old">MRP ₹{(medicine.price / (1 - medicine.discount / 100)).toFixed(0)}</span>
                     )}
                 </div>
 
                 {medicine.discount > 0 && (
-                    <div className="savings-label">₹{(medicine.price * medicine.discount / 100).toFixed(0)} OFF</div>
+                    <div className="savings-label" style={{ color: '#10b981', fontWeight: 800, fontSize: '0.85rem' }}>
+                        {medicine.discount}% OFF
+                    </div>
                 )}
 
                 <h3 className="product-name-new">{medicine.name}</h3>
-
-                <div className="product-meta-new">
-                    <div className="product-tag-pill">{medicine.category}</div>
-                </div>
-
-                <div className="product-footer-new">
-                    <div className="rating-row">
-                        <div className="star-icon">★</div>
-                        <span className="rating-val">4.8</span>
-                        <span className="rating-count">(100+)</span>
-                    </div>
-                    <div className="no-fee">No Convenience Fee</div>
-                </div>
             </div>
         </motion.div>
     );

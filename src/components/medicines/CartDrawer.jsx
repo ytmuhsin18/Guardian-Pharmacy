@@ -90,12 +90,7 @@ const CartDrawer = ({
                                             animate={{ opacity: 1, y: 0 }}
                                         >
                                             <div className="empty-cart-visual">
-                                                <ShoppingCart size={80} strokeWidth={1} className="empty-icon" />
-                                                <motion.div
-                                                    className="empty-ring"
-                                                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
-                                                    transition={{ duration: 3, repeat: Infinity }}
-                                                />
+                                                <img src="/empty-cart.png" alt="Empty Cart" className="empty-cart-img" />
                                             </div>
                                             <h3>Your cart is empty</h3>
                                             <p>Looks like you haven't added anything yet. Explore our categories to get started!</p>
@@ -160,7 +155,9 @@ const CartDrawer = ({
                                                     </div>
                                                     <div className="summary-row">
                                                         <span className="label">Delivery Fee</span>
-                                                        <span className="value success-text">FREE</span>
+                                                        <span className={`value ${cartTotal >= 500 ? 'success-text' : ''}`}>
+                                                            {cartTotal >= 500 ? 'FREE' : '₹40.00'}
+                                                        </span>
                                                     </div>
                                                     <div className="summary-row promo-row" style={{ opacity: totalDiscountAmount > 0 ? 1 : 0.6 }}>
                                                         <div className="label-with-icon">
@@ -171,7 +168,7 @@ const CartDrawer = ({
                                                     </div>
                                                     <div className="summary-total-row">
                                                         <span className="label">Total Amount</span>
-                                                        <span className="value">₹{cartTotal.toFixed(2)}</span>
+                                                        <span className="value">₹{(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}</span>
                                                     </div>
                                                     {totalDiscountAmount > 0 && (
                                                         <motion.div
@@ -193,7 +190,7 @@ const CartDrawer = ({
                                         >
                                             <div className="btn-content">
                                                 <div className="btn-left">
-                                                    <span className="btn-total">₹{cartTotal.toFixed(2)}</span>
+                                                    <span className="btn-total">₹{(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}</span>
                                                     <span className="btn-label">TOTAL AMOUNT</span>
                                                 </div>
                                                 <div className="btn-right">
@@ -284,7 +281,7 @@ const CartDrawer = ({
                                 <div className="premium-cart-footer shadow-lg" style={{ marginTop: 'auto' }}>
                                     <div className="summary-total-row" style={{ marginBottom: '1rem', borderTop: 'none', paddingTop: 0 }}>
                                         <span className="label">Amount Payable:</span>
-                                        <span className="value">₹{cartTotal.toFixed(2)}</span>
+                                        <span className="value">₹{(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}</span>
                                     </div>
                                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                                         <button
