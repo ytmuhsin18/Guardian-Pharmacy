@@ -8,7 +8,6 @@ import physioBanner from '../assets/physiotherapy.png';
 
 // Import modular components for consistency
 import ProductCard from '../components/medicines/ProductCard';
-import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
 import FloatingCartBar from '../components/FloatingCartBar';
 import CartDrawer from '../components/medicines/CartDrawer';
 import SearchInput from '../components/medicines/SearchInput';
@@ -21,8 +20,6 @@ function Physiotherapy() {
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
-    const [selectedMedicine, setSelectedMedicine] = useState(null);
-    const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
     const [customerDetails, setCustomerDetails] = useState({
         name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
     });
@@ -148,7 +145,6 @@ function Physiotherapy() {
                                         cart={cart}
                                         onAddToCart={addToCart}
                                         onRemoveFromCart={removeFromCart}
-                                        onQuickView={(med) => { setSelectedMedicine(med); setActiveModalImageIndex(0); }}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -182,17 +178,7 @@ function Physiotherapy() {
                 </div>
             )}
 
-            {/* Medicine Detail Quick View Modal */}
-            <MedicineDetailModal
-                medicine={selectedMedicine}
-                isOpen={!!selectedMedicine}
-                onClose={() => setSelectedMedicine(null)}
-                cart={cart}
-                onAdd={addToCart}
-                onRemove={removeFromCart}
-                activeImageIndex={activeModalImageIndex}
-                setActiveImageIndex={setActiveModalImageIndex}
-            />
+
 
             {/* Floating Cart Bar (for mobile parity) */}
             {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}

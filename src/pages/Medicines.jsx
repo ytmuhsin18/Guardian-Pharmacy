@@ -7,7 +7,6 @@ import './Medicines.css';
 
 import ProductCard from '../components/medicines/ProductCard';
 import SearchInput from '../components/medicines/SearchInput';
-import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
 
 const playCartSound = (action) => {
     try {
@@ -38,8 +37,6 @@ function Medicines() {
     const navigate = useNavigate();
     const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedMedicine, setSelectedMedicine] = useState(null);
-    const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
 
     const handleAddToCartItem = (item) => {
         addToCart(item);
@@ -68,7 +65,6 @@ function Medicines() {
                     <div className="med-header-flex">
                         <div>
                             <h1 className="title">Pharmacy <span className="gradient-text">Store</span></h1>
-                            <p className="subtitle">Order authentic medicines for immediate delivery.</p>
                         </div>
 
                         <div className="search-bar-container">
@@ -196,7 +192,6 @@ function Medicines() {
                                         cart={cart}
                                         onAddToCart={handleAddToCartItem}
                                         onRemoveFromCart={handleRemoveFromCartItem}
-                                        onQuickView={(med) => { setSelectedMedicine(med); setActiveModalImageIndex(0); }}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -213,17 +208,7 @@ function Medicines() {
                 </div>
             </section>
 
-            {/* Medicine Detail Quick View Modal */}
-            <MedicineDetailModal
-                medicine={selectedMedicine}
-                isOpen={!!selectedMedicine}
-                onClose={() => setSelectedMedicine(null)}
-                cart={cart}
-                onAdd={handleAddToCartItem}
-                onRemove={handleRemoveFromCartItem}
-                activeImageIndex={activeModalImageIndex}
-                setActiveImageIndex={setActiveModalImageIndex}
-            />
+
         </div>
     );
 }

@@ -76,7 +76,7 @@ function App() {
             <Route path="/medicine/:id" element={<MedicineDetails />} />
             <Route path="/lab-tests" element={<LabTests />} />
             <Route path="/doctors" element={<Doctors />} />
-            <Route path="/surgical-products" element={<SurgicalProducts />} />
+            <Route path="/categories" element={<SurgicalProducts />} />
             <Route path="/physiotherapy" element={<Physiotherapy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/login" element={<Login />} />

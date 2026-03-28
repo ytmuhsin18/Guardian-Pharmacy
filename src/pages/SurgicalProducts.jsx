@@ -13,7 +13,6 @@ import painReliefIcon from '../assets/pain-relief-model.png';
 
 // Import modular components for consistency
 import ProductCard from '../components/medicines/ProductCard';
-import MedicineDetailModal from '../components/medicines/MedicineDetailModal';
 import FloatingCartBar from '../components/FloatingCartBar';
 import CartDrawer from '../components/medicines/CartDrawer';
 import SearchInput from '../components/medicines/SearchInput';
@@ -27,7 +26,6 @@ const CAT_TABS = [
     { id: 'surgical', label: 'Ortho & Surgical', image: 'https://cdn-icons-png.flaticon.com/512/10189/10189173.png', dbCats: ['Surgical Products'] },
     { id: 'adult', label: 'Adult Care', image: 'https://cdn-icons-png.flaticon.com/512/3028/3028514.png', dbCats: ['Sexual Wellness', 'Personal Care'] },
     { id: 'mother', label: 'Mother Care', image: 'https://cdn-icons-png.flaticon.com/512/3663/3663363.png', dbCats: ['Maternity Care'] },
-    { id: 'physio', label: 'Physiotherapy', image: 'https://cdn-icons-png.flaticon.com/512/3144/3144805.png', dbCats: ['Physiotherapy'] },
     { id: 'teeth', label: 'Teeth Care', image: 'https://cdn-icons-png.flaticon.com/512/3461/3461654.png', dbCats: ['Teeth Care'] },
     { id: 'home', label: 'Home & Devices', image: 'https://cdn-icons-png.flaticon.com/512/3004/3004458.png', dbCats: ['Home Care', 'Healthcare Devices'] },
 ];
@@ -42,8 +40,6 @@ function SurgicalProducts() {
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(null);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
-    const [selectedMedicine, setSelectedMedicine] = useState(null);
-    const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
     const [customerDetails, setCustomerDetails] = useState({
         name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
     });
@@ -101,7 +97,7 @@ function SurgicalProducts() {
                     <div className="med-header-flex">
                         <div className="header-info-group">
                             <div>
-                                <h1 className="title">Store <span className="gradient-text">Categories</span></h1>
+                                <h1 className="title"><span className="gradient-text">Categories</span></h1>
                                 <p className="subtitle">Quality healthcare products across all essential categories.</p>
                             </div>
                         </div>
@@ -233,7 +229,6 @@ function SurgicalProducts() {
                                             cart={cart}
                                             onAddToCart={addToCart}
                                             onRemoveFromCart={removeFromCart}
-                                            onQuickView={(med) => { setSelectedMedicine(med); setActiveModalImageIndex(0); }}
                                         />
                                     ))}
                                 </AnimatePresence>
@@ -268,17 +263,7 @@ function SurgicalProducts() {
                 </div>
             )}
 
-            {/* Medicine Detail Quick View Modal */}
-            <MedicineDetailModal
-                medicine={selectedMedicine}
-                isOpen={!!selectedMedicine}
-                onClose={() => setSelectedMedicine(null)}
-                cart={cart}
-                onAdd={addToCart}
-                onRemove={removeFromCart}
-                activeImageIndex={activeModalImageIndex}
-                setActiveImageIndex={setActiveModalImageIndex}
-            />
+
 
             {/* Floating Cart Bar (for mobile parity) */}
             {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}

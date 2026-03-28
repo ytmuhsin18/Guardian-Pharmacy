@@ -44,124 +44,144 @@ function MedicineDetails() {
     const quantity = cartItem ? cartItem.quantity : 0;
 
     return (
-        <div className="medicine-details-page-wrapper">
-            <div className="container" style={{ padding: '3rem 1rem' }}>
-                <motion.button
-                    className="text-back-btn"
+        <div className="medicine-details-container" style={{ background: '#f8fafc' }}>
+            <div className="container">
+                <button
+                    className="back-btn"
                     onClick={() => navigate(-1)}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
                 >
-                    <ArrowLeft size={16} /> Back to Medicines
-                </motion.button>
+                    <ArrowLeft size={18} /> Back to Products
+                </button>
 
                 <motion.div
-                    className="product-page-layout-grid"
-                    initial={{ opacity: 0, y: 20 }}
+                    className="details-grid"
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                 >
                     {/* Left: Image Card */}
-                    <div className="product-image-card">
-                        <div className="main-image-container">
-                            <motion.img
-                                key={activeImageIndex}
-                                src={(Array.isArray(product.images) && product.images.length > 0) ? product.images[activeImageIndex] : (product.image_base64 || 'https://via.placeholder.com/400')}
-                                alt={product.name}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="main-modal-img inline-page-img"
-                            />
-                            {product.discount > 0 && (
-                                <div className="page-discount-badge">-{product.discount}% OFF</div>
-                            )}
-                            <button className="click-to-zoom-btn">
-                                <Search size={14} /> Click to zoom
-                            </button>
-                        </div>
-                        {Array.isArray(product.images) && product.images.length > 1 && (
-                            <div className="thumbnail-grid" style={{ background: 'transparent', padding: '1rem 0 0 0' }}>
-                                {product.images.map((img, idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`thumb-item ${activeImageIndex === idx ? 'active' : ''}`}
-                                        onClick={() => setActiveImageIndex(idx)}
-                                    >
-                                        <img src={img} alt="" />
-                                    </div>
-                                ))}
+                    <div className="details-visual-panel shadow-sm" style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
+                        <div className="gallery-layout">
+                            <div className="main-image-wrapper">
+                                <motion.img
+                                    key={activeImageIndex}
+                                    src={(Array.isArray(product.images) && product.images.length > 0) ? product.images[activeImageIndex] : (product.image_base64 || 'https://via.placeholder.com/400')}
+                                    alt={product.name}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="main-image"
+                                />
+                                {product.discount > 0 && (
+                                    <div className="discount-tag">-{product.discount}% OFF</div>
+                                )}
+                                <div className="zoom-hint">
+                                    <Search size={12} style={{ display: 'inline', marginRight: '4px' }} /> Click to zoom
+                                </div>
                             </div>
-                        )}
+                            
+                            {Array.isArray(product.images) && product.images.length > 1 && (
+                                <div className="thumbnails-wrapper">
+                                    {product.images.map((img, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`thumbnail-btn ${activeImageIndex === idx ? 'active' : ''}`}
+                                            onClick={() => setActiveImageIndex(idx)}
+                                        >
+                                            <img src={img} alt="" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Right: Info Section transparent on page background */}
-                    <div className="product-info-direct">
-                        <div className="modal-info-header">
-                            <div className="page-category-tag">{product.category || 'CATEGORIES'}</div>
-                            <h2 className="page-name-title">{product.name}</h2>
+                    {/* Right: Info Section */}
+                    <div className="product-text-panel" style={{ padding: '1rem 0' }}>
+                        <div>
+                            <span className="category-label">{product.category || 'Pharmacy'}</span>
+                            <h1 className="medicine-name" style={{ marginBottom: '1rem' }}>{product.name}</h1>
+                            {product.combination && (
+                                <p className="combination-text">{product.combination}</p>
+                            )}
                         </div>
 
-                        <div className="modal-pricing-new page-pricing-box">
-                            <div className="price-row-new">
-                                <span className="current-price-teal">₹{Number(product.price).toFixed(2)}</span>
+                        <div className="pricing-section">
+                            <div className="price-display">
+                                <span className="actual-price">₹{Number(product.price).toFixed(2)}</span>
                                 {product.discount > 0 && (
-                                    <span className="mrp-old-gray" style={{ color: '#94a3b8' }}>MRP <s>₹{(product.price / (1 - product.discount / 100)).toFixed(2)}</s></span>
+                                    <span className="mrp-display">MRP <s>₹{(product.price / (1 - product.discount / 100)).toFixed(2)}</s></span>
                                 )}
                             </div>
-                            <p className="tax-label-light">Inclusive of all taxes</p>
+                            <p className="tax-info">Inclusive of all taxes</p>
                         </div>
 
-                        <hr className="dashed-separator" style={{ borderColor: '#e2e8f0', borderTopStyle: 'dashed', borderTopWidth: '2px' }} />
-
-                        <div className="modal-action-inline page-action-row">
-                            <div className="quantity-pill-new">
-                                <button 
-                                    className="q-btn-new" 
-                                    onClick={() => {
-                                        if(quantity > 0) removeFromCart(product.id);
-                                    }}
-                                    disabled={quantity === 0}
-                                >
-                                    <Minus size={16} />
-                                </button>
-                                <span className="q-val-new">{quantity > 0 ? quantity : 1}</span>
-                                <button 
-                                    className="q-btn-new" 
-                                    onClick={() => addToCart(product)}
-                                >
-                                    <Plus size={16} />
-                                </button>
+                        <div className="action-section">
+                            <div className="purchase-controls-wrapper">
+                                {quantity > 0 ? (
+                                    <div className="quantity-box" style={{ background: '#0f172a' }}>
+                                        <button 
+                                            className="qty-btn" 
+                                            onClick={() => removeFromCart(product.id)}
+                                        >
+                                            <Minus size={18} color="#0f172a" />
+                                        </button>
+                                        <span className="qty-value" style={{ color: 'white' }}>{quantity}</span>
+                                        <button 
+                                            className="qty-btn" 
+                                            onClick={() => addToCart(product)}
+                                        >
+                                            <Plus size={18} color="#0f172a" />
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="btn btn-primary add-to-cart-btn"
+                                        onClick={() => addToCart(product)}
+                                        disabled={!product.inStock}
+                                        style={{ background: '#0d9488', border: 'none', height: '56px', boxShadow: '0 8px 25px rgba(13, 148, 136, 0.3)' }}
+                                    >
+                                        <ShoppingCart size={22} />
+                                        Add to Cart
+                                    </button>
+                                )}
                             </div>
-                            <button
-                                className={`btn-add-cart-new ${quantity > 0 ? 'added' : ''}`}
-                                onClick={() => { if(quantity === 0) addToCart(product); }}
-                                disabled={!product.inStock}
-                            >
-                                <ShoppingCart size={18} fill={quantity > 0 ? "white" : "none"} />
-                                {quantity > 0 ? 'Added to Cart' : 'Add to Cart'}
-                            </button>
+                            
+                            {!product.inStock && (
+                                <div className="out-of-stock-alert" style={{ marginTop: '1.5rem' }}>
+                                    <AlertCircle size={20} />
+                                    This product is currently out of stock
+                                </div>
+                            )}
                         </div>
 
-                        <div className="modal-features-row page-features-block">
-                            <div className="feat-box-new direct-feat-box">
-                                <div className="feat-icon-new direct-feat-icon">
-                                    <Shield size={20} className="teal-icon" />
-                                </div>
-                                <div className="feat-text-new">
-                                    <strong>100% Genuine</strong>
-                                    <span>Sourced from authorized distributors</span>
+                        <div className="trust-grid">
+                            <div className="trust-card shadow-sm" style={{ background: 'white' }}>
+                                <Shield size={28} className="text-primary" style={{ color: '#0d9488' }} />
+                                <div>
+                                    <h4 style={{ color: '#0f172a' }}>100% Genuine</h4>
+                                    <p>Sourced from authorized distributors</p>
                                 </div>
                             </div>
-                            <div className="feat-box-new direct-feat-box">
-                                <div className="feat-icon-new direct-feat-icon">
-                                    <Truck size={20} className="teal-icon" />
-                                </div>
-                                <div className="feat-text-new">
-                                    <strong>Safe Delivery</strong>
-                                    <span>Free delivery on orders above ₹500</span>
+                            <div className="trust-card shadow-sm" style={{ background: 'white' }}>
+                                <Truck size={28} className="text-primary" style={{ color: '#0d9488' }} />
+                                <div>
+                                    <h4 style={{ color: '#0f172a' }}>Safe Delivery</h4>
+                                    <p>Free delivery on orders above ₹500</p>
                                 </div>
                             </div>
                         </div>
+                        
+                        {(product.description || product.manufacturer) && (
+                            <div className="product-description-section" style={{ background: 'white', padding: '2rem', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                                <h3>Product Details</h3>
+                                <div className="description-text">
+                                    {product.description && <p style={{ marginBottom: '1rem' }}>{product.description}</p>}
+                                    {product.manufacturer && (
+                                        <p><strong>Manufacturer:</strong> {product.manufacturer}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </div>

@@ -34,9 +34,9 @@
   --border-radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-glow: 0 0 30px rgba(0, 184, 148, 0.25);
   --shadow-glow-blue: 0 0 30px rgba(9, 132, 227, 0.2);
 
@@ -129,6 +129,7 @@ ul {
   .title {
     font-size: 1.75rem;
   }
+
   .subtitle {
     font-size: 0.92rem;
   }
@@ -269,9 +270,17 @@ ul {
 }
 
 /* ── Utility ── */
-.text-primary { color: var(--primary); }
-.text-muted { color: var(--text-muted); }
-.text-center { text-align: center; }
+.text-primary {
+  color: var(--primary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-center {
+  text-align: center;
+}
 
 /* ── Action Banners ── */
 .action-banner-item {
@@ -307,10 +316,19 @@ ul {
   justify-content: center;
 }
 
-.call-icon { background: #e0f7fa; color: #00acc1; }
-.wa-icon   { background: #fce4ec; color: #e91e63; }
+.call-icon {
+  background: #e0f7fa;
+  color: #00acc1;
+}
 
-.action-text-wrapper { overflow: hidden; }
+.wa-icon {
+  background: #fce4ec;
+  color: #e91e63;
+}
+
+.action-text-wrapper {
+  overflow: hidden;
+}
 
 .action-text-wrapper h3 {
   font-size: 1rem;
@@ -334,8 +352,23 @@ ul {
     gap: 8px;
     flex: 1 1 calc(50% - 0.5rem);
   }
-  .action-icon-wrapper { padding: 7px; }
-  .action-icon { width: 16px; height: 16px; }
-  .action-text-wrapper h3 { font-size: 0.8rem; white-space: normal; line-height: 1.2; }
-  .action-text-wrapper p { font-size: 0.68rem; }
+
+  .action-icon-wrapper {
+    padding: 7px;
+  }
+
+  .action-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-text-wrapper h3 {
+    font-size: 0.8rem;
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .action-text-wrapper p {
+    font-size: 0.68rem;
+  }
 }
