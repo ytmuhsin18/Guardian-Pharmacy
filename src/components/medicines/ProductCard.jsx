@@ -2,15 +2,15 @@ import React, { useEffect, useState, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Minus, Pill } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { supabase } from '../../lib/supabase';
 
-const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => {
-    const { fetchMedicineImage } = useApp();
+const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQuickView }) => {
     const navigate = useNavigate();
     const cartItem = cart.find(item => item.id === medicine.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 
     const [isVisible, setIsVisible] = useState(false);
+    const [localImage, setLocalImage] = useState(null);
     const cardRef = useRef(null);
 
     useEffect(() => {
@@ -28,14 +28,48 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => 
         return () => observer.disconnect();
     }, []);
 
+    const resolvedImage = localImage || medicine.image_base64 || (medicine.images && medicine.images[0]) || null;
+
     useEffect(() => {
-        if (isVisible && (!medicine.images || medicine.images.length === 0) && !medicine.image_base64) {
-            fetchMedicineImage(medicine.id);
+        if (isVisible && !resolvedImage) {
+            const fetchLocalImage = async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('medicines')
+                        .select('image_base64')
+                        .eq('id', medicine.id)
+                        .single();
+
+                    if (!error && data?.image_base64) {
+                        let img = data.image_base64;
+                        if (img.startsWith('[')) {
+                            try { const parsed = JSON.parse(img); img = parsed[0]; } catch (e) { }
+                        }
+                        if (typeof img === 'string') {
+                            const cleaned = img.trim();
+                            if (cleaned !== 'null' && cleaned !== 'undefined' && cleaned !== '' && cleaned !== '[]') {
+                                setLocalImage(
+                                    (cleaned.startsWith('data:image/') || cleaned.startsWith('http') || cleaned.startsWith('blob:'))
+                                        ? cleaned
+                                        : `data:image/png;base64,${cleaned}`
+                                );
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Local image fetch failed:", e);
+                }
+            };
+            fetchLocalImage();
         }
-    }, [isVisible, medicine.id, medicine.images, medicine.image_base64, fetchMedicineImage]);
+    }, [isVisible, resolvedImage, medicine.id]);
 
     const handleCardClick = () => {
-        navigate(`/medicine/${medicine.id}`);
+        if (onQuickView) {
+            onQuickView(medicine);
+        } else {
+            navigate(`/medicine/${medicine.id}`);
+        }
     };
 
     return (
@@ -54,10 +88,8 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart }) => 
                     onClick={handleCardClick}
                     style={{ cursor: 'pointer' }}
                 >
-                    {(Array.isArray(medicine.images) && medicine.images.length > 0) ? (
-                        <img src={medicine.images[0]} alt={medicine.name} className="product-img" loading="lazy" />
-                    ) : medicine.image_base64 ? (
-                        <img src={medicine.image_base64} alt={medicine.name} className="product-img" loading="lazy" />
+                    {resolvedImage ? (
+                        <img src={resolvedImage} alt={medicine.name} className="product-img" loading="lazy" />
                     ) : (
                         <div className="product-placeholder">
                             <Pill size={40} className="text-muted" />

@@ -38,7 +38,7 @@ function Medicines() {
     const navigate = useNavigate();
     const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedMedicine, setSelectedMedicine] = useState(null); 
+    const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [activeModalImageIndex, setActiveModalImageIndex] = useState(0);
 
     const handleAddToCartItem = (item) => {

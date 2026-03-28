@@ -69,7 +69,7 @@ function Physiotherapy() {
 
 
     return (
-        <motion.div 
+        <motion.div
             className="medicines-page"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ function Physiotherapy() {
             <section className="med-header section-padding" style={{ background: '#f0fdfa' }}>
                 <div className="container">
                     <div className="med-header-flex">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.5 }}
@@ -88,7 +88,7 @@ function Physiotherapy() {
                         </motion.div>
 
                         <div className="search-bar-container">
-                            <motion.div 
+                            <motion.div
                                 className="search-input-wrapper"
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileFocus={{ scale: 1.04, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
@@ -107,10 +107,10 @@ function Physiotherapy() {
 
                     {/* Quick Action: Home Appointment */}
                     <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'center' }}>
-                        <a href="tel:9487469098" className="action-banner-item" style={{ 
-                            background: 'white', border: '1px solid #0d9488', borderRadius: '24px', 
-                            padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', 
-                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(13, 148, 136, 0.1)', 
+                        <a href="tel:9487469098" className="action-banner-item" style={{
+                            background: 'white', border: '1px solid #0d9488', borderRadius: '24px',
+                            padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px',
+                            cursor: 'pointer', boxShadow: '0 4px 15px rgba(13, 148, 136, 0.1)',
                             flex: '1', maxWidth: '450px', textDecoration: 'none', color: 'inherit'
                         }}>
                             <div>

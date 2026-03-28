@@ -91,7 +91,7 @@
     position: absolute;
     bottom: 12px;
     right: 12px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     font-size: 0.72rem;
     font-weight: 600;
@@ -359,7 +359,8 @@
 @media (max-width: 768px) {
     .medicine-details-container {
         padding-top: 0.75rem;
-        padding-bottom: 6rem; /* space for mobile nav bar */
+        padding-bottom: 6rem;
+        /* space for mobile nav bar */
     }
 
     .back-btn {

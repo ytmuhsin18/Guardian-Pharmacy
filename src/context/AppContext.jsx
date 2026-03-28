@@ -23,92 +23,81 @@ export function AppProvider({ children }) {
 
     const fetchData = async () => {
         setLoading(true);
+
+        const fetchMedicinesAsync = async () => {
+            const { data, error } = await supabase
+                .from('medicines')
+                .select('id, name, combination, category, condition, price, discount, description, instock')
+                .order('id', { ascending: false })
+                .limit(50);
+            if (error) throw error;
+            if (data) setMedicines(data.map(m => mapMedicineToFrontend(m)));
+        };
+
+        const fetchDoctorsAsync = async () => {
+            const { data, error } = await supabase
+                .from('doctors')
+                .select('id, name, specialty, experience, about, availability_start, availability_end')
+                .order('id', { ascending: true });
+            if (error) throw error;
+            if (data) setDoctors(data.map(d => mapDoctorToFrontend(d)));
+        };
+
+        const fetchAppointmentsAsync = async () => {
+            const { data, error } = await supabase
+                .from('appointments')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) {
+                setAppointments(data.map(a => ({
+                    ...a,
+                    patientName: a.patientname,
+                    doctorId: a.doctorid,
+                    doctorName: a.doctorname,
+                    token_number: a.token_number || null
+                })));
+            }
+        };
+
+        const fetchOrdersAsync = async () => {
+            const { data, error } = await supabase
+                .from('orders')
+                .select('id, customer_name, phone, whatsapp, address, pincode, email, total_amount, status, created_at, items')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            if (data) setOrders(data);
+        };
+
+        const fetchPrescriptionsAsync = async () => {
+            const { data, error } = await supabase
+                .from('prescriptions')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                if (error.code === 'PGRST116' || error.code === '42P01' || error.message?.includes('not find')) {
+                    console.warn("Prescriptions table missing");
+                } else {
+                    throw error;
+                }
+            } else if (data) {
+                setPrescriptions(data.map(p => ({
+                    ...p,
+                    image_base64: ensureBase64Prefix(p.image_base64)
+                })));
+            }
+        };
+
         try {
-            // 1. Fetch medicines - BASIC DATA ONLY
-            try {
-                const { data: medsData, error: medsError } = await supabase
-                    .from('medicines')
-                    .select('id, name, combination, category, condition, price, discount, description, instock')
-                    .order('id', { ascending: false })
-                    .limit(50);
-
-                if (medsError) throw medsError;
-                if (medsData) setMedicines(medsData.map(m => mapMedicineToFrontend(m)));
-            } catch (error) {
-                console.error("Error fetching medicines:", error);
-            }
-
-            // 2. Fetch doctors - BASIC DATA ONLY
-            try {
-                const { data: docsData, error: docsError } = await supabase
-                    .from('doctors')
-                    .select('id, name, specialty, experience, about, availability_start, availability_end')
-                    .order('id', { ascending: true });
-
-                if (docsError) throw docsError;
-                if (docsData) setDoctors(docsData.map(d => mapDoctorToFrontend(d)));
-            } catch (error) {
-                console.error("Error fetching doctors:", error);
-            }
-
-            // 3. Fetch appointments
-            try {
-                const { data: aptsData, error: aptsError } = await supabase
-                    .from('appointments')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (aptsError) throw aptsError;
-                if (aptsData) {
-                    setAppointments(aptsData.map(a => ({
-                        ...a,
-                        patientName: a.patientname,
-                        doctorId: a.doctorid,
-                        doctorName: a.doctorname,
-                        token_number: a.token_number || null
-                    })));
-                }
-            } catch (error) {
-                console.error("Error fetching appointments:", error);
-            }
-
-            // 4. Fetch orders
-            try {
-                const { data: ordersData, error: ordersError } = await supabase
-                    .from('orders')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (ordersError) throw ordersError;
-                if (ordersData) setOrders(ordersData);
-            } catch (error) {
-                console.error("Error fetching orders:", error);
-            }
-
-            // 5. Fetch prescriptions (Handle missing table gracefully)
-            try {
-                const { data: presData, error: presError } = await supabase
-                    .from('prescriptions')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (presError) {
-                    if (presError.code === 'PGRST116' || presError.code === '42P01' || presError.message?.includes('not find')) {
-                        console.warn("Prescriptions service currently unavailable (table missing)");
-                    } else {
-                        console.error("Error fetching prescriptions:", presError);
-                    }
-                } else if (presData) {
-                    setPrescriptions(presData.map(p => ({
-                        ...p,
-                        image_base64: ensureBase64Prefix(p.image_base64)
-                    })));
-                }
-            } catch (error) {
-                console.warn("Soft fail on prescriptions:", error.message);
-            }
+            await Promise.allSettled([
+                fetchMedicinesAsync(),
+                fetchDoctorsAsync(),
+                fetchAppointmentsAsync(),
+                fetchOrdersAsync(),
+                fetchPrescriptionsAsync()
+            ]);
         } catch (globalError) {
-            console.error("Critical error in fetchData:", globalError);
+            console.error("Critical error in concurrent fetchData:", globalError);
         } finally {
             setLoading(false);
         }
@@ -193,6 +182,14 @@ export function AppProvider({ children }) {
     };
 
     const addOrder = async (orderDetails) => {
+        const sanitizedItems = (orderDetails.items || []).map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            category: item.category
+        }));
+
         const dbOrder = {
             customer_name: orderDetails.customer_name,
             phone: orderDetails.phone,
@@ -200,7 +197,7 @@ export function AppProvider({ children }) {
             address: orderDetails.address,
             pincode: orderDetails.pincode,
             email: orderDetails.email || null,
-            items: orderDetails.items,
+            items: sanitizedItems,
             total_amount: orderDetails.total_amount,
             status: 'Pending'
         };
@@ -311,12 +308,15 @@ export function AppProvider({ children }) {
     };
 
     const ensureBase64Prefix = (img) => {
-        if (!img) return null;
-        if (img.startsWith('data:image/') || img.startsWith('http') || img.startsWith('blob:')) {
-            return img;
+        if (!img || typeof img !== 'string') return null;
+        const cleaned = img.trim();
+        if (cleaned === 'null' || cleaned === 'undefined' || cleaned === '' || cleaned === '[]') return null;
+
+        if (cleaned.startsWith('data:image/') || cleaned.startsWith('http') || cleaned.startsWith('blob:')) {
+            return cleaned;
         }
         // If it looks like base64 but misses prefix
-        return `data:image/png;base64,${img}`;
+        return `data:image/png;base64,${cleaned}`;
     };
 
     const mapMedicineToFrontend = (m) => {
@@ -336,7 +336,7 @@ export function AppProvider({ children }) {
         }
 
         // Ensure all images are valid base64 with prefix
-        const processedImages = parsedImages.map(img => ensureBase64Prefix(img));
+        const processedImages = parsedImages.map(img => ensureBase64Prefix(img)).filter(Boolean);
 
         return {
             ...m,
@@ -345,7 +345,7 @@ export function AppProvider({ children }) {
             combination: m.combination || '',
             inStock: m.instock !== false && m.instock !== null,
             images: processedImages,
-            image_base64: processedImages[0] || null
+            image_base64: processedImages.length > 0 ? processedImages[0] : null
         };
     };
 
