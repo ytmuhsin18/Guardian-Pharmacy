@@ -1,19 +1,55 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Package, CheckCircle, X } from 'lucide-react';
+import { Package, CheckCircle, X, Search } from 'lucide-react';
 
 const OrdersTab = memo(({ orders, updateOrderStatus }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredOrders = useMemo(() => {
+        if (!searchTerm.trim()) return orders;
+        const lowSearch = searchTerm.toLowerCase();
+        return orders.filter(order => 
+            (order.customer_name || '').toLowerCase().includes(lowSearch) ||
+            (order.phone || '').includes(lowSearch) ||
+            (order.whatsapp || '').includes(lowSearch)
+        );
+    }, [orders, searchTerm]);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="appointments-view"
         >
-            {orders.length === 0 ? (
+            {/* Search Bar Container */}
+            <div className="search-bar-container" style={{ marginBottom: '1.5rem', maxWidth: '440px' }}>
+                <div className="search-input-wrapper" style={{ position: 'relative', display: 'flex', gap: '8px' }}>
+                    <div style={{ position: 'relative', flexGrow: 1 }}>
+                        <Search 
+                            className="search-icon" 
+                            size={18} 
+                            style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} 
+                        />
+                        <input 
+                            type="text" 
+                            placeholder="Find by name, phone or whatsapp..." 
+                            className="input-field" 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ paddingLeft: '2.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', height: '48px', width: '100%', borderRadius: '12px' }}
+                        />
+                    </div>
+                    <button className="btn btn-primary" style={{ height: '48px', padding: '0 1.5rem', borderRadius: '12px', flexShrink: 0 }}>
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            {filteredOrders.length === 0 ? (
                 <div className="empty-state glass-panel">
                     <Package size={48} className="text-muted" />
-                    <h3>No Orders Yet</h3>
-                    <p>When customers place orders, they will appear here.</p>
+                    <h3>{searchTerm ? 'No matching orders found' : 'No Orders Yet'}</h3>
+                    <p>{searchTerm ? 'Try a different name or number.' : 'When customers place orders, they will appear here.'}</p>
                 </div>
             ) : (
                 <div className="appointments-table-wrapper glass-panel">
@@ -28,7 +64,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {orders.map(order => (
+                            {filteredOrders.map(order => (
                                 <tr key={order.id}>
                                     <td>
                                         <strong>{order.customer_name}</strong><br />
@@ -37,7 +73,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus }) => {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            {order.items.map((item, idx) => (
+                                            {(order.items || []).map((item, idx) => (
                                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     {item.image ? (
                                                         <img

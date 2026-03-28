@@ -40,9 +40,9 @@ function Medicines() {
 
     const handleAddToCartItem = React.useCallback((item) => {
         addToCart(item);
-        setIsCartOpen(true); // Automatically show cart on add for direct feedback
+        // setIsCartOpen(true); Removed auto-open per user request
         playCartSound('add');
-    }, [addToCart, setIsCartOpen]);
+    }, [addToCart]);
 
     const handleRemoveFromCartItem = React.useCallback((id) => {
         removeFromCart(id);
