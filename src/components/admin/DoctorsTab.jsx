@@ -68,6 +68,16 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
         }
     };
 
+    const handleDeleteDoctor = async (id, name) => {
+        if (window.confirm(`Are you sure you want to delete Dr. ${name}? This will also delete all of their upcoming appointments.`)) {
+            const success = await deleteDoctor(id);
+            if (success) {
+                setDoctorUploadSuccess('Doctor profile deleted successfully!');
+                setTimeout(() => setDoctorUploadSuccess(false), 3000);
+            }
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -240,7 +250,7 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                                                 />
                                                 <Paperclip size={16} className="text-muted" />
                                             </div>
-                                            <button className="btn-icon reject" onClick={() => deleteDoctor(doc.id, doc.name)} title="Delete"><Trash2 size={16} /></button>
+                                            <button className="btn-icon reject" onClick={() => handleDeleteDoctor(doc.id, doc.name)} title="Delete"><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>

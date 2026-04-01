@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Shield, AlertCircle, Heart, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap, Search, Truck, ArrowLeft } from 'lucide-react';
+import { X, CheckCircle, Shield, AlertCircle, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap, Search, Truck, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import '../components/medicines/MedicineDetailModal.css'; // Has basic pill styles but we override in MedicineDetails.css
 import './MedicineDetails.css';
@@ -12,12 +12,22 @@ function MedicineDetails() {
     const { medicines, cart, addToCart, removeFromCart, fetchMedicineImage } = useApp();
     const [product, setProduct] = useState(null);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 100);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         const found = medicines.find(m => m.id?.toString() === id?.toString());
         if (found) {
             setProduct(found);
             window.scrollTo(0, 0);
+            setActiveImageIndex(0);
         }
     }, [id, medicines]);
 
@@ -45,9 +55,32 @@ function MedicineDetails() {
 
     return (
         <div className="medicine-details-container" style={{ background: '#f8fafc' }}>
-            <div className="container">
+            {/* Mobile-Friendly Header */}
+            <div className={`mobile-details-header ${isScrolled ? 'scrolled' : ''}`}>
+                <div className="header-content">
+                    <button className="icon-btn back-circle" onClick={() => navigate(-1)}>
+                        <ArrowLeft size={22} />
+                    </button>
+                    {!isScrolled ? (
+                        <h2 className="header-brand-name">Guardian <span style={{ color: '#0d9488' }}>Pharmacy</span></h2>
+                    ) : (
+                        <motion.h2 
+                            className="header-product-name"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                        >
+                            {product.name}
+                        </motion.h2>
+                    )}
+                    <div className="header-actions">
+                        {/* Hidden as requested */}
+                    </div>
+                </div>
+            </div>
+
+            <div className="container main-content-area">
                 <button
-                    className="back-btn"
+                    className="desktop-back-btn"
                     onClick={() => navigate(-1)}
                 >
                     <ArrowLeft size={18} /> Back to Products
@@ -55,28 +88,56 @@ function MedicineDetails() {
 
                 <motion.div
                     className="details-grid"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
                 >
                     {/* Left: Image Card */}
                     <div className="details-visual-panel shadow-sm" style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.04)' }}>
                         <div className="gallery-layout">
                             <div className="main-image-wrapper">
-                                <motion.img
-                                    key={activeImageIndex}
-                                    src={(Array.isArray(product.images) && product.images.length > 0) ? product.images[activeImageIndex] : (product.image_base64 || 'https://via.placeholder.com/400')}
-                                    alt={product.name}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="main-image"
-                                />
+                                <div className="carousel-container">
+                                    <motion.div 
+                                        className="carousel-track"
+                                        animate={{ x: `-${activeImageIndex * 100}%` }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        drag="x"
+                                        dragConstraints={{ left: -((product.images?.length - 1) * 100), right: 0 }}
+                                        onDragEnd={(e, { offset, velocity }) => {
+                                            const swipeThreshold = 50;
+                                            if (Array.isArray(product.images) && product.images.length > 1) {
+                                                if (offset.x > swipeThreshold && activeImageIndex > 0) {
+                                                    setActiveImageIndex(activeImageIndex - 1);
+                                                } else if (offset.x < -swipeThreshold && activeImageIndex < product.images.length - 1) {
+                                                    setActiveImageIndex(activeImageIndex + 1);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        {(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image_base64 || 'https://via.placeholder.com/400']).map((img, i) => (
+                                            <div key={i} className="carousel-slide">
+                                                <img src={img} alt={`${product.name} ${i + 1}`} className="main-image" />
+                                            </div>
+                                        ))}
+                                    </motion.div>
+                                </div>
+
                                 {product.discount > 0 && (
                                     <div className="discount-tag">-{product.discount}% OFF</div>
                                 )}
-                                <div className="zoom-hint">
-                                    <Search size={12} style={{ display: 'inline', marginRight: '4px' }} /> Click to zoom
-                                </div>
+                                
+                                {/* Pagination Dots for Mobile */}
+                                {Array.isArray(product.images) && product.images.length > 1 && (
+                                    <div className="mobile-pagination-dots">
+                                        {product.images.map((_, idx) => (
+                                            <div 
+                                                key={idx} 
+                                                className={`dot ${activeImageIndex === idx ? 'active' : ''}`}
+                                                onClick={() => setActiveImageIndex(idx)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             
                             {Array.isArray(product.images) && product.images.length > 1 && (
@@ -184,6 +245,38 @@ function MedicineDetails() {
                         )}
                     </div>
                 </motion.div>
+            </div>
+
+            {/* Mobile Sticky Bottom Bar */}
+            <div className="mobile-action-bar">
+                <div className="mobile-action-content">
+                    <div className="mobile-price-preview">
+                        <span className="mb-label">Total Price</span>
+                        <span className="mb-price">₹{Number(product.price).toFixed(2)}</span>
+                    </div>
+                    <div className="mobile-action-btns">
+                        {quantity > 0 ? (
+                            <div className="mobile-qty-control">
+                                <button className="m-qty-btn" onClick={() => removeFromCart(product.id)}>
+                                    <Minus size={18} />
+                                </button>
+                                <span className="m-qty-val">{quantity}</span>
+                                <button className="m-qty-btn" onClick={() => addToCart(product)}>
+                                    <Plus size={18} />
+                                </button>
+                            </div>
+                        ) : (
+                            <button 
+                                className="mobile-add-btn" 
+                                onClick={() => addToCart(product)}
+                                disabled={!product.inStock}
+                            >
+                                <ShoppingCart size={20} />
+                                {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

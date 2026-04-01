@@ -44,35 +44,60 @@ export function AppProvider({ children }) {
         };
 
         const fetchAppointmentsAsync = async () => {
+            const seventyTwoHoursAgo = new Date();
+            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+
             const { data, error } = await supabase
                 .from('appointments')
                 .select('*')
                 .order('created_at', { ascending: false });
+            
             if (error) throw error;
             if (data) {
-                setAppointments(data.map(a => ({
+                // Filter locally first
+                const currentAppointments = data.filter(apt => new Date(apt.created_at) > seventyTwoHoursAgo);
+                
+                setAppointments(currentAppointments.map(a => ({
                     ...a,
                     patientName: a.patientname,
                     doctorId: a.doctorid,
                     doctorName: a.doctorname,
                     token_number: a.token_number || null
                 })));
+
+                // Trigger delete if we found old records
+                if (data.length > currentAppointments.length) {
+                    cleanupOldData();
+                }
             }
         };
 
         const fetchOrdersAsync = async () => {
-            const { data, error } = await supabase
-                .from('orders')
-                .select('id, customer_name, phone, whatsapp, address, pincode, email, total_amount, status, created_at, items')
-                .order('created_at', { ascending: false });
-            if (error) throw error;
-            if (data) setOrders(data);
-        };
+             const seventyTwoHoursAgo = new Date();
+             seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+             
+             const { data, error } = await supabase
+                 .from('orders')
+                 .select('id, customer_name, phone, whatsapp, address, pincode, email, total_amount, status, created_at, items')
+                 .order('created_at', { ascending: false });
+             
+             if (error) throw error;
+             if (data) {
+                 // Filter orders locally to ensure UI is fresh immediately
+                 const currentOrders = data.filter(order => new Date(order.created_at) > seventyTwoHoursAgo);
+                 setOrders(currentOrders);
+                 
+                 // If we find orders older than 72 hours, trigger a background delete
+                 if (data.length > currentOrders.length) {
+                     cleanupOldData();
+                 }
+             }
+         };
 
         const fetchPrescriptionsAsync = async () => {
             const { data, error } = await supabase
                 .from('prescriptions')
-                .select('*')
+                .select('id, status, created_at')
                 .order('created_at', { ascending: false });
             if (error) {
                 if (error.code === 'PGRST116' || error.code === '42P01' || error.message?.includes('not find')) {
@@ -83,7 +108,7 @@ export function AppProvider({ children }) {
             } else if (data) {
                 setPrescriptions(data.map(p => ({
                     ...p,
-                    image_base64: ensureBase64Prefix(p.image_base64)
+                    image_base64: null
                 })));
             }
         };
@@ -227,6 +252,24 @@ export function AppProvider({ children }) {
             setOrders(prev => prev.map(order => order.id === id ? { ...order, status } : order));
         } else {
             console.error("Failed to update status", error);
+        }
+    };
+
+    const cleanupOldData = async () => {
+        const seventyTwoHoursAgo = new Date();
+        seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+        const isoString = seventyTwoHoursAgo.toISOString();
+
+        try {
+            // Delete old orders
+            await supabase.from('orders').delete().lt('created_at', isoString);
+            
+            // Delete old appointments
+            await supabase.from('appointments').delete().lt('created_at', isoString);
+            
+            console.log("Old data (72h+) cleaned up successfully");
+        } catch (e) {
+            console.error("Cleanup error:", e);
         }
     };
 
@@ -430,6 +473,27 @@ export function AppProvider({ children }) {
         return null;
     };
 
+    const fetchPrescriptionImage = async (id) => {
+        try {
+            const { data, error } = await supabase
+                .from('prescriptions')
+                .select('image_base64')
+                .eq('id', id)
+                .single();
+
+            if (!error && data) {
+                const processedImage = ensureBase64Prefix(data.image_base64);
+                setPrescriptions(prev => prev.map(p =>
+                    p.id === id ? { ...p, image_base64: processedImage } : p
+                ));
+                return processedImage;
+            }
+        } catch (e) {
+            console.error("Error fetching prescription image:", e);
+        }
+        return null;
+    };
+
     const addDoctor = async (doctor) => {
         const dbDoctor = {
             name: doctor.name,
@@ -555,9 +619,11 @@ export function AppProvider({ children }) {
             orders,
             addOrder,
             updateOrderStatus,
+            cleanupOldData,
             prescriptions,
             uploadPrescription,
             updatePrescriptionStatus,
+            fetchPrescriptionImage,
             loading,
             fetchData
         }}>
