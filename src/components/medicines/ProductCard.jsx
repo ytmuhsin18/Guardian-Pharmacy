@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Minus, Pill } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 
 const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQuickView }) => {
     const navigate = useNavigate();
@@ -34,13 +33,10 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
         if (isVisible && !resolvedImage) {
             const fetchLocalImage = async () => {
                 try {
-                    const { data, error } = await supabase
-                        .from('medicines')
-                        .select('image_base64')
-                        .eq('id', medicine.id)
-                        .single();
+                    const res = await fetch(`/api/medicines/${medicine.id}/image`);
+                    const data = await res.json();
 
-                    if (!error && data?.image_base64) {
+                    if (res.ok && data?.image_base64) {
                         let img = data.image_base64;
                         if (img.startsWith('[')) {
                             try { const parsed = JSON.parse(img); img = parsed[0]; } catch (e) { }

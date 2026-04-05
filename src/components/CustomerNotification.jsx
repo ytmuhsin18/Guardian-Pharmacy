@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, CheckCircle, X, Package } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 import './CustomerNotification.css';
-
 function CustomerNotification() {
     const [notifications, setNotifications] = useState([]);
 
@@ -50,15 +48,18 @@ function CustomerNotification() {
         if (itemsToCheck.length === 0) return;
 
         try {
-            const { data, error } = await supabase
-                .from(tableName)
-                .select('id, status')
-                .in('id', itemsToCheck);
+            const response = await fetch(`/api/${tableName}/statusCheck`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: itemsToCheck })
+            });
 
-            if (error) {
-                console.error(`Error fetching ${tableName} status:`, error);
+            if (!response.ok) {
+                console.error(`Error fetching ${tableName} status`);
                 return;
             }
+            
+            const data = await response.json();
 
             if (data && data.length > 0) {
                 let anyNotified = false;

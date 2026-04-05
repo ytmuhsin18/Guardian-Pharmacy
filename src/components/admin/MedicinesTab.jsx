@@ -2,6 +2,7 @@ import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Pill, CheckCircle, Save, X, Search, ToggleRight, ToggleLeft, Edit2, Trash2, Paperclip } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 
 const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
     const { fetchMedicineImage } = useApp();
@@ -105,25 +106,27 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     });
     const [editingMedicineId, setEditingMedicineId] = useState(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            const readers = files.map(file => {
-                return new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(file);
-                });
-            });
+            setIsUploading(true);
+            try {
+                const uploadPromises = files.map(file => uploadToCloudinary(file));
+                const uploadedUrls = await Promise.all(uploadPromises);
 
-            Promise.all(readers).then(base64Images => {
                 setNewMedicine(prev => ({
                     ...prev,
-                    images: [...prev.images, ...base64Images]
+                    images: [...prev.images, ...uploadedUrls]
                 }));
-            });
+            } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Failed to upload image(s). Make sure you have created an Unsigned Upload Preset named 'guardian_pharma_uploads' in Cloudinary Settings.");
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
@@ -332,7 +335,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     Choose File
                                 </label>
                                 <span style={{ padding: '0 1rem', color: '#64748b', fontSize: '0.9rem' }}>
-                                    {newMedicine.images.length > 0 ? `${newMedicine.images.length} Image(s) selected` : 'No file chosen'}
+                                    {isUploading ? 'Uploading...' : (newMedicine.images.length > 0 ? `${newMedicine.images.length} Image(s) selected` : 'No file chosen')}
                                 </span>
                             </div>
                             {newMedicine.images.length > 0 && (

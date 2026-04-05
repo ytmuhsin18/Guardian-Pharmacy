@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -25,21 +24,16 @@ export function AppProvider({ children }) {
         setLoading(true);
 
         const fetchMedicinesAsync = async () => {
-            const { data, error } = await supabase
-                .from('medicines')
-                .select('id, name, combination, category, condition, price, discount, description, instock')
-                .order('id', { ascending: false })
-                .limit(50);
-            if (error) throw error;
+            const res = await fetch('/api/medicines');
+            if (!res.ok) throw new Error('API Error');
+            const data = await res.json();
             if (data) setMedicines(data.map(m => mapMedicineToFrontend(m)));
         };
 
         const fetchDoctorsAsync = async () => {
-            const { data, error } = await supabase
-                .from('doctors')
-                .select('id, name, specialty, experience, about, availability_start, availability_end')
-                .order('id', { ascending: true });
-            if (error) throw error;
+            const res = await fetch('/api/doctors');
+            if (!res.ok) throw new Error('API Error');
+            const data = await res.json();
             if (data) setDoctors(data.map(d => mapDoctorToFrontend(d)));
         };
 
@@ -47,16 +41,14 @@ export function AppProvider({ children }) {
             const seventyTwoHoursAgo = new Date();
             seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
 
-            const { data, error } = await supabase
-                .from('appointments')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (error) throw error;
+            const res = await fetch('/api/appointments');
+            if (!res.ok) throw new Error('API Error');
+            const data = await res.json();
+
             if (data) {
                 // Filter locally first
                 const currentAppointments = data.filter(apt => new Date(apt.created_at) > seventyTwoHoursAgo);
-                
+
                 setAppointments(currentAppointments.map(a => ({
                     ...a,
                     patientName: a.patientname,
@@ -73,39 +65,42 @@ export function AppProvider({ children }) {
         };
 
         const fetchOrdersAsync = async () => {
-             const seventyTwoHoursAgo = new Date();
-             seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
-             
-             const { data, error } = await supabase
-                 .from('orders')
-                 .select('id, customer_name, phone, whatsapp, address, pincode, email, total_amount, status, created_at, items')
-                 .order('created_at', { ascending: false });
-             
-             if (error) throw error;
-             if (data) {
-                 // Filter orders locally to ensure UI is fresh immediately
-                 const currentOrders = data.filter(order => new Date(order.created_at) > seventyTwoHoursAgo);
-                 setOrders(currentOrders);
-                 
-                 // If we find orders older than 72 hours, trigger a background delete
-                 if (data.length > currentOrders.length) {
-                     cleanupOldData();
-                 }
-             }
-         };
+            const seventyTwoHoursAgo = new Date();
+            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+
+            let res;
+            try {
+               res = await fetch('/api/orders');
+            } catch(e) { console.error('fetch order err', e); return; }
+            if (!res.ok) throw new Error('API Error');
+            const rawData = await res.json();
+            
+            // Format items properly as jsonb text retrieval logic handles items::text
+            const data = rawData.map(order => ({
+                 ...order,
+                 items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+            }));
+
+            if (data) {
+                // Filter orders locally to ensure UI is fresh immediately
+                const currentOrders = data.filter(order => new Date(order.created_at) > seventyTwoHoursAgo);
+                setOrders(currentOrders);
+
+                // If we find orders older than 72 hours, trigger a background delete
+                if (data.length > currentOrders.length) {
+                    cleanupOldData();
+                }
+            }
+        };
 
         const fetchPrescriptionsAsync = async () => {
-            const { data, error } = await supabase
-                .from('prescriptions')
-                .select('id, status, created_at')
-                .order('created_at', { ascending: false });
-            if (error) {
-                if (error.code === 'PGRST116' || error.code === '42P01' || error.message?.includes('not find')) {
-                    console.warn("Prescriptions table missing");
-                } else {
-                    throw error;
-                }
-            } else if (data) {
+            let res;
+            try {
+               res = await fetch('/api/prescriptions');
+            } catch(e) { return; }
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data) {
                 setPrescriptions(data.map(p => ({
                     ...p,
                     image_base64: null
@@ -161,8 +156,14 @@ export function AppProvider({ children }) {
             reason: appointment.reason,
             status: 'Pending'
         };
-        const { data, error } = await supabase.from('appointments').insert([dbAppointment]).select();
-        if (data && !error) {
+        const res = await fetch('/api/appointments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbAppointment)
+        });
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
             const newApt = data[0];
             setAppointments(prev => [{
                 ...newApt,
@@ -172,7 +173,6 @@ export function AppProvider({ children }) {
                 token_number: newApt.token_number || null
             }, ...prev]);
 
-            // Save appointment ID to localStorage to track for notifications
             try {
                 const myApts = JSON.parse(localStorage.getItem('my_guardian_appointments') || '[]');
                 myApts.push(newApt.id);
@@ -182,26 +182,35 @@ export function AppProvider({ children }) {
             }
             return true;
         } else {
-            console.error("Failed to add appointment", error);
+            console.error("Failed to add appointment");
+            return false;
         }
     };
 
     const updateAppointmentStatus = async (id, status) => {
-        const { error } = await supabase.from('appointments').update({ status }).eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/appointments/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ status })
+        });
+        if (res.ok) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status } : apt));
         } else {
-            console.error("Failed to update status", error);
+            console.error("Failed to update status");
         }
     };
 
     const updateAppointmentToken = async (id, tokenNumber) => {
-        const { error } = await supabase.from('appointments').update({ token_number: tokenNumber }).eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/appointments/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ token_number: tokenNumber })
+        });
+        if (res.ok) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, token_number: tokenNumber } : apt));
             return true;
         } else {
-            console.error("Failed to update token", error);
+            console.error("Failed to update token");
             return false;
         }
     };
@@ -226,11 +235,24 @@ export function AppProvider({ children }) {
             total_amount: orderDetails.total_amount,
             status: 'Pending'
         };
-        const { data, error } = await supabase.from('orders').insert([dbOrder]).select();
-        if (data && !error) {
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbOrder)
+        });
+        const data = await res.json();
+        
+        if (res.ok && data && data.length > 0) {
+            let orderToSave = data[0];
+            // Format items properly as jsonb text retrieval logic handles items::text if applying backend response directly
+            if(typeof orderToSave.items === 'string') {
+               try { orderToSave.items = JSON.parse(orderToSave.items); } catch(e){}
+            } else if (!orderToSave.items) {
+               orderToSave.items = sanitizedItems;
+            }
+            
             setOrders(prev => [data[0], ...prev]);
 
-            // Save order ID to localStorage to track for notifications
             try {
                 const myOrders = JSON.parse(localStorage.getItem('my_guardian_orders') || '[]');
                 myOrders.push(data[0].id);
@@ -241,32 +263,28 @@ export function AppProvider({ children }) {
 
             return true;
         } else {
-            console.error("Failed to add order", error);
+            console.error("Failed to add order");
             return false;
         }
     };
 
     const updateOrderStatus = async (id, status) => {
-        const { error } = await supabase.from('orders').update({ status }).eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/orders/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        if (res.ok) {
             setOrders(prev => prev.map(order => order.id === id ? { ...order, status } : order));
         } else {
-            console.error("Failed to update status", error);
+            console.error("Failed to update status");
         }
     };
 
     const cleanupOldData = async () => {
-        const seventyTwoHoursAgo = new Date();
-        seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
-        const isoString = seventyTwoHoursAgo.toISOString();
-
         try {
-            // Delete old orders
-            await supabase.from('orders').delete().lt('created_at', isoString);
-            
-            // Delete old appointments
-            await supabase.from('appointments').delete().lt('created_at', isoString);
-            
+            await fetch('/api/orders/cleanup', { method: 'DELETE' });
+            await fetch('/api/appointments/cleanup', { method: 'DELETE' });
             console.log("Old data (72h+) cleaned up successfully");
         } catch (e) {
             console.error("Cleanup error:", e);
@@ -274,26 +292,32 @@ export function AppProvider({ children }) {
     };
 
     const uploadPrescription = async (imageBase64) => {
-        const { data, error } = await supabase.from('prescriptions').insert([{
-            image_base64: imageBase64,
-            status: 'Pending'
-        }]).select();
-
-        if (data && !error) {
+        const res = await fetch('/api/prescriptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_base64: imageBase64, status: 'Pending' })
+        });
+        const data = await res.json();
+        
+        if (res.ok && data && data.length > 0) {
             setPrescriptions(prev => [data[0], ...prev]);
             return true;
         } else {
-            console.error("Failed to upload prescription", error);
+            console.error("Failed to upload prescription");
             return false;
         }
     };
 
     const updatePrescriptionStatus = async (id, status) => {
-        const { error } = await supabase.from('prescriptions').update({ status }).eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/prescriptions/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ status })
+        });
+        if (res.ok) {
             setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status } : p));
         } else {
-            console.error("Failed to update prescription status", error);
+            console.error("Failed to update prescription status");
         }
     };
 
@@ -310,8 +334,13 @@ export function AppProvider({ children }) {
             image_base64: medicine.images ? JSON.stringify(medicine.images) : (medicine.image_base64 || null)
         };
 
-        const { data, error } = await supabase.from('medicines').insert([dbMedicine]).select();
-        if (error) return false;
+        const res = await fetch('/api/medicines', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbMedicine)
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
 
         if (data && data.length > 0) {
             setMedicines(prev => [mapMedicineToFrontend(data[0]), ...prev]);
@@ -333,14 +362,19 @@ export function AppProvider({ children }) {
             image_base64: med.images ? JSON.stringify(med.images) : (med.image_base64 || null)
         }));
 
-        // Chunk processing for 5000+ items
         const chunkSize = 500;
         let successCount = 0;
         for (let i = 0; i < dbMedicines.length; i += chunkSize) {
             const chunk = dbMedicines.slice(i, i + chunkSize);
-            const { data, error } = await supabase.from('medicines').insert(chunk).select();
-            if (data) successCount += data.length;
-            if (error) console.error(`Chunk error at ${i}:`, error);
+            const res = await fetch('/api/medicines/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(chunk)
+            });
+            if (res.ok) {
+                 const data = await res.json();
+                 if(data.success) successCount += chunk.length;
+            }
         }
 
         if (successCount > 0) {
@@ -355,10 +389,9 @@ export function AppProvider({ children }) {
         const cleaned = img.trim();
         if (cleaned === 'null' || cleaned === 'undefined' || cleaned === '' || cleaned === '[]') return null;
 
-        if (cleaned.startsWith('data:image/') || cleaned.startsWith('http') || cleaned.startsWith('blob:')) {
+        if (cleaned.startsWith('data:image/') || cleaned.startsWith('http') || cleaned.startsWith('blob:') || cleaned.startsWith('https:')) {
             return cleaned;
         }
-        // If it looks like base64 but misses prefix
         return `data:image/png;base64,${cleaned}`;
     };
 
@@ -366,7 +399,6 @@ export function AppProvider({ children }) {
         let parsedImages = [];
         if (m.image_base64) {
             try {
-                // Check if it's a JSON array of images
                 if (m.image_base64.startsWith('[') && m.image_base64.endsWith(']')) {
                     const parsed = JSON.parse(m.image_base64);
                     parsedImages = Array.isArray(parsed) ? parsed : [m.image_base64];
@@ -378,7 +410,6 @@ export function AppProvider({ children }) {
             }
         }
 
-        // Ensure all images are valid base64 with prefix
         const processedImages = parsedImages.map(img => ensureBase64Prefix(img)).filter(Boolean);
 
         return {
@@ -393,8 +424,10 @@ export function AppProvider({ children }) {
     };
 
     const mapDoctorToFrontend = (d) => {
+        const mappedName = d.name || d.Name || d.doctorName || d.doctorname || 'Doctor';
         return {
             ...d,
+            name: mappedName,
             availability_start: d.availability_start || '06:00 PM',
             availability_end: d.availability_end || '10:00 PM',
             image_base64: ensureBase64Prefix(d.image_base64)
@@ -412,55 +445,67 @@ export function AppProvider({ children }) {
             instock: updatedData.inStock !== undefined ? updatedData.inStock : true,
             image_base64: updatedData.images ? JSON.stringify(updatedData.images) : (updatedData.image_base64 || null)
         };
-        const { data, error } = await supabase.from('medicines').update(dbUpdate).eq('id', id).select();
-        if (!error && data) {
+        const res = await fetch(`/api/medicines/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbUpdate)
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
             return true;
         } else {
-            console.error("Failed to update medicine", error);
+            console.error("Failed to update medicine");
             return false;
         }
     };
 
     const toggleMedicineStock = async (id, currentStatus) => {
         const newStatus = !currentStatus;
-        const { data, error } = await supabase.from('medicines').update({ instock: newStatus }).eq('id', id).select();
-        if (!error && data) {
+        const res = await fetch(`/api/medicines/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instock: newStatus })
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
             return true;
         } else {
-            console.error("Failed to toggle stock status", error);
+            console.error("Failed to toggle stock status");
             return false;
         }
     };
 
     const updateMedicineImage = async (id, base64Image) => {
-        const { data, error } = await supabase.from('medicines').update({ image_base64: base64Image }).eq('id', id).select();
-        if (!error && data) {
+        const res = await fetch(`/api/medicines/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_base64: base64Image })
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setMedicines(prev => prev.map(med => med.id === id ? mapMedicineToFrontend(data[0]) : med));
         }
     };
 
     const deleteMedicine = async (id) => {
-        const { error } = await supabase.from('medicines').delete().eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/medicines/${id}`, { method: 'DELETE' });
+        if (res.ok) {
             setMedicines(prev => prev.filter(med => med.id !== id));
             return true;
         } else {
-            console.error("Failed to delete medicine", error);
+            console.error("Failed to delete medicine");
             return false;
         }
     };
 
     const fetchMedicineImage = async (id) => {
         try {
-            const { data, error } = await supabase
-                .from('medicines')
-                .select('image_base64')
-                .eq('id', id)
-                .single();
+            const res = await fetch(`/api/medicines/${id}/image`);
+            const data = await res.json();
 
-            if (!error && data) {
+            if (res.ok && data) {
                 const processed = mapMedicineToFrontend(data);
                 setMedicines(prev => prev.map(med =>
                     med.id === id ? { ...med, image_base64: processed.image_base64, images: processed.images } : med
@@ -475,13 +520,10 @@ export function AppProvider({ children }) {
 
     const fetchPrescriptionImage = async (id) => {
         try {
-            const { data, error } = await supabase
-                .from('prescriptions')
-                .select('image_base64')
-                .eq('id', id)
-                .single();
+            const res = await fetch(`/api/prescriptions/${id}/image`);
+            const data = await res.json();
 
-            if (!error && data) {
+            if (res.ok && data && data.image_base64) {
                 const processedImage = ensureBase64Prefix(data.image_base64);
                 setPrescriptions(prev => prev.map(p =>
                     p.id === id ? { ...p, image_base64: processedImage } : p
@@ -504,32 +546,46 @@ export function AppProvider({ children }) {
             availability_start: doctor.availability_start || '06:00 PM',
             availability_end: doctor.availability_end || '10:00 PM'
         };
-        const { data, error } = await supabase.from('doctors').insert([dbDoctor]).select();
-        if (data && !error) {
+        const res = await fetch('/api/doctors', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(dbDoctor)
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setDoctors(prev => [...prev, mapDoctorToFrontend(data[0])]);
             return true;
         } else {
-            console.error("Failed to add doctor", error);
+            console.error("Failed to add doctor");
             return false;
         }
     };
 
     const updateDoctorImage = async (id, base64Image) => {
-        const { data, error } = await supabase.from('doctors').update({ image_base64: base64Image }).eq('id', id).select();
-        if (!error && data) {
+        const res = await fetch(`/api/doctors/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ image_base64: base64Image })
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setDoctors(prev => prev.map(doc => doc.id === id ? mapDoctorToFrontend(data[0]) : doc));
         } else {
-            console.error("Failed to update doctor image", error);
+            console.error("Failed to update doctor image");
         }
     };
 
     const updateDoctorAvailability = async (id, start, end) => {
-        const { error } = await supabase.from('doctors').update({ availability_start: start, availability_end: end }).eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/doctors/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ availability_start: start, availability_end: end })
+        });
+        if (res.ok) {
             setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, availability_start: start, availability_end: end } : doc));
             return true;
         } else {
-            console.error("Failed to update doctor availability", error);
+            console.error("Failed to update doctor availability");
             return false;
         }
     };
@@ -544,25 +600,27 @@ export function AppProvider({ children }) {
             availability_start: updatedData.availability_start,
             availability_end: updatedData.availability_end
         };
-        const { data, error } = await supabase.from('doctors').update(dbUpdate).eq('id', id).select();
-        if (!error && data) {
+        const res = await fetch(`/api/doctors/${id}`, {
+             method: 'PUT',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify(dbUpdate)
+        });
+        const data = await res.json();
+        if (res.ok && data) {
             setDoctors(prev => prev.map(doc => doc.id === id ? mapDoctorToFrontend(data[0]) : doc));
             return true;
         } else {
-            console.error("Failed to update doctor details", error);
+            console.error("Failed to update doctor details");
             return false;
         }
     };
 
     const fetchDoctorImage = async (id) => {
         try {
-            const { data, error } = await supabase
-                .from('doctors')
-                .select('image_base64')
-                .eq('id', id)
-                .single();
+            const res = await fetch(`/api/doctors/${id}/image`);
+            const data = await res.json();
 
-            if (!error && data) {
+            if (res.ok && data && data.image_base64) {
                 const processed = mapDoctorToFrontend(data);
                 setDoctors(prev => prev.map(doc =>
                     doc.id === id ? { ...doc, image_base64: processed.image_base64 } : doc
@@ -576,12 +634,12 @@ export function AppProvider({ children }) {
     };
 
     const deleteDoctor = async (id) => {
-        const { error } = await supabase.from('doctors').delete().eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/doctors/${id}`, { method: 'DELETE' });
+        if (res.ok) {
             setDoctors(prev => prev.filter(doc => doc.id !== id));
             return true;
         } else {
-            console.error("Failed to delete doctor", error);
+            console.error("Failed to delete doctor");
             return false;
         }
     };

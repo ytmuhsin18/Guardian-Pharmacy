@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, CheckCircle, Save, X, Clock, Edit2, Paperclip, Trash2 } from 'lucide-react';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 
 const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAvailability, updateDoctorImage, deleteDoctor }) => {
     const [newDoctor, setNewDoctor] = useState({
@@ -8,6 +9,7 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
         availability_start: '06:00 PM', availability_end: '10:00 PM'
     });
     const [doctorUploadSuccess, setDoctorUploadSuccess] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [editingDoctorId, setEditingDoctorId] = useState(null);
     const [editingAvailId, setEditingAvailId] = useState(null);
     const [availStart, setAvailStart] = useState('');
@@ -19,12 +21,19 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
         '08:00 PM', '09:00 PM', '10:00 PM', '11:00 PM'
     ];
 
-    const handleImageUpload = (e, callback) => {
+    const handleImageUpload = async (e, callback) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            const reader = new FileReader();
-            reader.onloadend = () => callback(reader.result);
-            reader.readAsDataURL(files[0]);
+            setIsUploading(true);
+            try {
+                const url = await uploadToCloudinary(files[0]);
+                callback(url);
+            } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Failed to upload image. Make sure you have created an Unsigned Upload Preset named 'guardian_pharma_uploads' in Cloudinary Settings.");
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
 
@@ -125,11 +134,12 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                                 />
                             </div>
                             <div className="input-group">
-                                <label className="input-label">Photo</label>
+                                <label className="input-label">Photo {isUploading && <span style={{ fontSize: '0.8rem', color: 'var(--primary)', marginLeft: '8px' }}>(Uploading...)</span>}</label>
                                 <input
                                     type="file" accept="image/*" className="input-field"
                                     style={{ padding: '0.5rem' }}
-                                    onChange={e => handleImageUpload(e, (base64) => setNewDoctor(prev => ({ ...prev, image_base64: base64 })))}
+                                    disabled={isUploading}
+                                    onChange={e => handleImageUpload(e, (url) => setNewDoctor(prev => ({ ...prev, image_base64: url })))}
                                 />
                             </div>
                         </div>
