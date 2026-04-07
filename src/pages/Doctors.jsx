@@ -86,11 +86,40 @@ function Doctors() {
         reason: ''
     });
     const [bookingSuccess, setBookingSuccess] = useState(false);
+    const [dateError, setDateError] = useState('');
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedDoctor) {
+            document.body.classList.add('modal-open');
+            document.documentElement.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+            document.documentElement.classList.remove('modal-open');
+        }
+        return () => {
+            document.body.classList.remove('modal-open');
+            document.documentElement.classList.remove('modal-open');
+        };
+    }, [selectedDoctor]);
 
     const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        
+        if (name === 'date') {
+            const selectedDate = new Date(value);
+            if (selectedDate.getDay() === 0) {
+                setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <strong>094874 69098</strong></>);
+                setBookingFormData({ ...bookingFormData, date: '' });
+                return;
+            } else {
+                setDateError('');
+            }
+        }
+        
         setBookingFormData({
             ...bookingFormData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
     };
 
@@ -108,11 +137,11 @@ function Doctors() {
             setBookingSuccess(false);
             setSelectedDoctor(null);
             setBookingFormData({ patientName: '', date: '', phone: '', reason: '' });
-        }, 3000);
+        }, 60000);
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="doctors-page"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -121,16 +150,16 @@ function Doctors() {
             <EmergencyBanner />
             <section className="docs-header section-padding">
                 <div className="container text-center">
-                    <motion.h1 
+                    <motion.h1
                         className="title"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        Our <span className="gradient-text">Specialists</span>
+                        Guardian <span className="gradient-text">Pharmacy & Clinic</span>
                     </motion.h1>
                     <p className="subtitle" style={{ marginTop: '1rem', maxWidth: '600px', margin: '1rem auto 0' }}>
-                        Book appointments with our top-rated specialists or track your current status below.
+                        Book appointments with our team of expert specialists at Thiruvarur.
                     </p>
                     <div style={{ marginTop: '2rem' }}>
                         <motion.div
@@ -138,9 +167,9 @@ function Doctors() {
                             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                             style={{ display: 'inline-block' }}
                         >
-                            <Link to="/tokens" className="btn btn-primary" style={{ 
-                                display: 'inline-flex', alignItems: 'center', gap: '14px', 
-                                padding: '12px 28px', borderRadius: '18px', textDecoration: 'none', 
+                            <Link to="/tokens" className="btn btn-primary" style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '14px',
+                                padding: '12px 28px', borderRadius: '18px', textDecoration: 'none',
                                 boxShadow: '0 8px 30px rgba(5, 150, 105, 0.25)',
                                 background: 'linear-gradient(135deg, #10b981, #059669)'
                             }}>
@@ -172,11 +201,11 @@ function Doctors() {
                     ) : (
                         <div className="doctors-grid">
                             {doctors.map((doc, idx) => (
-                                <DoctorCard 
-                                    key={doc.id} 
-                                    doc={doc} 
-                                    idx={idx} 
-                                    onSelect={setSelectedDoctor} 
+                                <DoctorCard
+                                    key={doc.id}
+                                    doc={doc}
+                                    idx={idx}
+                                    onSelect={setSelectedDoctor}
                                     fetchImage={fetchDoctorImage}
                                 />
                             ))}
@@ -210,49 +239,37 @@ function Doctors() {
                                 <div className="doc-profile-side">
                                     <img src={selectedDoctor.image_base64 || getDefaultImage(doctors.findIndex(d => d.id === selectedDoctor.id))} alt={selectedDoctor.name} className="profile-img" />
                                     <h2 className="profile-name">{selectedDoctor.name}</h2>
-                                    <p className="profile-specialty text-primary">{selectedDoctor.specialty}</p>
+                                    <p className="profile-specialty">{selectedDoctor.specialty}</p>
 
                                     <div className="profile-about">
                                         <h4>About</h4>
                                         <p>{selectedDoctor.about}</p>
                                     </div>
 
-                                    <div className="profile-reviews-section">
-                                        <h4>Patient Reviews</h4>
-                                        <div className="reviews-list">
-                                            {/* Static fallback reviews since it's not in DB schema yet */}
-                                            <div className="review-item">
-                                                <div className="review-header">
-                                                    <span className="review-author">Verified Patient</span>
-                                                    <span className="review-date text-muted">2 weeks ago</span>
-                                                </div>
-                                                <div className="review-stars">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
-                                                    ))}
-                                                </div>
-                                                <p className="review-text">Great and attentive doctor. Highly recommend!</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    {/* Patient reviews have been removed as requested */}
                                 </div>
 
                                 {/* Right Booking Side */}
-                                <div className="doc-booking-side bg-surface-dark">
+                                <div className="doc-booking-side">
                                     {bookingSuccess ? (
                                         <div className="booking-success-state text-center">
                                             <CheckCircle size={64} className="text-primary mb-4" />
                                             <h3>Booking Confirmed!</h3>
-                                            <p className="text-muted mt-2">Your appointment has been successfully scheduled. We look forward to seeing you.</p>
+                                            <p className="text-muted mt-2">
+                                                Thank you! 🎉 Token will be assigned by the admin after booking.{' '}
+                                                <Link to="/tokens" style={{ color: '#0d9488', fontWeight: 700, textDecoration: 'underline' }}>
+                                                    Check Live Token Status
+                                                </Link>
+                                            </p>
                                         </div>
                                     ) : (
                                         <>
                                             <h3 className="mb-4">Book Appointment</h3>
-                                            
+
                                             {/* Doctor Availability Info */}
                                             <div className="doctor-availability-notice">
                                                 <div className="availability-icon-wrapper">
-                                                    <Clock size={20} />
+                                                    <Clock size={24} />
                                                 </div>
                                                 <div>
                                                     <strong>Doctor Available</strong>
@@ -296,12 +313,13 @@ function Doctors() {
                                                             type="date"
                                                             name="date"
                                                             required
-                                                            className="input-field with-icon"
+                                                            className={`input-field with-icon ${dateError ? 'error-border' : ''}`}
                                                             value={bookingFormData.date}
                                                             onChange={handleInputChange}
                                                             min={new Date().toISOString().split('T')[0]}
                                                         />
                                                     </div>
+                                                    {dateError && <p className="error-text" style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, marginTop: '4px' }}>{dateError}</p>}
                                                 </div>
 
                                                 <div className="input-group">
@@ -318,7 +336,7 @@ function Doctors() {
 
                                                 <div className="form-notice">
                                                     <MapPin size={16} className="text-primary" />
-                                                    <span>Appointment Location: Guardian Pharmacy / Hospital at Thiruvarur.</span>
+                                                    <span>Appointment Location: Guardian Pharmacy / Clinic at Thiruvarur.</span>
                                                 </div>
 
                                                 <button type="submit" className="btn btn-primary btn-block mt-4">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Search } from 'lucide-react';
 
 const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }) => {
     const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -34,13 +35,24 @@ const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }
     }, [currentText, isDeleting, currentPlaceholderIndex, speed, placeholders]);
 
     return (
-        <div style={{ position: 'relative', width: '100%' }}>
+        <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+            <Search 
+                className="search-icon text-muted" 
+                size={20} 
+                style={{ 
+                    position: 'absolute', 
+                    left: '1.25rem', 
+                    zIndex: 10,
+                    pointerEvents: 'none'
+                }} 
+            />
             <input
                 type="text"
                 className="input-field search-input"
                 placeholder={searchTerm ? "" : currentText}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: '100%' }}
             />
             {!searchTerm && (
                 <motion.span
@@ -48,7 +60,7 @@ const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }
                     transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
                     style={{
                         position: 'absolute',
-                        left: `calc(3rem + ${currentText.length * 8.5}px)`,
+                        left: `calc(3.5rem + ${currentText.length * 8.5}px)`,
                         top: '50%',
                         transform: 'translateY(-50%)',
                         width: '2px',

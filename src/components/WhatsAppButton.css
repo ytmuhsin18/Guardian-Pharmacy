@@ -16,6 +16,14 @@
     text-decoration: none;
 }
 
+body.modal-open .global-whatsapp-btn {
+    display: none !important;
+}
+
+html.modal-open .global-whatsapp-btn {
+    display: none !important;
+}
+
 .global-whatsapp-btn:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -73,11 +81,15 @@
 
 @media (max-width: 768px) {
     .global-whatsapp-btn {
-        bottom: 150px;
+        bottom: 110px;
         right: 14px;
         width: 50px;
         height: 50px;
         z-index: 1100;
+    }
+
+    .global-whatsapp-btn.cart-active {
+        bottom: 210px;
     }
 
     .global-whatsapp-btn svg {

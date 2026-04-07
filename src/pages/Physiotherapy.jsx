@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Plus, Minus, X, CheckCircle, Heart, Thermometer, Shield, AlertCircle, Pill, Hand } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, CheckCircle, Heart, Thermometer, Shield, AlertCircle, Pill, Hand } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css'; // Reuse existing styles
 import physioBanner from '../assets/physiotherapy.png';
@@ -10,12 +10,11 @@ import physioBanner from '../assets/physiotherapy.png';
 import ProductCard from '../components/medicines/ProductCard';
 import FloatingCartBar from '../components/FloatingCartBar';
 import CartDrawer from '../components/medicines/CartDrawer';
-import SearchInput from '../components/medicines/SearchInput';
+
 
 function Physiotherapy() {
     const navigate = useNavigate();
     const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
-    const [searchTerm, setSearchTerm] = useState('');
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -27,11 +26,7 @@ function Physiotherapy() {
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const filteredMedicines = medicines.filter(med => {
-        const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (med.combination && med.combination.toLowerCase().includes(searchTerm.toLowerCase()));
-        return med.category === 'Physiotherapy' && matchesSearch;
-    });
+    const filteredMedicines = medicines.filter(med => med.category === 'Physiotherapy');
 
     const handleHandleCheckout = async (e) => {
         e.preventDefault();
@@ -80,26 +75,9 @@ function Physiotherapy() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2, duration: 0.5 }}
                         >
-                            <h1 className="title">Physiotherapy <span className="gradient-text">Studio</span></h1>
+                            <h1 className="title">Physiotherapy</h1>
                             <p className="subtitle">Premium equipment and tools for physiotherapy and recovery at home.</p>
                         </motion.div>
-
-                        <div className="search-bar-container">
-                            <motion.div
-                                className="search-input-wrapper"
-                                whileHover={{ scale: 1.02, y: -2 }}
-                                whileFocus={{ scale: 1.04, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                                transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                                style={{ position: 'relative', flexGrow: 1 }}
-                            >
-                                <Search className="search-icon text-muted" size={20} />
-                                <SearchInput
-                                    searchTerm={searchTerm}
-                                    setSearchTerm={setSearchTerm}
-                                    placeholders={["Search Heating Pads...", "Search Resistance Bands...", "Search Exercise Balls...", "Search Massagers...", "Search physiotherapy tools..."]}
-                                />
-                            </motion.div>
-                        </div>
                     </div>
 
                     {/* Quick Action: Home Appointment */}

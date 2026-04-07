@@ -76,10 +76,6 @@ function Medicines() {
                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                                 style={{ position: 'relative', flexGrow: 1 }}
                             >
-                                <Search
-                                    className="search-icon text-muted"
-                                    size={20}
-                                />
                                 <SearchInput
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}

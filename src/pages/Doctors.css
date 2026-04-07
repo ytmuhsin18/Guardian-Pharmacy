@@ -145,35 +145,42 @@
 .modal-content {
     position: relative;
     background: white;
-    border-radius: var(--border-radius-lg);
+    border-radius: 40px;
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 50px 100px -20px rgba(15, 23, 42, 0.25);
     z-index: 101;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overscroll-behavior: contain;
+    /* Prevents background scroll chain */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll on iOS */
 }
 
 .modal-close {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: white;
-    color: var(--text-muted);
-    width: 32px;
-    height: 32px;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: #f8fafc;
+    color: #64748b;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-sm);
     z-index: 10;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #f1f5f9;
 }
 
 .modal-close:hover {
-    color: var(--text-main);
-    transform: rotate(90deg);
+    background: white;
+    color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
 }
 
 .modal-grid {
@@ -188,43 +195,47 @@
 }
 
 .doc-profile-side {
-    padding: 2rem;
-    border-right: 1px solid var(--border-color);
+    padding: 3rem;
+    background: white;
 }
 
 .profile-img {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 1rem;
-    border: 4px solid var(--surface-dark);
+    margin-bottom: 2rem;
+    border: 8px solid #f8fafc;
 }
 
 .profile-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-main);
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
 }
 
 .profile-specialty {
-    font-size: 1rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+    /* Emerald green as per model */
+    margin-bottom: 2rem;
 }
 
 .profile-about h4,
 .profile-reviews-section h4 {
     font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-main);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #0f172a;
 }
 
 .profile-about p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
+    color: #64748b;
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
 }
 
 .reviews-list {
@@ -234,154 +245,163 @@
 }
 
 .review-item {
-    background: var(--surface-dark);
-    padding: 1rem;
-    border-radius: var(--border-radius-md);
+    background: #f1f5f9;
+    padding: 1.5rem;
+    border-radius: 20px;
 }
 
 .review-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
 }
 
 .review-author {
-    font-weight: 600;
-    color: var(--text-main);
+    font-weight: 800;
+    color: #0d1b2a;
+    font-size: 0.95rem;
 }
 
 .review-date {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
 }
 
 .review-stars {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     display: flex;
     gap: 2px;
 }
 
 .review-text {
-    font-size: 0.875rem;
-    color: var(--text-muted);
+    font-size: 1rem;
+    color: #64748b;
+    line-height: 1.5;
 }
 
 .doc-booking-side {
-    padding: 2rem;
-    background: var(--surface-dark);
+    padding: 3rem;
+    background: #f8fafc;
 }
 
-.bg-surface-dark {
-    background: var(--surface-dark);
-}
-
-.mb-4 {
-    margin-bottom: 1rem;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-}
-
-@media (min-width: 640px) {
-    .form-row {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.icon-input-wrapper {
-    position: relative;
-}
-
-.input-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.with-icon {
-    padding-left: 2.5rem;
-}
-
-.form-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: rgba(5, 150, 105, 0.1);
-    border-radius: var(--border-radius-sm);
-    font-size: 0.875rem;
-    color: var(--primary-dark);
-    margin-top: 1rem;
-}
-
-.btn-block {
-    width: 100%;
-}
-
-select.input-field {
-    appearance: none;
-    cursor: pointer;
-}
-
-.booking-success-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 2rem;
-}
-
-.text-center {
-    text-align: center;
-}
-
-/* Doctor Availability Notice in Booking Form */
 .doctor-availability-notice {
     display: flex;
-    gap: 12px;
-    padding: 1rem 1.25rem;
-    background: linear-gradient(135deg, #eff6ff, #e0f2fe);
-    border: 1px solid #bfdbfe;
-    border-radius: var(--border-radius-md);
-    margin-bottom: 1.5rem;
-    align-items: flex-start;
+    gap: 16px;
+    padding: 1.5rem;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 20px;
+    margin-bottom: 2.5rem;
+    align-items: center;
 }
 
 .availability-icon-wrapper {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--primary);
+    background: #10b981;
     color: white;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
 .doctor-availability-notice strong {
-    color: var(--text-main);
-    font-size: 0.95rem;
+    color: #64748b;
+    font-size: 0.9rem;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    font-weight: 700;
 }
 
 .avail-time {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin: 4px 0 6px 0;
-    letter-spacing: 0.01em;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #10b981;
+    margin: 4px 0;
+    letter-spacing: -0.02em;
 }
 
 .avail-note {
-    font-size: 0.78rem;
-    color: var(--text-muted);
+    font-size: 0.85rem;
+    color: #94a3b8;
     font-style: italic;
+    font-weight: 500;
+}
+
+.input-label {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.input-field {
+    background: white;
+    border: 1.5px solid #f1f5f9;
+    border-radius: 16px;
+    font-weight: 500;
+    padding: 1rem 1.25rem;
+    width: 100%;
+}
+
+.input-field:focus {
+    background: white;
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.booking-form .btn-primary {
+    padding: 1.25rem;
+    border-radius: 16px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.input-field {
+    background: white;
+    border: none !important; /* Borderless inputs as per user request */
+    border-radius: 16px;
+    font-weight: 500;
+    padding: 1rem 1.25rem;
+    width: 100%;
+}
+
+.icon-input-wrapper .input-icon {
+    display: none !important; /* Removing the calendar icon inside inputs */
+}
+
+.with-icon {
+    padding-left: 1.25rem !important; /* Adjusting padding after icon removal */
+}
+
+.modal-wa-btn {
+    width: 44px;
+    height: 44px;
+    background: #25d366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.modal-wa-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.doctors-page .btn {
+    border: none !important;
+}
+
+.doctor-modal .btn {
+    border: none !important;
 }

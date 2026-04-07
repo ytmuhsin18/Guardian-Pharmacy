@@ -70,15 +70,15 @@ export function AppProvider({ children }) {
 
             let res;
             try {
-               res = await fetch('/api/orders');
-            } catch(e) { console.error('fetch order err', e); return; }
+                res = await fetch('/api/orders');
+            } catch (e) { console.error('fetch order err', e); return; }
             if (!res.ok) throw new Error('API Error');
             const rawData = await res.json();
-            
+
             // Format items properly as jsonb text retrieval logic handles items::text
             const data = rawData.map(order => ({
-                 ...order,
-                 items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+                ...order,
+                items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
             }));
 
             if (data) {
@@ -96,8 +96,8 @@ export function AppProvider({ children }) {
         const fetchPrescriptionsAsync = async () => {
             let res;
             try {
-               res = await fetch('/api/prescriptions');
-            } catch(e) { return; }
+                res = await fetch('/api/prescriptions');
+            } catch (e) { return; }
             if (!res.ok) return;
             const data = await res.json();
             if (data) {
@@ -143,6 +143,10 @@ export function AppProvider({ children }) {
         });
     };
 
+    const deleteFromCart = (id) => {
+        setCart(prev => prev.filter(item => item.id !== id));
+    };
+
     const clearCart = () => setCart([]);
 
     const addAppointment = async (appointment) => {
@@ -162,7 +166,7 @@ export function AppProvider({ children }) {
             body: JSON.stringify(dbAppointment)
         });
         const data = await res.json();
-        
+
         if (data && data.length > 0) {
             const newApt = data[0];
             setAppointments(prev => [{
@@ -189,9 +193,9 @@ export function AppProvider({ children }) {
 
     const updateAppointmentStatus = async (id, status) => {
         const res = await fetch(`/api/appointments/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ status })
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
         });
         if (res.ok) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status } : apt));
@@ -202,9 +206,9 @@ export function AppProvider({ children }) {
 
     const updateAppointmentToken = async (id, tokenNumber) => {
         const res = await fetch(`/api/appointments/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ token_number: tokenNumber })
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token_number: tokenNumber })
         });
         if (res.ok) {
             setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, token_number: tokenNumber } : apt));
@@ -221,7 +225,8 @@ export function AppProvider({ children }) {
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            category: item.category
+            category: item.category,
+            image: item.image
         }));
 
         const dbOrder = {
@@ -241,16 +246,16 @@ export function AppProvider({ children }) {
             body: JSON.stringify(dbOrder)
         });
         const data = await res.json();
-        
+
         if (res.ok && data && data.length > 0) {
             let orderToSave = data[0];
             // Format items properly as jsonb text retrieval logic handles items::text if applying backend response directly
-            if(typeof orderToSave.items === 'string') {
-               try { orderToSave.items = JSON.parse(orderToSave.items); } catch(e){}
+            if (typeof orderToSave.items === 'string') {
+                try { orderToSave.items = JSON.parse(orderToSave.items); } catch (e) { }
             } else if (!orderToSave.items) {
-               orderToSave.items = sanitizedItems;
+                orderToSave.items = sanitizedItems;
             }
-            
+
             setOrders(prev => [data[0], ...prev]);
 
             try {
@@ -298,7 +303,7 @@ export function AppProvider({ children }) {
             body: JSON.stringify({ image_base64: imageBase64, status: 'Pending' })
         });
         const data = await res.json();
-        
+
         if (res.ok && data && data.length > 0) {
             setPrescriptions(prev => [data[0], ...prev]);
             return true;
@@ -310,9 +315,9 @@ export function AppProvider({ children }) {
 
     const updatePrescriptionStatus = async (id, status) => {
         const res = await fetch(`/api/prescriptions/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ status })
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
         });
         if (res.ok) {
             setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status } : p));
@@ -372,8 +377,8 @@ export function AppProvider({ children }) {
                 body: JSON.stringify(chunk)
             });
             if (res.ok) {
-                 const data = await res.json();
-                 if(data.success) successCount += chunk.length;
+                const data = await res.json();
+                if (data.success) successCount += chunk.length;
             }
         }
 
@@ -547,9 +552,9 @@ export function AppProvider({ children }) {
             availability_end: doctor.availability_end || '10:00 PM'
         };
         const res = await fetch('/api/doctors', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(dbDoctor)
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbDoctor)
         });
         const data = await res.json();
         if (res.ok && data) {
@@ -563,9 +568,9 @@ export function AppProvider({ children }) {
 
     const updateDoctorImage = async (id, base64Image) => {
         const res = await fetch(`/api/doctors/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ image_base64: base64Image })
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image_base64: base64Image })
         });
         const data = await res.json();
         if (res.ok && data) {
@@ -577,9 +582,9 @@ export function AppProvider({ children }) {
 
     const updateDoctorAvailability = async (id, start, end) => {
         const res = await fetch(`/api/doctors/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ availability_start: start, availability_end: end })
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ availability_start: start, availability_end: end })
         });
         if (res.ok) {
             setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, availability_start: start, availability_end: end } : doc));
@@ -601,9 +606,9 @@ export function AppProvider({ children }) {
             availability_end: updatedData.availability_end
         };
         const res = await fetch(`/api/doctors/${id}`, {
-             method: 'PUT',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(dbUpdate)
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbUpdate)
         });
         const data = await res.json();
         if (res.ok && data) {
@@ -665,6 +670,7 @@ export function AppProvider({ children }) {
             cart,
             addToCart,
             removeFromCart,
+            deleteFromCart,
             clearCart,
             isCartOpen,
             setIsCartOpen,

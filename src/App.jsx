@@ -25,7 +25,7 @@ import Physiotherapy from './pages/Physiotherapy';
 
 function App() {
   const {
-    cart, totalItems, cartTotal, addToCart, removeFromCart, clearCart, addOrder,
+    cart, totalItems, cartTotal, addToCart, removeFromCart, deleteFromCart, clearCart, addOrder,
     isCartOpen, setIsCartOpen
   } = useApp();
 
@@ -35,6 +35,15 @@ function App() {
   const [customerDetails, setCustomerDetails] = React.useState({
     name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
   });
+
+  React.useEffect(() => {
+    if (isCartOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => document.body.classList.remove('modal-open');
+  }, [isCartOpen]);
 
   const handleProceedToCheckout = () => setShowCheckoutForm(true);
   const handleCheckout = async (e) => {
@@ -95,6 +104,7 @@ function App() {
           cartTotal={cartTotal}
           onAdd={addToCart}
           onRemove={removeFromCart}
+          onDelete={deleteFromCart}
           onCheckout={handleProceedToCheckout}
           showCheckoutForm={showCheckoutForm}
           customerDetails={customerDetails}

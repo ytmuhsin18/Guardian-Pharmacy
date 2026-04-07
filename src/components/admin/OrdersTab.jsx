@@ -2,7 +2,7 @@ import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Package, CheckCircle, X, Search } from 'lucide-react';
 
-const OrdersTab = memo(({ orders, updateOrderStatus }) => {
+const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredOrders = useMemo(() => {
@@ -14,6 +14,15 @@ const OrdersTab = memo(({ orders, updateOrderStatus }) => {
             (order.whatsapp || '').includes(lowSearch)
         );
     }, [orders, searchTerm]);
+
+    const getItemImage = (item) => {
+        if (item.image) return item.image;
+        if (medicines.length > 0) {
+            const med = medicines.find(m => m.id === item.id);
+            return med?.image_base64 || med?.images?.[0];
+        }
+        return null;
+    };
 
     return (
         <motion.div
@@ -31,12 +40,12 @@ const OrdersTab = memo(({ orders, updateOrderStatus }) => {
                             style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} 
                         />
                         <input 
-                            type="text" 
-                            placeholder="Find by name, phone or whatsapp..." 
-                            className="input-field" 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingLeft: '2.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', height: '48px', width: '100%', borderRadius: '12px' }}
+                          type="text" 
+                          placeholder="Find by name, phone or whatsapp..." 
+                          className="input-field" 
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          style={{ paddingLeft: '2.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', height: '48px', width: '100%', borderRadius: '12px' }}
                         />
                     </div>
                     <button className="btn btn-primary" style={{ height: '48px', padding: '0 1.5rem', borderRadius: '12px', flexShrink: 0 }}>
@@ -73,22 +82,25 @@ const OrdersTab = memo(({ orders, updateOrderStatus }) => {
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            {(order.items || []).map((item, idx) => (
-                                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    {item.image ? (
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                            style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', flexShrink: 0 }}
-                                                        />
-                                                    ) : (
-                                                        <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                            <Package size={16} style={{ color: '#94a3b8' }} />
-                                                        </div>
-                                                    )}
-                                                    <span style={{ fontSize: '0.85rem' }}>{item.name} <strong>x{item.quantity}</strong></span>
-                                                </div>
-                                            ))}
+                                            {(order.items || []).map((item, idx) => {
+                                                const img = getItemImage(item);
+                                                return (
+                                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {img ? (
+                                                            <img
+                                                                src={img}
+                                                                alt={item.name}
+                                                                style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', flexShrink: 0 }}
+                                                            />
+                                                        ) : (
+                                                            <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                                                <Package size={16} style={{ color: '#94a3b8' }} />
+                                                            </div>
+                                                        )}
+                                                        <span style={{ fontSize: '0.85rem' }}>{item.name} <strong>x{item.quantity}</strong></span>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </td>
                                     <td>

@@ -8,7 +8,7 @@ function EmergencyBanner() {
             <div className="emergency-inner">
                 <Phone size={14} className="emergency-icon" />
                 <span className="emergency-text">
-                    <strong>Emergency?</strong> Call us now: 
+                    For any Emergency Call us now: 
                     <a href="tel:+919487469098" className="emergency-number"> 094874 69098</a>
                 </span>
             </div>

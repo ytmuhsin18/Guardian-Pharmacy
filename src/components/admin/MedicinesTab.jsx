@@ -212,7 +212,13 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
         >
             <div className="upload-form-container glass-panel" style={{ padding: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>{editingMedicineId ? 'Edit Medicine' : 'Add New Medicine'}</h2>
-                {uploadSuccess ? (
+                {uploadSuccess && uploadSuccess.includes('Error') ? (
+                    <div className="error-state text-center" style={{ padding: '3rem' }}>
+                        <X size={64} style={{ color: '#ef4444', margin: '0 auto 1rem' }} />
+                        <h3>{uploadSuccess}</h3>
+                        <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => setUploadSuccess(false)}>Try Again</button>
+                    </div>
+                ) : uploadSuccess ? (
                     <div className="success-state text-center" style={{ padding: '3rem' }}>
                         <CheckCircle size={64} className="text-primary" style={{ margin: '0 auto 1rem' }} />
                         <h3>{uploadSuccess}</h3>

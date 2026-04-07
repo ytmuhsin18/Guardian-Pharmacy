@@ -6,7 +6,7 @@ const FREE_DELIVERY_THRESHOLD = 500;
 
 const CartDrawer = ({
     isOpen, onClose, cart, totalItems, cartTotal,
-    onAdd, onRemove, onCheckout, showCheckoutForm,
+    onAdd, onRemove, onDelete, onCheckout, showCheckoutForm,
     customerDetails, setCustomerDetails, onHandleCheckout,
     isCheckingOut, onBack
 }) => {
@@ -102,30 +102,30 @@ const CartDrawer = ({
                                                 {cart.map(item => (
                                                     <motion.div
                                                         key={item.id}
-                                                        className="premium-cart-item"
+                                                        className="model-cart-item"
                                                         layout
                                                         initial={{ opacity: 0, x: 20 }}
                                                         animate={{ opacity: 1, x: 0 }}
                                                         exit={{ opacity: 0, x: -20 }}
                                                     >
-                                                        <div className="item-image-wrapper">
+                                                        <div className="model-img-sec">
                                                             <img src={(Array.isArray(item.images) && item.images.length > 0) ? item.images[0] : (item.image_base64 || 'https://via.placeholder.com/80')} alt={item.name} />
                                                         </div>
-                                                        <div className="item-main-info">
-                                                            <div className="item-header-row">
-                                                                <h4 className="item-title">{item.name}</h4>
-                                                                <button className="delete-item-btn" onClick={() => onRemove(item.id)}><Trash2 size={16} /></button>
+                                                        <div className="model-details-sec">
+                                                            <div className="model-header-row">
+                                                                <h4 className="model-name">{item.name}</h4>
+                                                                <button className="model-delete-btn" onClick={() => onDelete(item.id)}><Trash2 size={18} /></button>
                                                             </div>
-                                                            <p className="item-subtitle text-muted">{item.category}</p>
-                                                            <div className="item-footer-row">
-                                                                <div className="item-price-group">
-                                                                    <span className="item-price">₹{Number(item.price).toFixed(0)}</span>
-                                                                    {item.discount > 0 && <span className="item-old-price">₹{(item.price / (1 - item.discount / 100)).toFixed(0)}</span>}
+                                                            {/* Categories have been removed for a cleaner look as requested */}
+                                                            <div className="model-bottom-row">
+                                                                <div className="model-price-group">
+                                                                    <span className="model-price-current">₹{Number(item.price).toFixed(0)}</span>
+                                                                    {item.discount > 0 && <span className="model-price-old">₹{(item.price / (1 - item.discount / 100)).toFixed(0)}</span>}
                                                                 </div>
-                                                                <div className="premium-qty-control">
-                                                                    <button className="p-qty-btn" onClick={() => onRemove(item.id)}><Minus size={14} /></button>
-                                                                    <span className="p-qty-val">{item.quantity}</span>
-                                                                    <button className="p-qty-btn plus" onClick={() => onAdd(item)}><Plus size={14} /></button>
+                                                                <div className="model-qty-box">
+                                                                    <button className="model-qty-btn-minus" onClick={() => onRemove(item.id)}><Minus size={14} /></button>
+                                                                    <span className="model-qty-val">{item.quantity}</span>
+                                                                    <button className="model-qty-btn-plus" onClick={() => onAdd(item)}><Plus size={14} /></button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -209,7 +209,7 @@ const CartDrawer = ({
                             </>
                         ) : (
                             <form onSubmit={onHandleCheckout} className="checkout-form">
-                                <div className="cart-items-scroll" style={{ gap: '0.75rem', display: 'flex', flexDirection: 'column' }}>
+                                <div className="cart-items-scroll" style={{ gap: '0.75rem', display: 'flex', flexDirection: 'column', paddingBottom: '3rem' }}>
                                     <div className="checkout-form-group">
                                         <label className="input-label">Full Name *</label>
                                         <input

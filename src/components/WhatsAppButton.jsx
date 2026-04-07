@@ -1,9 +1,13 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 import './WhatsAppButton.css';
 
 function WhatsAppButton() {
     const location = useLocation();
+    const { cart } = useApp();
+
+    const isCartActive = cart && cart.length > 0;
 
     // Hide on admin page
     if (location.pathname === '/admin') return null;
@@ -13,7 +17,7 @@ function WhatsAppButton() {
             href="https://wa.me/919487469098"
             target="_blank"
             rel="noopener noreferrer"
-            className="global-whatsapp-btn"
+            className={`global-whatsapp-btn ${isCartActive ? 'cart-active' : ''}`}
             title="Chat with us on WhatsApp"
             aria-label="Chat on WhatsApp"
         >

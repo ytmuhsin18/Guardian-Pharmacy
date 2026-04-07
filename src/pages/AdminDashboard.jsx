@@ -97,7 +97,7 @@ function AdminDashboard() {
 
                 <div className="admin-content">
                     {activeTab === 'orders' && (
-                        <OrdersTab orders={orders} updateOrderStatus={updateOrderStatus} />
+                        <OrdersTab orders={orders} updateOrderStatus={updateOrderStatus} medicines={medicines} />
                     )}
 
                     {activeTab === 'appointments' && (

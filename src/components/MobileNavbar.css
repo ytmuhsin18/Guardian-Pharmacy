@@ -148,4 +148,9 @@
     .mobile-bottom-nav {
         display: flex;
     }
+
+    body.modal-open .mobile-bottom-nav,
+    html.modal-open .mobile-bottom-nav {
+        display: none !important;
+    }
 }

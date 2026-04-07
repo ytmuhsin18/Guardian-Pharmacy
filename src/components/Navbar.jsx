@@ -16,6 +16,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 import logo from '../assets/gp-logo-new.png';
 
+import { useApp } from '../context/AppContext';
+import { ShoppingCart } from 'lucide-react';
+
 const NavLink = ({ to, children, IconComponent }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
@@ -85,7 +88,13 @@ const NavLink = ({ to, children, IconComponent }) => {
 
 function Navbar() {
     const location = useLocation();
+    const { setIsCartOpen, totalItems, cartTotal } = useApp();
     const showPromo = location.pathname === '/medicines';
+    
+    // Only show cart icon on medicines listing, details, and categories page
+    const shouldShowCart = location.pathname.startsWith('/medicines') || 
+                          location.pathname.startsWith('/medicine/') || 
+                          location.pathname.startsWith('/categories');
 
     return (
         <>
@@ -121,9 +130,42 @@ function Navbar() {
                         <NavLink to="/physiotherapy" IconComponent={Accessibility}>PHYSIOTHERAPY</NavLink>
                     </div>
 
-                    <div className="nav-actions desktop-only">
-                        {/* Secondary actions can be added here */}
-                    </div>
+                    {shouldShowCart && totalItems > 0 && (
+                        <div className="nav-actions">
+                            <motion.button 
+                                className="nav-cart-btn-premium"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setIsCartOpen(true)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    padding: '10px 18px',
+                                    background: 'var(--primary, #10b981)',
+                                    border: 'none',
+                                    borderRadius: '14px',
+                                    cursor: 'pointer',
+                                    color: 'white',
+                                    position: 'relative',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 10px 20px -5px rgba(16, 185, 129, 0.3)'
+                                }}
+                            >
+                                <div className="cart-icon-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <ShoppingCart size={22} strokeWidth={2.5} />
+                                </div>
+                                <div className="cart-info-vertical" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '1.2' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+                                        {totalItems} {totalItems === 1 ? 'item' : 'items'}
+                                    </span>
+                                    <span style={{ fontSize: '0.95rem', fontWeight: 900 }}>
+                                        ₹{cartTotal.toFixed(0)}
+                                    </span>
+                                </div>
+                            </motion.button>
+                        </div>
+                    )}
                 </div>
             </nav>
         </>

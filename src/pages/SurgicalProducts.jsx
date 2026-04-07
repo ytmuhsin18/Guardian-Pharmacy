@@ -32,17 +32,11 @@ const CAT_TABS = [
 
 function SurgicalProducts() {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, clearCart, addOrder } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('all');
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(null);
-    const [showCheckoutForm, setShowCheckoutForm] = useState(false);
-    const [customerDetails, setCustomerDetails] = useState({
-        name: '', phone: '', whatsapp: '', address: '', pincode: '', email: ''
-    });
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,36 +53,7 @@ function SurgicalProducts() {
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const handleHandleCheckout = async (e) => {
-        e.preventDefault();
-        setIsCheckingOut(true);
-        const orderData = {
-            ...customerDetails,
-            customer_name: customerDetails.name,
-            items: cart,
-            total_amount: cartTotal
-        };
 
-        const success = await addOrder(orderData);
-        if (success) {
-            setOrderComplete(true);
-            setTimeout(() => {
-                setOrderComplete(false);
-                clearCart();
-                setIsCartOpen(false);
-                setShowCheckoutForm(false);
-            }, 3000);
-        }
-        setIsCheckingOut(false);
-    };
-
-    const handleProceedToCheckout = () => {
-        setShowCheckoutForm(true);
-    };
-
-    const handleBackClick = () => {
-        setShowCheckoutForm(false);
-    };
 
     return (
         <div className="medicines-page">
@@ -110,12 +75,24 @@ function SurgicalProducts() {
                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                                 style={{ position: 'relative', flexGrow: 1 }}
                             >
-                                <Search className="search-icon text-muted" size={20} />
                                 <SearchInput
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}
                                     placeholders={["Search Wheelchairs...", "Search Walkers...", "Search Syringes...", "Search Adult Diapers...", "Search Health Devices..."]}
                                 />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm('')}
+                                        style={{
+                                            position: 'absolute', right: '1rem', top: '50%',
+                                            transform: 'translateY(-50%)', background: 'none',
+                                            border: 'none', color: '#64748b', cursor: 'pointer',
+                                            zIndex: 20, display: 'flex', alignItems: 'center'
+                                        }}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                )}
                             </motion.div>
                         </div>
                     </div>
@@ -238,35 +215,12 @@ function SurgicalProducts() {
                 </div>
             </section>
 
-            {/* Slide-over Cart */}
-            <CartDrawer
-                isOpen={isCartOpen}
-                onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
-                cart={cart}
-                totalItems={totalItems}
-                cartTotal={cartTotal}
-                onAdd={addToCart}
-                onRemove={removeFromCart}
-                onCheckout={handleProceedToCheckout}
-                showCheckoutForm={showCheckoutForm}
-                customerDetails={customerDetails}
-                setCustomerDetails={setCustomerDetails}
-                onHandleCheckout={handleHandleCheckout}
-                isCheckingOut={isCheckingOut}
-                onBack={handleBackClick}
-            />
-
             {orderComplete && (
                 <div className="toast success-toast floating-toast">
                     <CheckCircle size={20} />
                     <span>Order placed successfully!</span>
                 </div>
             )}
-
-
-
-            {/* Floating Cart Bar (for mobile parity) */}
-            {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}
         </div>
     );
 }
