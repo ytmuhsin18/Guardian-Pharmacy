@@ -102,7 +102,7 @@ const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
 
 const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock }) => {
     const [newMedicine, setNewMedicine] = useState({
-        name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: []
+        name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: []
     });
     const [editingMedicineId, setEditingMedicineId] = useState(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -128,6 +128,19 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                 setIsUploading(false);
             }
         }
+    };
+
+    const handlePricingChange = (field, value) => {
+        setNewMedicine(prev => {
+            const updated = { ...prev, [field]: value };
+            const mrp = parseFloat(field === 'mrp' ? value : updated.mrp) || 0;
+            const discount = parseFloat(field === 'discount' ? value : updated.discount) || 0;
+            
+            if (field === 'mrp' || field === 'discount') {
+                updated.price = (mrp - (mrp * discount / 100)).toFixed(2);
+            }
+            return updated;
+        });
     };
 
     const handleMedicineSubmit = async (e) => {
@@ -157,7 +170,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
             setUploadSuccess('Error! Check console for details.');
         }
 
-        setNewMedicine({ name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
+        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
         setEditingMedicineId(null);
 
         setTimeout(() => {
@@ -166,10 +179,13 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     };
 
     const handleEditMedicine = (med) => {
+        const calculatedMrp = med.discount > 0 ? (med.price / (1 - (med.discount / 100))).toFixed(2) : med.price;
+
         setNewMedicine({
             name: med.name,
             combination: med.combination || '',
             category: med.category,
+            mrp: calculatedMrp,
             price: med.price,
             discount: med.discount || '',
             description: med.description || '',
@@ -181,7 +197,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     };
 
     const cancelEdit = () => {
-        setNewMedicine({ name: '', combination: '', category: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
+        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
         setEditingMedicineId(null);
     };
 
@@ -274,16 +290,51 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
 
                         <div className="form-row">
                             <div className="input-group">
-                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Selling Price (₹) <span className="text-danger">*</span></label>
+                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Actual Price / MRP (₹) <span className="text-danger">*</span></label>
                                 <input
                                     type="number"
                                     required
                                     min="0" step="0.01"
                                     className="input-field"
-                                    placeholder="e.g. 5.99"
-                                    value={newMedicine.price}
-                                    onChange={e => setNewMedicine({ ...newMedicine, price: e.target.value })}
+                                    placeholder="e.g. 10.00"
+                                    value={newMedicine.mrp}
+                                    onChange={e => handlePricingChange('mrp', e.target.value)}
                                 />
+                            </div>
+
+                            <div className="input-group">
+                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Sales Discount (%)</label>
+                                <input
+                                    type="number"
+                                    min="0" max="100"
+                                    className="input-field"
+                                    placeholder="e.g. 10"
+                                    value={newMedicine.discount}
+                                    onChange={e => handlePricingChange('discount', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="input-group">
+                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Final Selling Price (₹)</label>
+                                <div style={{ 
+                                    padding: '0.65rem 1rem', 
+                                    background: '#f0fdf4', 
+                                    border: '1px solid #bbf7d0', 
+                                    borderRadius: 'var(--border-radius-sm)',
+                                    fontWeight: '800',
+                                    fontSize: '1.2rem',
+                                    color: '#15803d',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    height: '42px'
+                                }}>
+                                    ₹ {newMedicine.price || '0.00'}
+                                </div>
+                                <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                                    (Calculated: MRP - Discount)
+                                </span>
                             </div>
 
                             <div className="input-group">
@@ -296,20 +347,6 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     placeholder="e.g. 50"
                                     value={newMedicine.stockQuantity}
                                     onChange={e => setNewMedicine({ ...newMedicine, stockQuantity: e.target.value })}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="input-group">
-                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Sales Discount (%)</label>
-                                <input
-                                    type="number"
-                                    min="0" max="100"
-                                    className="input-field"
-                                    placeholder="e.g. 10"
-                                    value={newMedicine.discount}
-                                    onChange={e => setNewMedicine({ ...newMedicine, discount: e.target.value })}
                                 />
                             </div>
                         </div>
