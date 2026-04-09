@@ -7,8 +7,11 @@ const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }
     const [currentText, setCurrentText] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
     const [speed, setSpeed] = useState(120);
+    const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
+        if (isFocused || searchTerm) return;
+
         const handleType = () => {
             const i = currentPlaceholderIndex % placeholders.length;
             const fullText = placeholders[i];
@@ -32,7 +35,7 @@ const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }
 
         const timer = setTimeout(handleType, speed);
         return () => clearTimeout(timer);
-    }, [currentText, isDeleting, currentPlaceholderIndex, speed, placeholders]);
+    }, [currentText, isDeleting, currentPlaceholderIndex, speed, placeholders, isFocused, searchTerm]);
 
     return (
         <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
@@ -49,12 +52,14 @@ const SearchInput = ({ searchTerm, setSearchTerm, placeholders = ["Search..."] }
             <input
                 type="text"
                 className="input-field search-input"
-                placeholder={searchTerm ? "" : currentText}
+                placeholder={searchTerm || isFocused ? "Search for medicines, categories..." : currentText}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
                 style={{ width: '100%' }}
             />
-            {!searchTerm && (
+            {!searchTerm && !isFocused && (
                 <motion.span
                     animate={{ opacity: [1, 0, 1] }}
                     transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}

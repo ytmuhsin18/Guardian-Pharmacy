@@ -72,7 +72,7 @@ function Medicines() {
                             <motion.div
                                 className="search-input-wrapper"
                                 whileHover={{ scale: 1.05, y: -2 }}
-                                whileFocus={{ scale: 1.08, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+                                whileFocus={{ scale: 1.02, y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.08)' }}
                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                                 style={{ position: 'relative', flexGrow: 1 }}
                             >
@@ -80,9 +80,10 @@ function Medicines() {
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}
                                     placeholders={[
-                                        "Search Paracetamol...", "Search Baby Care...", "Search Pampers...",
-                                        "Search Adult Diapers...", "Search Horlicks...", "Search Diabetes Care...",
-                                        "Search First Aid...", "Search Skin Care...", "Search for medicines..."
+                                        "Search for Medicines...", "Search Baby Care...", "Search for Skin Care...",
+                                        "Search for Diabetes...", "Search Ortho & Surgical...", "Search personal care...",
+                                        "Search for Wellness...", "Search for Baby items...", "Search for health devices...",
+                                        "Search by Category...", "Search for anything..."
                                     ]}
                                 />
                                 {searchTerm && (

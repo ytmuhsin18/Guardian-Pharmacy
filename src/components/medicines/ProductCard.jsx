@@ -130,7 +130,7 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
 
                 {medicine.discount > 0 && (
                     <div className="savings-label" style={{ color: '#10b981', fontWeight: 800, fontSize: '0.85rem' }}>
-                        {medicine.discount}% OFF
+                        {Math.round(medicine.discount)}% OFF
                     </div>
                 )}
 

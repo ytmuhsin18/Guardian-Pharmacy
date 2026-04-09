@@ -71,14 +71,18 @@ function SurgicalProducts() {
                             <motion.div
                                 className="search-input-wrapper"
                                 whileHover={{ scale: 1.02, y: -2 }}
-                                whileFocus={{ scale: 1.04, y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                                whileFocus={{ scale: 1.02, y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.08)' }}
                                 transition={{ type: "spring", stiffness: 400, damping: 20 }}
                                 style={{ position: 'relative', flexGrow: 1 }}
                             >
                                 <SearchInput
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}
-                                    placeholders={["Search Wheelchairs...", "Search Walkers...", "Search Syringes...", "Search Adult Diapers...", "Search Health Devices..."]}
+                                    placeholders={[
+                                        "Search for Categories...", "Search Wheelchairs...", "Search Walkers...", 
+                                        "Search for Surgical...", "Search Adult Diapers...", "Search Health Devices...",
+                                        "Search Mother Care...", "Search Dental Care...", "Search personal care..."
+                                    ]}
                                 />
                                 {searchTerm && (
                                     <button

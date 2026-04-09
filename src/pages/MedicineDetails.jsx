@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Shield, AlertCircle, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap, Search, Truck, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import '../components/medicines/MedicineDetailModal.css'; // Has basic pill styles but we override in MedicineDetails.css
+import ProductCard from '../components/medicines/ProductCard';
+import '../components/medicines/MedicineDetailModal.css';
 import './MedicineDetails.css';
 
 function MedicineDetails() {
@@ -64,7 +65,7 @@ function MedicineDetails() {
                     {!isScrolled ? (
                         <h2 className="header-brand-name">Guardian <span style={{ color: '#0d9488' }}>Pharmacy</span></h2>
                     ) : (
-                        <motion.h2 
+                        <motion.h2
                             className="header-product-name"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +98,7 @@ function MedicineDetails() {
                         <div className="gallery-layout">
                             <div className="main-image-wrapper">
                                 <div className="carousel-container">
-                                    <motion.div 
+                                    <motion.div
                                         className="carousel-track"
                                         animate={{ x: `-${activeImageIndex * 100}%` }}
                                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -123,15 +124,15 @@ function MedicineDetails() {
                                 </div>
 
                                 {product.discount > 0 && (
-                                    <div className="discount-tag">-{product.discount}% OFF</div>
+                                    <div className="discount-tag">-{Math.round(product.discount)}% OFF</div>
                                 )}
-                                
+
                                 {/* Pagination Dots for Mobile */}
                                 {Array.isArray(product.images) && product.images.length > 1 && (
                                     <div className="mobile-pagination-dots">
                                         {product.images.map((_, idx) => (
-                                            <div 
-                                                key={idx} 
+                                            <div
+                                                key={idx}
                                                 className={`dot ${activeImageIndex === idx ? 'active' : ''}`}
                                                 onClick={() => setActiveImageIndex(idx)}
                                             />
@@ -139,7 +140,7 @@ function MedicineDetails() {
                                     </div>
                                 )}
                             </div>
-                            
+
                             {Array.isArray(product.images) && product.images.length > 1 && (
                                 <div className="thumbnails-wrapper">
                                     {product.images.map((img, idx) => (
@@ -180,15 +181,15 @@ function MedicineDetails() {
                             <div className="purchase-controls-wrapper">
                                 {quantity > 0 ? (
                                     <div className="quantity-box" style={{ background: '#0f172a' }}>
-                                        <button 
-                                            className="qty-btn" 
+                                        <button
+                                            className="qty-btn"
                                             onClick={() => removeFromCart(product.id)}
                                         >
                                             <Minus size={18} color="#0f172a" />
                                         </button>
                                         <span className="qty-value" style={{ color: 'white' }}>{quantity}</span>
-                                        <button 
-                                            className="qty-btn" 
+                                        <button
+                                            className="qty-btn"
                                             onClick={() => addToCart(product)}
                                         >
                                             <Plus size={18} color="#0f172a" />
@@ -206,7 +207,7 @@ function MedicineDetails() {
                                     </button>
                                 )}
                             </div>
-                            
+
                             {!product.inStock && (
                                 <div className="out-of-stock-alert" style={{ marginTop: '1.5rem' }}>
                                     <AlertCircle size={20} />
@@ -231,20 +232,78 @@ function MedicineDetails() {
                                 </div>
                             </div>
                         </div>
-                        
-                        {(product.description || product.manufacturer) && (
-                            <div className="product-description-section" style={{ background: 'white', padding: '2rem', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                                <h3>Product Details</h3>
-                                <div className="description-text">
-                                    {product.description && <p style={{ marginBottom: '1rem' }}>{product.description}</p>}
-                                    {product.manufacturer && (
-                                        <p><strong>Manufacturer:</strong> {product.manufacturer}</p>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+
                     </div>
                 </motion.div>
+
+                {(product.description || product.manufacturer) && (
+                    <div className="product-description-section full-width-details" style={{ background: 'white', padding: '2.5rem', borderRadius: '32px', boxShadow: '0 4px 30px rgba(0,0,0,0.03)', marginTop: '3rem' }}>
+                        <div className="section-header" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ width: '4px', height: '32px', background: '#0d9488', borderRadius: '4px' }}></div>
+                            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Product Details</h2>
+                        </div>
+                        <div className="description-text">
+                            {product.description && (
+                                <ul className="desc-bullet-list">
+                                    {product.description
+                                        .split('*')
+                                        .map(s => s.trim())
+                                        .filter(s => s.length > 0)
+                                        .map((point, i) => (
+                                            <li key={i}>{point}</li>
+                                        ))
+                                    }
+                                </ul>
+                            )}
+                            {product.manufacturer && (
+                                <div style={{
+                                    marginTop: '2.5rem',
+                                    padding: '1.5rem',
+                                    background: '#f8fafc',
+                                    borderRadius: '16px',
+                                    border: '1px solid #e2e8f0',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '12px'
+                                }}>
+                                    <div style={{ padding: '8px', background: 'white', borderRadius: '10px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                                        <Shield size={20} color="#0d9488" />
+                                    </div>
+                                    <span style={{ fontSize: '1rem', color: '#475569' }}><strong>Manufacturer:</strong> {product.manufacturer}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Related Products Section */}
+                {(() => {
+                    const related = medicines
+                        .filter(m => m.category === product.category && m.id !== product.id)
+                        .slice(0, 8);
+
+                    if (related.length === 0) return null;
+
+                    return (
+                        <div className="related-products-section" style={{ marginTop: '5rem', marginBottom: '4rem' }}>
+                            <div className="section-header" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ width: '4px', height: '32px', background: '#0d9488', borderRadius: '4px' }}></div>
+                                <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Similar Products</h2>
+                            </div>
+                            <div className="products-grid">
+                                {related.map(med => (
+                                    <ProductCard
+                                        key={med.id}
+                                        medicine={med}
+                                        cart={cart}
+                                        onAddToCart={addToCart}
+                                        onRemoveFromCart={removeFromCart}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
 
             {/* Mobile Sticky Bottom Bar */}
@@ -266,8 +325,8 @@ function MedicineDetails() {
                                 </button>
                             </div>
                         ) : (
-                            <button 
-                                className="mobile-add-btn" 
+                            <button
+                                className="mobile-add-btn"
                                 onClick={() => addToCart(product)}
                                 disabled={!product.inStock}
                             >

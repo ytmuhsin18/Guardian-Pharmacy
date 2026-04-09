@@ -56,7 +56,7 @@ const MedicineDetailModal = memo(({
                                         className="main-modal-img"
                                     />
                                     {medicine.discount > 0 && (
-                                        <div className="discount-badge-large">{medicine.discount}% OFF</div>
+                                        <div className="discount-badge-large">{Math.round(medicine.discount)}% OFF</div>
                                     )}
                                 </div>
                                 {Array.isArray(medicine.images) && medicine.images.length > 1 && (

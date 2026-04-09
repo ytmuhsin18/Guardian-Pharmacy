@@ -13,14 +13,14 @@ function TokenStatus() {
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         setIsSearching(true);
-        
+
         // Fetch fresh data from context to make sure we see latest tokens
         await fetchData();
-        
+
         // Use a small timeout to let state re-sync if needed (though context should be enough)
         setTimeout(() => {
             const cleanSearch = searchPhone.replace(/\D/g, '').slice(-10);
-            
+
             if (cleanSearch.length < 10) {
                 setIsSearching(false);
                 return;
@@ -31,7 +31,7 @@ function TokenStatus() {
                 const aptWhatsapp = (apt.whatsapp || "").replace(/\D/g, '').slice(-10);
                 return aptPhone === cleanSearch || aptWhatsapp === cleanSearch;
             });
-            
+
             setFoundAppointments(results);
             setIsSearching(false);
         }, 300);
@@ -40,17 +40,17 @@ function TokenStatus() {
     return (
         <div className="token-status-page" style={{ padding: '2rem 0', minHeight: '80vh' }}>
             <div className="container" style={{ maxWidth: '600px' }}>
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="glass-panel" 
+                    className="glass-panel"
                     style={{ padding: '2.5rem', borderRadius: '24px', textAlign: 'center' }}
                 >
                     <div style={{ marginBottom: '2rem' }}>
-                        <div style={{ 
-                            width: '64px', height: '64px', borderRadius: '50%', background: 'var(--primary-light)', 
-                            color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                            margin: '0 auto 1rem' 
+                        <div style={{
+                            width: '64px', height: '64px', borderRadius: '50%', background: 'var(--primary-light)',
+                            color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            margin: '0 auto 1rem'
                         }}>
                             <Hash size={32} />
                         </div>
@@ -62,9 +62,9 @@ function TokenStatus() {
                         <div className="input-group" style={{ marginBottom: 0 }}>
                             <div className="icon-input-wrapper">
                                 <Phone size={20} className="input-icon text-muted" />
-                                <input 
-                                    type="tel" 
-                                    className="input-field with-icon" 
+                                <input
+                                    type="tel"
+                                    className="input-field with-icon"
                                     placeholder="Enter Phone Number (e.g. 9876543210)"
                                     value={searchPhone}
                                     onChange={(e) => setSearchPhone(e.target.value)}
@@ -81,7 +81,7 @@ function TokenStatus() {
                 <div style={{ marginTop: '2rem' }}>
                     <AnimatePresence mode="wait">
                         {foundAppointments === null ? null : foundAppointments.length === 0 ? (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="glass-panel"
@@ -94,7 +94,7 @@ function TokenStatus() {
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                 {foundAppointments.map((apt, idx) => (
-                                    <motion.div 
+                                    <motion.div
                                         key={idx}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
