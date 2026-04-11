@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import EmergencyBanner from '../components/EmergencyBanner';
 import './Doctors.css';
@@ -77,7 +77,8 @@ const DoctorCard = memo(({ doc, idx, onSelect, fetchImage }) => {
 });
 
 function Doctors() {
-    const { addAppointment, doctors, loading, fetchDoctorImage } = useApp();
+    const navigate = useNavigate();
+    const { addAppointment, doctors, loading, fetchDoctorImage, user } = useApp();
     const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [bookingFormData, setBookingFormData] = useState({
         patientName: '',
@@ -103,6 +104,14 @@ function Doctors() {
             document.documentElement.classList.remove('modal-open');
         };
     }, [selectedDoctor]);
+
+    const handleDoctorSelect = (doc) => {
+        if (!user) {
+            navigate('/signin', { state: { from: '/doctors' } });
+            return;
+        }
+        setSelectedDoctor(doc);
+    };
 
     const closeModal = () => {
         setSelectedDoctor(null);
@@ -212,7 +221,7 @@ function Doctors() {
                                     key={doc.id}
                                     doc={doc}
                                     idx={idx}
-                                    onSelect={setSelectedDoctor}
+                                    onSelect={handleDoctorSelect}
                                     fetchImage={fetchDoctorImage}
                                 />
                             ))}

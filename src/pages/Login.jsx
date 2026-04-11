@@ -12,11 +12,12 @@ function Login() {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        if (email === 'ytmuhsin18@gmail.com' && password === '8248513188') {
+        // Support both email and phone number for admin login
+        if ((email === 'ytmuhsin18@gmail.com' || email === '8248513188') && password === '8248513188') {
             localStorage.setItem('guardian_admin_auth', 'true');
             navigate('/admin');
         } else {
-            setError('Invalid email or password.');
+            setError('Invalid email/number or password.');
         }
     };
 
@@ -40,13 +41,13 @@ function Login() {
 
                 <form onSubmit={handleLogin} className="login-form">
                     <div className="input-group">
-                        <label className="input-label">Email Address</label>
+                        <label className="input-label">Email or Phone Number</label>
                         <div className="icon-input-wrapper">
                             <Mail size={18} className="input-icon text-muted" />
                             <input
-                                type="email"
+                                type="text"
                                 className="input-field with-icon"
-                                placeholder="Enter your email"
+                                placeholder="Enter email or number"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required

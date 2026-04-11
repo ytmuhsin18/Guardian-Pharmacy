@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Pill, LogOut, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Pill, LogOut, Package, Calendar, Stethoscope, UserCheck } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './AdminDashboard.css';
 
@@ -9,6 +9,7 @@ import OrdersTab from '../components/admin/OrdersTab';
 import AppointmentsTab from '../components/admin/AppointmentsTab';
 import MedicinesTab from '../components/admin/MedicinesTab';
 import DoctorsTab from '../components/admin/DoctorsTab';
+import CustomersTab from '../components/admin/CustomersTab';
 
 function AdminDashboard() {
     const navigate = useNavigate();
@@ -16,7 +17,8 @@ function AdminDashboard() {
         appointments, updateAppointmentStatus, updateAppointmentToken,
         orders, updateOrderStatus,
         medicines, addMedicine, bulkAddMedicines, updateMedicineData, deleteMedicine, toggleMedicineStock,
-        doctors, addDoctor, updateDoctorAvailability, updateDoctorData, updateDoctorImage, deleteDoctor
+        doctors, addDoctor, updateDoctorAvailability, updateDoctorData, updateDoctorImage, deleteDoctor,
+        registeredUsers
     } = useApp();
 
     const [activeTab, setActiveTab] = useState('orders');
@@ -59,8 +61,16 @@ function AdminDashboard() {
                         className={`admin-nav-item ${activeTab === 'appointments' ? 'active' : ''}`}
                         onClick={() => setActiveTab('appointments')}
                     >
-                        <LayoutDashboard size={20} />
+                        <Calendar size={20} />
                         Appointments
+                    </button>
+
+                    <button
+                        className={`admin-nav-item ${activeTab === 'customers' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('customers')}
+                    >
+                        <UserCheck size={20} />
+                        Customers
                     </button>
 
                     <button
@@ -74,8 +84,8 @@ function AdminDashboard() {
                         className={`admin-nav-item ${activeTab === 'doctors' ? 'active' : ''}`}
                         onClick={() => setActiveTab('doctors')}
                     >
-                        <Users size={20} />
-                        Edit Doctors
+                        <Stethoscope size={20} />
+                        Manage Doctors
                     </button>
 
                     <button className="admin-nav-item text-danger mobile-logout-only" onClick={handleLogout}>
@@ -91,7 +101,8 @@ function AdminDashboard() {
                     <h1 className="title">
                         {activeTab === 'orders' ? 'Customer Orders' :
                             activeTab === 'appointments' ? 'Doctor Appointments' :
-                                activeTab === 'upload' ? 'Manage Medicines' : 'Edit Doctors'}
+                                activeTab === 'upload' ? 'Manage Medicines' : 
+                                    activeTab === 'customers' ? 'Registered Customers' : 'Edit Doctors'}
                     </h1>
                 </header>
 
@@ -117,6 +128,10 @@ function AdminDashboard() {
                             deleteMedicine={deleteMedicine}
                             toggleMedicineStock={toggleMedicineStock}
                         />
+                    )}
+
+                    {activeTab === 'customers' && (
+                        <CustomersTab users={registeredUsers} />
                     )}
 
                     {activeTab === 'doctors' && (

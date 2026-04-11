@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
@@ -23,11 +23,19 @@ import { useApp } from './context/AppContext';
 import SurgicalProducts from './pages/SurgicalProducts';
 import Physiotherapy from './pages/Physiotherapy';
 
+import UserLogin from './pages/UserLogin';
+
 function App() {
   const {
     cart, totalItems, cartTotal, addToCart, removeFromCart, deleteFromCart, clearCart, addOrder,
-    isCartOpen, setIsCartOpen
+    isCartOpen, setIsCartOpen, user
   } = useApp();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAuthPage = location.pathname === '/signin' || location.pathname === '/login';
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const shouldHideCart = isAuthPage || isAdminPage;
 
   const [isCheckingOut, setIsCheckingOut] = React.useState(false);
   const [orderComplete, setOrderComplete] = React.useState(false);
@@ -45,7 +53,54 @@ function App() {
     return () => document.body.classList.remove('modal-open');
   }, [isCartOpen]);
 
-  const handleProceedToCheckout = () => setShowCheckoutForm(true);
+  // Load user-specific delivery details when user changes
+  React.useEffect(() => {
+    if (user) {
+       const userKey = `guardian_delivery_details_${user.phone || user.email}`;
+       const saved = localStorage.getItem(userKey);
+       if (saved) {
+         setCustomerDetails(JSON.parse(saved));
+       } else {
+         // Fallback to basic user info if no saved delivery details yet
+         setCustomerDetails({
+           name: user.name || '',
+           phone: user.phone && user.phone !== 'N/A' ? user.phone : '',
+           email: user.email || '',
+           whatsapp: user.phone && user.phone !== 'N/A' ? user.phone : '',
+           address: '',
+           pincode: ''
+         });
+       }
+    } else {
+       // Check for global guest details
+       const savedGuest = localStorage.getItem('guardian_delivery_details_guest');
+       if (savedGuest) {
+         setCustomerDetails(JSON.parse(savedGuest));
+       } else {
+         setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '' });
+       }
+    }
+  }, [user]);
+
+  // LIVE STORAGE: Save details whenever they change
+  React.useEffect(() => {
+    const userKeySuffix = user ? (user.phone || user.email) : 'guest';
+    const userKey = `guardian_delivery_details_${userKeySuffix}`;
+    
+    // Only save if some details are entered to avoid overwriting with blanks initially
+    if (customerDetails.name || customerDetails.address || customerDetails.phone) {
+      localStorage.setItem(userKey, JSON.stringify(customerDetails));
+    }
+  }, [customerDetails, user]);
+
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      setIsCartOpen(false);
+      navigate('/signin', { state: { from: '/medicines' } });
+      return;
+    }
+    setShowCheckoutForm(true);
+  };
   const handleCheckout = async (e) => {
     e.preventDefault();
     setIsCheckingOut(true);
@@ -62,17 +117,31 @@ function App() {
     const success = await addOrder(orderDetails);
     setIsCheckingOut(false);
     if (success) {
+      // Store delivery details SPECIFICALLY for this user
+      const userKeySuffix = user ? (user.phone || user.email) : 'guest';
+      
+      if (user) {
+        const userKey = `guardian_delivery_details_${userKeySuffix}`;
+        localStorage.setItem(userKey, JSON.stringify(customerDetails));
+      }
+      
+      // Also track order completion per-user
+      const historyKey = `my_guardian_orders_${userKeySuffix}`;
+      const myOrders = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      // Using an ID or generating one if data[0] is not available here
+      // AppContext's addOrder returns success and handles internal storage, 
+      // but we can track the IDs here too for UI convenience.
+      
       clearCart();
       setOrderComplete(true);
       setShowCheckoutForm(false);
-      setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '' });
       setTimeout(() => setOrderComplete(false), 3000);
       setIsCartOpen(false);
     }
   };
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <div className="page-layout">
 
@@ -89,6 +158,7 @@ function App() {
             <Route path="/physiotherapy" element={<Physiotherapy />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signin" element={<UserLogin />} />
             <Route path="/tokens" element={<TokenStatus />} />
           </Routes>
         </main>
@@ -96,24 +166,26 @@ function App() {
         <MobileNavbar />
         <WhatsAppButton />
 
-        <CartDrawer
-          isOpen={isCartOpen}
-          onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
-          cart={cart}
-          totalItems={totalItems}
-          cartTotal={cartTotal}
-          onAdd={addToCart}
-          onRemove={removeFromCart}
-          onDelete={deleteFromCart}
-          onCheckout={handleProceedToCheckout}
-          showCheckoutForm={showCheckoutForm}
-          customerDetails={customerDetails}
-          setCustomerDetails={setCustomerDetails}
-          onHandleCheckout={handleCheckout}
-          isCheckingOut={isCheckingOut}
-          onBack={() => setShowCheckoutForm(false)}
-        />
-        {!isCartOpen && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}
+        {!shouldHideCart && (
+          <CartDrawer
+            isOpen={isCartOpen}
+            onClose={() => { setIsCartOpen(false); setShowCheckoutForm(false); }}
+            cart={cart}
+            totalItems={totalItems}
+            cartTotal={cartTotal}
+            onAdd={addToCart}
+            onRemove={removeFromCart}
+            onDelete={deleteFromCart}
+            onCheckout={handleProceedToCheckout}
+            showCheckoutForm={showCheckoutForm}
+            customerDetails={customerDetails}
+            setCustomerDetails={setCustomerDetails}
+            onHandleCheckout={handleCheckout}
+            isCheckingOut={isCheckingOut}
+            onBack={() => setShowCheckoutForm(false)}
+          />
+        )}
+        {!isCartOpen && !shouldHideCart && <FloatingCartBar onOpenCart={() => setIsCartOpen(true)} />}
 
         {/* Success Modal */}
         <AnimatePresence>
@@ -165,7 +237,7 @@ function App() {
           )}
         </AnimatePresence>
       </div>
-    </Router>
+    </>
   );
 }
 

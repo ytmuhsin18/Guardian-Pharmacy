@@ -29,7 +29,7 @@
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.07);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -75,7 +75,9 @@
     white-space: nowrap;
 }
 
-.text-primary { color: var(--primary); }
+.text-primary {
+    color: var(--primary);
+}
 
 /* ── Nav Links ── */
 .nav-links {
@@ -102,65 +104,121 @@
 }
 
 /* ── Admin / Actions ── */
-.nav-admin-btn { padding: 0.45rem 1rem; }
-
-.mobile-only  { display: none; }
-.desktop-only { display: flex; }
-
-.admin-login-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+.nav-admin-btn {
+    padding: 0.45rem 1rem;
 }
 
-.nav-login-btn {
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: flex;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.nav-signin-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.nav-signin-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 6px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    color: var(--text-dark, #1e293b);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 40px;
+    /* Standardize height */
+}
+
+
+.signin-icon-wrapper {
+    width: 28px;
+    height: 28px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
-    transition: color 0.2s ease;
-    padding: 0.5rem;
+    color: var(--primary, #10b981);
+}
+
+.nav-user-pill {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 4px;
+    border-radius: 30px;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    height: 44px;
+}
+
+.user-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 4px;
+    background: #f1f5f9;
+    border-radius: 20px;
+    color: var(--text-dark, #0f172a);
+}
+
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    background: white;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary, #10b981);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.nav-login-btn:hover {
-    color: var(--primary);
-    background: #f0fdf4;
-}
-
-.nav-tooltip {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    background: #0d1b2a;
-    color: white;
-    padding: 6px 14px;
-    border-radius: 10px;
-    font-size: 0.78rem;
-    font-weight: 600;
+.user-name-text {
+    font-size: 0.82rem;
+    font-weight: 700;
     white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-8px);
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
-.nav-tooltip::after {
-    content: '';
-    position: absolute;
-    top: -5px;
-    right: 12px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #0d1b2a transparent;
+.user-logout-action {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 36px;
+    background: #fee2e2;
+    color: #ef4444;
+    border-radius: 18px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
 }
 
-.admin-login-wrapper:hover .nav-tooltip {
-    opacity: 1;
-    transform: translateY(0);
+.user-logout-action:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
 }
+
 
 .nav-cart-btn-premium {
     display: flex !important;
@@ -188,10 +246,497 @@
 }
 
 @media (max-width: 768px) {
-    .desktop-only { display: none; }
-    .mobile-only  { display: block; }
-    .nav-cart-btn-premium {
-        padding: 8px 12px;
+    .desktop-only {
+        display: none;
+    }
+
+    .mobile-only {
+        display: block;
+    }
+
+    .nav-content {
+        height: 60px;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+        gap: 4px;
+    }
+
+    .brand-logo {
+        height: 32px;
+    }
+
+
+    .nav-actions {
         gap: 8px;
     }
+
+    .nav-signin-btn {
+        padding: 5px;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        gap: 0;
+        justify-content: center;
+    }
+
+    /* Order History Modal Styles */
+    .orders-history-modal {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 450px;
+        z-index: 10003;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        border-left: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .orders-modal-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .header-icon-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .history-icon-bg {
+        width: 48px;
+        height: 48px;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header-icon-title h3 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .header-icon-title p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .close-orders-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: #f8fafc;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close-orders-btn:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+        transform: rotate(90deg);
+    }
+
+    .orders-modal-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+
+    .empty-orders-state {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        background: #f8fafc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-orders-state h4 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-orders-state p {
+        color: #64748b;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .shop-now-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 12px 24px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .shop-now-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .order-history-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
+    }
+
+    .order-history-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .order-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .order-tag {
+        display: block;
+        font-weight: 800;
+        color: #1e293b;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .order-date {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .order-status-pill {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .order-status-pill.pending {
+        background: #fff7ed;
+        color: #f97316;
+    }
+
+    .order-status-pill.delivered {
+        background: #f0fdf4;
+        color: #10b981;
+    }
+
+    .order-status-pill.cancelled {
+        background: #fef2f2;
+        color: #ef4444;
+    }
+
+    .history-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-name-qty {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .item-qty {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.85rem;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 2px 6px;
+        border-radius: 6px;
+    }
+
+    .item-name {
+        font-size: 0.95rem;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .item-price {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+
+    .order-card-footer {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-total-info span:first-child {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .total-amt {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    .order-eta {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 600;
+        background: #f8fafc;
+        padding: 6px 12px;
+        border-radius: 10px;
+    }
+
+    /* User Profile Btn */
+    .user-profile-info-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 12px;
+        transition: background 0.3s ease;
+    }
+
+    .user-profile-info-btn:hover {
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    @media (max-width: 640px) {
+        .orders-history-modal {
+            max-width: 100%;
+        }
+    }
+
+    .signin-text {
+        display: none;
+    }
+
+    .nav-cart-btn-premium {
+        padding: 6px 12px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .cart-info-vertical span:first-child {
+        font-size: 0.75rem;
+    }
+
+    .cart-info-vertical span:last-child {
+        font-size: 0.85rem;
+    }
+
+    .nav-user-pill {
+        height: 38px;
+        padding: 3px;
+    }
+
+    .user-profile-info {
+        padding: 0;
+        background: transparent;
+    }
+
+    .user-avatar-small {
+        width: 32px;
+        height: 32px;
+    }
+
+    .user-logout-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+    }
+}
+
+@media (max-width: 400px) {
+    .logo-text {
+        font-size: 0.9rem;
+    }
+}
+
+/* ── Logout Confirmation Modal ── */
+.logout-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.logout-confirm-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px);
+}
+
+.logout-confirm-modal {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    border-radius: 28px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.logout-confirm-icon-wrapper {
+    width: 72px;
+    height: 72px;
+    background: #fee2e2;
+    color: #ef4444;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.logout-confirm-modal h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.logout-confirm-modal p {
+    color: #64748b;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 28px;
+}
+
+.logout-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.confirm-btn-yes,
+.confirm-btn-no {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.confirm-btn-yes {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 8px 20px -6px rgba(239, 68, 68, 0.4);
+}
+
+.confirm-btn-yes:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+.confirm-btn-no {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.confirm-btn-no:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+@media (max-width: 480px) {
+    .logout-confirm-modal {
+        padding: 24px;
+        border-radius: 24px;
+    }
+
+    .logout-confirm-icon-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Green Signal Dot */
+.green-signal-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.4);
+    flex-shrink: 0;
 }

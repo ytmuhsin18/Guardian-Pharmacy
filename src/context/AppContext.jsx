@@ -12,6 +12,39 @@ export function AppProvider({ children }) {
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('guardian_user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+
+    const [registeredUsers, setRegisteredUsers] = useState(() => {
+        const saved = localStorage.getItem('guardian_registered_users');
+        if (saved) return JSON.parse(saved);
+        // Default mock users
+        return [
+            { id: '1', name: 'Zubaitha', email: 'zubaitha@example.com', createdAt: '2024-03-20' },
+            { id: '2', name: 'Muhsin', email: 'muhsin@example.com', createdAt: '2024-03-22' }
+        ];
+    });
+
+    const login = (userData) => {
+        setUser(userData);
+        localStorage.setItem('guardian_user', JSON.stringify(userData));
+
+        // Add to registered users if not exists
+        setRegisteredUsers(prev => {
+            const exists = prev.find(u => u.phone === userData.phone);
+            if (exists) return prev;
+            const newList = [...prev, { ...userData, createdAt: new Date().toISOString() }];
+            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
+            return newList;
+        });
+    };
+
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('guardian_user');
+    };
 
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -689,7 +722,11 @@ export function AppProvider({ children }) {
             updatePrescriptionStatus,
             fetchPrescriptionImage,
             loading,
-            fetchData
+            fetchData,
+            user,
+            login,
+            logout,
+            registeredUsers
         }}>
             {children}
         </AppContext.Provider>

@@ -35,7 +35,7 @@ const playCartSound = (action) => {
 
 function Medicines() {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading } = useApp();
+    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen, loading, user } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleAddToCartItem = React.useCallback((item) => {
@@ -119,11 +119,18 @@ function Medicines() {
                                     overflow: 'hidden'
                                 }}
                             >
-                                <motion.a
-                                    href="tel:9487469098"
+                                <motion.div
                                     className="action-banner-item"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        if (!user) {
+                                            navigate('/signin', { state: { from: '/medicines' } });
+                                        } else {
+                                            window.location.href = "tel:9487469098";
+                                        }
+                                    }}
+                                    style={{ cursor: 'pointer' }}
                                 >
                                     <motion.div
                                         className="action-icon-wrapper call-icon"
@@ -139,15 +146,20 @@ function Medicines() {
                                         <h3>Order on Call</h3>
                                         <p>94874 69098</p>
                                     </div>
-                                </motion.a>
+                                </motion.div>
 
-                                <motion.a
-                                    href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines."
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <motion.div
                                     className="action-banner-item"
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        if (!user) {
+                                            navigate('/signin', { state: { from: '/medicines' } });
+                                        } else {
+                                            window.open("https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines.", "_blank");
+                                        }
+                                    }}
+                                    style={{ cursor: 'pointer' }}
                                 >
                                     <motion.div
                                         className="action-icon-wrapper wa-icon"
@@ -163,7 +175,7 @@ function Medicines() {
                                         <h3>Upload Prescription</h3>
                                         <p>Send on WhatsApp</p>
                                     </div>
-                                </motion.a>
+                                </motion.div>
                             </motion.div>
                         )}
                     </AnimatePresence>
