@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Pill, CheckCircle, Save, X, Search, ToggleRight, ToggleLeft, Edit2, Trash2, Paperclip } from 'lucide-react';
+import { Pill, CheckCircle, Save, X, Search, ToggleRight, ToggleLeft, Edit2, Trash2, Paperclip, Activity } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 
@@ -102,7 +102,7 @@ const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
 
 const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteMedicine, toggleMedicineStock }) => {
     const [newMedicine, setNewMedicine] = useState({
-        name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: []
+        name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [], availableSizes: []
     });
     const [editingMedicineId, setEditingMedicineId] = useState(null);
     const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -165,7 +165,8 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
             discount: newMedicine.discount ? parseFloat(newMedicine.discount) : 0,
             description: newMedicine.description || null,
             inStock: parseInt(newMedicine.stockQuantity) > 0,
-            images: newMedicine.images || []
+            images: newMedicine.images || [],
+            availableSizes: newMedicine.availableSizes || []
         };
 
         let success;
@@ -181,7 +182,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
             setUploadSuccess('Error! Check console for details.');
         }
 
-        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
+        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [], availableSizes: [] });
         setEditingMedicineId(null);
 
         setTimeout(() => {
@@ -201,14 +202,15 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
             discount: med.discount || '',
             description: med.description || '',
             stockQuantity: med.stockQuantity || (med.inStock ? 100 : 0),
-            images: Array.isArray(med.images) ? med.images : (med.image_base64 ? [med.image_base64] : [])
+            images: Array.isArray(med.images) ? med.images : (med.image_base64 ? [med.image_base64] : []),
+            availableSizes: med.availableSizes || []
         });
         setEditingMedicineId(med.id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const cancelEdit = () => {
-        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [] });
+        setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [], availableSizes: [] });
         setEditingMedicineId(null);
     };
 
@@ -293,11 +295,111 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                     <option value="Maternity Care">Maternity Care</option>
                                     <option value="Surgical Products">Surgical Products</option>
+                                    <option value="Ortho">Ortho</option>
                                     <option value="Physiotherapy">Physiotherapy</option>
                                     <option value="Teeth Care">Teeth Care</option>
                                 </select>
                             </div>
                         </div>
+
+                        {newMedicine.category === 'Ortho' && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                style={{ 
+                                    background: '#f8fafc', 
+                                    padding: '1.5rem', 
+                                    borderRadius: '16px', 
+                                    border: '1px solid #e2e8f0',
+                                    marginBottom: '1.5rem'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
+                                    <Activity size={18} color="#0d9488" />
+                                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>Size-specific Pricing</h4>
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '1.5rem' }}>
+                                    {['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'UNI'].map(size => {
+                                        const existing = newMedicine.availableSizes.find(s => s.size === size);
+                                        return (
+                                            <button
+                                                key={size}
+                                                type="button"
+                                                onClick={() => {
+                                                    const current = newMedicine.availableSizes;
+                                                    if (existing) {
+                                                        setNewMedicine({ ...newMedicine, availableSizes: current.filter(s => s.size !== size) });
+                                                    } else {
+                                                        setNewMedicine({ 
+                                                            ...newMedicine, 
+                                                            availableSizes: [...current, { size, mrp: newMedicine.mrp || '', price: newMedicine.price || '' }] 
+                                                        });
+                                                    }
+                                                }}
+                                                style={{
+                                                    minWidth: '54px',
+                                                    height: '42px',
+                                                    borderRadius: '10px',
+                                                    border: existing ? '2px solid #0d9488' : '1px solid #cbd5e1',
+                                                    background: existing ? '#0d9488' : 'white',
+                                                    color: existing ? 'white' : '#64748b',
+                                                    fontWeight: 800,
+                                                    fontSize: '0.9rem',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                                                }}
+                                            >
+                                                {size}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {newMedicine.availableSizes.length > 0 && (
+                                    <div className="size-prices-grid" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', gap: '15px', padding: '0 8px', color: '#64748b', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                            <span>Size</span>
+                                            <span>MRP (₹)</span>
+                                            <span>Selling Price (₹)</span>
+                                        </div>
+                                        {newMedicine.availableSizes.map((s, idx) => (
+                                            <motion.div 
+                                                key={s.size}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', gap: '15px', alignItems: 'center' }}
+                                            >
+                                                <span style={{ fontWeight: 800, color: '#0d9488', fontSize: '1rem' }}>{s.size}</span>
+                                                <input 
+                                                    type="number"
+                                                    className="input-field" 
+                                                    placeholder="MRP"
+                                                    value={s.mrp}
+                                                    onChange={(e) => {
+                                                        const updated = [...newMedicine.availableSizes];
+                                                        updated[idx].mrp = e.target.value;
+                                                        setNewMedicine({ ...newMedicine, availableSizes: updated });
+                                                    }}
+                                                    style={{ height: '38px', borderRadius: '8px', fontSize: '0.9rem' }}
+                                                />
+                                                <input 
+                                                    type="number"
+                                                    className="input-field" 
+                                                    placeholder="Price"
+                                                    value={s.price}
+                                                    onChange={(e) => {
+                                                        const updated = [...newMedicine.availableSizes];
+                                                        updated[idx].price = e.target.value;
+                                                        setNewMedicine({ ...newMedicine, availableSizes: updated });
+                                                    }}
+                                                    style={{ height: '38px', borderRadius: '8px', fontSize: '0.9rem' }}
+                                                />
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
 
                         <div className="form-row">
                             <div className="input-group">

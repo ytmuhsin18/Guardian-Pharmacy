@@ -1,6 +1,6 @@
 import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Package, CheckCircle, X, Search } from 'lucide-react';
+import { Package, CheckCircle, X, Search, Truck, Banknote, CreditCard } from 'lucide-react';
 
 const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -31,27 +31,15 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
             className="appointments-view"
         >
             {/* Search Bar Container */}
-            <div className="search-bar-container" style={{ marginBottom: '1.5rem', maxWidth: '440px' }}>
-                <div className="search-input-wrapper" style={{ position: 'relative', display: 'flex', gap: '8px' }}>
-                    <div style={{ position: 'relative', flexGrow: 1 }}>
-                        <Search 
-                            className="search-icon" 
-                            size={18} 
-                            style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} 
-                        />
-                        <input 
-                          type="text" 
-                          placeholder="Find by name, phone or whatsapp..." 
-                          className="input-field" 
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          style={{ paddingLeft: '2.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', height: '48px', width: '100%', borderRadius: '12px' }}
-                        />
-                    </div>
-                    <button className="btn btn-primary" style={{ height: '48px', padding: '0 1.5rem', borderRadius: '12px', flexShrink: 0 }}>
-                        Search
-                    </button>
-                </div>
+            <div className="search-bar-premium" style={{ marginBottom: '2rem' }}>
+                <Search className="search-icon" size={20} />
+                <input 
+                    type="text" 
+                    placeholder="Search by name, phone or address..." 
+                    className="input-field" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
 
             {filteredOrders.length === 0 ? (
@@ -61,7 +49,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                     <p>{searchTerm ? 'Try a different name or number.' : 'When customers place orders, they will appear here.'}</p>
                 </div>
             ) : (
-                <div className="appointments-table-wrapper glass-panel">
+                <div className="appointments-table-wrapper glass-panel" style={{ background: 'white', border: '1px solid #e2e8f0' }}>
                     <table className="admin-table">
                         <thead>
                             <tr>
@@ -74,62 +62,143 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                         </thead>
                         <tbody>
                             {filteredOrders.map(order => (
-                                <tr key={order.id}>
-                                    <td>
-                                        <strong>{order.customer_name}</strong><br />
-                                        <span className="text-muted text-sm">{order.phone} (WA: {order.whatsapp})</span><br />
-                                        <span className="text-muted text-sm" style={{ whiteSpace: 'normal', display: 'inline-block', maxWidth: '200px' }}>{order.address}, {order.pincode}</span>
+                                <tr key={order.id} className="order-row-premium">
+                                    <td className="customer-info-cell">
+                                        <span className="customer-name-meta">{order.customer_name}</span>
+                                        <div className="customer-contact-meta">
+                                            <span>{order.phone}</span>
+                                            {order.whatsapp && <span style={{ color: '#059669', opacity: 0.8 }}>WA: {order.whatsapp}</span>}
+                                        </div>
+                                        <div className="customer-address-meta" title={`${order.address}, ${order.pincode}`}>
+                                            {order.address}, {order.pincode}
+                                        </div>
                                     </td>
-                                    <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <td className="items-ordered-cell">
+                                        <div className="order-items-list">
                                             {(order.items || []).map((item, idx) => {
                                                 const img = getItemImage(item);
                                                 return (
-                                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <div key={idx} className="order-item-card">
                                                         {img ? (
                                                             <img
                                                                 src={img}
                                                                 alt={item.name}
-                                                                style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', flexShrink: 0 }}
+                                                                className="order-item-img"
                                                             />
                                                         ) : (
-                                                            <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                                                <Package size={16} style={{ color: '#94a3b8' }} />
+                                                            <div className="order-item-placeholder">
+                                                                <Package size={18} />
                                                             </div>
                                                         )}
-                                                        <span style={{ fontSize: '0.85rem' }}>{item.name} <strong>x{item.quantity}</strong></span>
+                                                        <div className="order-item-details">
+                                                            <span className="order-item-name" title={item.name}>{item.name}</span>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                <span className="order-item-qty">Qty: {item.quantity}</span>
+                                                                {item.selectedSize && (
+                                                                    <span style={{ 
+                                                                        fontSize: '0.7rem', 
+                                                                        background: '#f1f5f9', 
+                                                                        color: '#475569', 
+                                                                        padding: '1px 6px', 
+                                                                        borderRadius: '4px',
+                                                                        border: '1px solid #e2e8f0',
+                                                                        fontWeight: 700
+                                                                    }}>
+                                                                        Size: {item.selectedSize}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 );
                                             })}
                                         </div>
                                     </td>
-                                    <td>
-                                        <strong>₹{Number(order.total_amount).toFixed(2)}</strong>
+                                    <td className="total-amount-cell">
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                            {(() => {
+                                                const itemsTotal = (order.items || []).reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
+                                                const deliveryFee = Math.max(0, Number(order.total_amount) - itemsTotal);
+                                                
+                                                return (
+                                                    <>
+                                                        <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', gap: '8px' }}>
+                                                            <span>Items:</span>
+                                                            <span style={{ fontWeight: 600 }}>₹{itemsTotal.toFixed(2)}</span>
+                                                        </div>
+                                                        <div style={{ fontSize: '0.8rem', color: deliveryFee > 0 ? '#64748b' : '#10b981', display: 'flex', gap: '8px' }}>
+                                                            <span>Delivery:</span>
+                                                            <span style={{ fontWeight: 600 }}>{deliveryFee > 0 ? `₹${deliveryFee.toFixed(2)}` : 'FREE'}</span>
+                                                        </div>
+                                                        <div style={{ 
+                                                            fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', 
+                                                            borderTop: '1px solid #f1f5f9', paddingTop: '4px', marginTop: '2px' 
+                                                        }}>
+                                                            ₹{Number(order.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()}
+                                            {(() => {
+                                                const pMethod = order.payment_method || order.paymentMethod || 'COD';
+                                                const normalized = pMethod.toLowerCase();
+                                                const isOnline = normalized === 'online' || normalized === 'prepaid';
+                                                
+                                                return (
+                                                    <div style={{ 
+                                                        display: 'flex', alignItems: 'center', gap: '6px', 
+                                                        fontSize: '0.75rem', color: isOnline ? '#0984e3' : '#059669',
+                                                        background: isOnline ? '#eff6ff' : '#ecfdf5',
+                                                        padding: '4px 10px', borderRadius: '8px', width: 'fit-content',
+                                                        fontWeight: 800, textTransform: 'uppercase',
+                                                        border: `1px solid ${isOnline ? '#dbeafe' : '#d1fae5'}`,
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                                                        marginTop: '4px'
+                                                    }}>
+                                                        {isOnline ? <CreditCard size={12} /> : <Banknote size={12} />}
+                                                        {isOnline ? 'ONLINE' : 'COD'}
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
                                     </td>
                                     <td>
-                                        <span className={`status-badge ${order.status.toLowerCase()}`}>
+                                        <span className={`status-pill-premium ${order.status.toLowerCase()}`}>
+                                            <span className="dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
                                             {order.status}
                                         </span>
                                     </td>
                                     <td>
-                                        {order.status === 'Pending' && (
-                                            <div className="action-buttons">
+                                        <div className="action-btns-premium">
+                                            {order.status === 'Pending' && (
+                                                <>
+                                                    <button
+                                                        className="btn-action-premium confirm"
+                                                        onClick={() => updateOrderStatus(order.id, 'Confirmed')}
+                                                        title="Confirm Order"
+                                                    >
+                                                        <CheckCircle size={20} />
+                                                    </button>
+                                                    <button
+                                                        className="btn-action-premium cancel"
+                                                        onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                                        title="Cancel Order"
+                                                    >
+                                                        <X size={20} />
+                                                    </button>
+                                                </>
+                                            )}
+                                            {order.status === 'Confirmed' && (
                                                 <button
-                                                    className="btn-icon accept"
-                                                    onClick={() => updateOrderStatus(order.id, 'Confirmed')}
-                                                    title="Confirm Order"
+                                                    className="btn-action-premium confirm"
+                                                    style={{ color: '#0984e3', borderColor: '#0984e3' }}
+                                                    onClick={() => updateOrderStatus(order.id, 'Out for Delivery')}
+                                                    title="Set Out for Delivery"
                                                 >
-                                                    <CheckCircle size={18} />
+                                                    <Truck size={20} />
                                                 </button>
-                                                <button
-                                                    className="btn-icon reject"
-                                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
-                                                    title="Cancel Order"
-                                                >
-                                                    <X size={18} />
-                                                </button>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

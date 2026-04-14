@@ -46,6 +46,23 @@ export function AppProvider({ children }) {
         localStorage.removeItem('guardian_user');
     };
 
+    const updateRegisteredUser = (id, updatedData) => {
+        setRegisteredUsers(prev => {
+            const newList = prev.map(u => u.id === id ? { ...u, ...updatedData } : u);
+            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
+            return newList;
+        });
+    };
+
+    const deleteRegisteredUser = (id) => {
+        if (!window.confirm('Are you sure you want to delete this customer? All their data will be removed.')) return;
+        setRegisteredUsers(prev => {
+            const newList = prev.filter(u => u.id !== id);
+            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
+            return newList;
+        });
+    };
+
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
@@ -71,8 +88,8 @@ export function AppProvider({ children }) {
         };
 
         const fetchAppointmentsAsync = async () => {
-            const seventyTwoHoursAgo = new Date();
-            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+            const twentyFourHoursAgo = new Date();
+            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
             const res = await fetch('/api/appointments');
             if (!res.ok) throw new Error('API Error');
@@ -80,7 +97,7 @@ export function AppProvider({ children }) {
 
             if (data) {
                 // Filter locally first
-                const currentAppointments = data.filter(apt => new Date(apt.created_at) > seventyTwoHoursAgo);
+                const currentAppointments = data.filter(apt => new Date(apt.created_at) > twentyFourHoursAgo);
 
                 setAppointments(currentAppointments.map(a => ({
                     ...a,
@@ -98,8 +115,8 @@ export function AppProvider({ children }) {
         };
 
         const fetchOrdersAsync = async () => {
-            const seventyTwoHoursAgo = new Date();
-            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
+            const twentyFourHoursAgo = new Date();
+            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
 
             let res;
             try {
@@ -116,7 +133,7 @@ export function AppProvider({ children }) {
 
             if (data) {
                 // Filter orders locally to ensure UI is fresh immediately
-                const currentOrders = data.filter(order => new Date(order.created_at) > seventyTwoHoursAgo);
+                const currentOrders = data.filter(order => new Date(order.created_at) > twentyFourHoursAgo);
                 setOrders(currentOrders);
 
                 // If we find orders older than 72 hours, trigger a background delete
@@ -156,28 +173,32 @@ export function AppProvider({ children }) {
         }
     };
 
-    const addToCart = (medicine) => {
+    const addToCart = (medicine, selectedSize = null) => {
         setCart(prev => {
-            const existing = prev.find(item => item.id === medicine.id);
+            const existing = prev.find(item => item.id === medicine.id && item.selectedSize === selectedSize);
             if (existing) {
-                return prev.map(item => item.id === medicine.id ? { ...item, quantity: item.quantity + 1 } : item);
+                if (existing.quantity >= 10) {
+                    alert('Maximum 10 units allowed per item');
+                    return prev;
+                }
+                return prev.map(item => (item.id === medicine.id && item.selectedSize === selectedSize) ? { ...item, quantity: item.quantity + 1 } : item);
             }
-            return [...prev, { ...medicine, quantity: 1 }];
+            return [...prev, { ...medicine, selectedSize, quantity: 1 }];
         });
     };
 
-    const removeFromCart = (id) => {
+    const removeFromCart = (id, selectedSize = null) => {
         setCart(prev => {
-            const existing = prev.find(item => item.id === id);
+            const existing = prev.find(item => item.id === id && item.selectedSize === selectedSize);
             if (existing && existing.quantity > 1) {
-                return prev.map(item => item.id === id ? { ...item, quantity: item.quantity - 1 } : item);
+                return prev.map(item => (item.id === id && item.selectedSize === selectedSize) ? { ...item, quantity: item.quantity - 1 } : item);
             }
-            return prev.filter(item => item.id !== id);
+            return prev.filter(item => !(item.id === id && item.selectedSize === selectedSize));
         });
     };
 
-    const deleteFromCart = (id) => {
-        setCart(prev => prev.filter(item => item.id !== id));
+    const deleteFromCart = (id, selectedSize = null) => {
+        setCart(prev => prev.filter(item => !(item.id === id && item.selectedSize === selectedSize)));
     };
 
     const clearCart = () => setCart([]);
@@ -259,7 +280,8 @@ export function AppProvider({ children }) {
             price: item.price,
             quantity: item.quantity,
             category: item.category,
-            image: item.image
+            image: item.image,
+            selectedSize: item.selectedSize
         }));
 
         const dbOrder = {
@@ -271,6 +293,7 @@ export function AppProvider({ children }) {
             email: orderDetails.email || null,
             items: sanitizedItems,
             total_amount: orderDetails.total_amount,
+            payment_method: orderDetails.payment_method || orderDetails.paymentMethod || 'COD',
             status: 'Pending'
         };
         const res = await fetch('/api/orders', {
@@ -323,7 +346,7 @@ export function AppProvider({ children }) {
         try {
             await fetch('/api/orders/cleanup', { method: 'DELETE' });
             await fetch('/api/appointments/cleanup', { method: 'DELETE' });
-            console.log("Old data (72h+) cleaned up successfully");
+            console.log("Old data (24h+) cleaned up successfully");
         } catch (e) {
             console.error("Cleanup error:", e);
         }
@@ -369,7 +392,10 @@ export function AppProvider({ children }) {
             discount: medicine.discount ? parseFloat(medicine.discount) : 0,
             description: medicine.description || null,
             instock: medicine.inStock !== undefined ? medicine.inStock : true,
-            image_base64: medicine.images ? JSON.stringify(medicine.images) : (medicine.image_base64 || null)
+            image_base64: JSON.stringify({
+                images: medicine.images || [],
+                availableSizes: medicine.availableSizes || []
+            })
         };
 
         const res = await fetch('/api/medicines', {
@@ -397,7 +423,10 @@ export function AppProvider({ children }) {
             discount: med.discount ? parseFloat(med.discount) : 0,
             description: med.description || null,
             instock: med.inStock !== undefined ? med.inStock : true,
-            image_base64: med.images ? JSON.stringify(med.images) : (med.image_base64 || null)
+            image_base64: JSON.stringify({
+                images: med.images || [],
+                availableSizes: med.availableSizes || []
+            })
         }));
 
         const chunkSize = 500;
@@ -435,9 +464,14 @@ export function AppProvider({ children }) {
 
     const mapMedicineToFrontend = (m) => {
         let parsedImages = [];
+        let availableSizes = [];
         if (m.image_base64) {
             try {
-                if (m.image_base64.startsWith('[') && m.image_base64.endsWith(']')) {
+                if (m.image_base64.startsWith('{') && m.image_base64.endsWith('}')) {
+                    const parsed = JSON.parse(m.image_base64);
+                    parsedImages = Array.isArray(parsed.images) ? parsed.images : [];
+                    availableSizes = Array.isArray(parsed.availableSizes) ? parsed.availableSizes : [];
+                } else if (m.image_base64.startsWith('[') && m.image_base64.endsWith(']')) {
                     const parsed = JSON.parse(m.image_base64);
                     parsedImages = Array.isArray(parsed) ? parsed : [m.image_base64];
                 } else {
@@ -457,6 +491,7 @@ export function AppProvider({ children }) {
             combination: m.combination || '',
             inStock: m.instock !== false && m.instock !== null,
             images: processedImages,
+            availableSizes: availableSizes,
             image_base64: processedImages.length > 0 ? processedImages[0] : null
         };
     };
@@ -481,7 +516,10 @@ export function AppProvider({ children }) {
             discount: updatedData.discount ? parseFloat(updatedData.discount) : 0,
             description: updatedData.description || null,
             instock: updatedData.inStock !== undefined ? updatedData.inStock : true,
-            image_base64: updatedData.images ? JSON.stringify(updatedData.images) : (updatedData.image_base64 || null)
+            image_base64: JSON.stringify({
+                images: updatedData.images || [],
+                availableSizes: updatedData.availableSizes || []
+            })
         };
         const res = await fetch(`/api/medicines/${id}`, {
             method: 'PUT',
@@ -726,7 +764,9 @@ export function AppProvider({ children }) {
             user,
             login,
             logout,
-            registeredUsers
+            registeredUsers,
+            updateRegisteredUser,
+            deleteRegisteredUser
         }}>
             {children}
         </AppContext.Provider>

@@ -1,17 +1,17 @@
--- Migration: Automate Data Deletion (Orders & Appointments > 72 hours)
+-- Migration: Automate Data Deletion (Orders & Appointments > 24 hours)
 -- Run this in your Supabase SQL Editor
 
 -- 1. Create the cleanup function
 CREATE OR REPLACE FUNCTION delete_old_records()
 RETURNS void AS $$
 BEGIN
-  -- Deletes orders where created_at is older than 72 hours
+  -- Deletes orders where created_at is older than 24 hours
   DELETE FROM orders
-  WHERE created_at < NOW() - INTERVAL '72 hours';
+  WHERE created_at < NOW() - INTERVAL '24 hours';
 
-  -- Deletes appointments where created_at is older than 72 hours
+  -- Deletes appointments where created_at is older than 24 hours
   DELETE FROM appointments
-  WHERE created_at < NOW() - INTERVAL '72 hours';
+  WHERE created_at < NOW() - INTERVAL '24 hours';
 END;
 $$ LANGUAGE plpgsql;
 

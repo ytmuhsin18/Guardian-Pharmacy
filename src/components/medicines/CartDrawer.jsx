@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles, Banknote } from 'lucide-react';
 
 const FREE_DELIVERY_THRESHOLD = 500;
 
@@ -114,8 +114,24 @@ const CartDrawer = ({
                                                         <div className="model-details-sec">
                                                             <div className="model-header-row">
                                                                 <h4 className="model-name">{item.name}</h4>
-                                                                <button className="model-delete-btn" onClick={() => onDelete(item.id)}><Trash2 size={18} /></button>
+                                                                <button className="model-delete-btn" onClick={() => onDelete(item.id, item.selectedSize)}><Trash2 size={18} /></button>
                                                             </div>
+                                                            {item.selectedSize && (
+                                                                <div className="model-size-badge" style={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    padding: '2px 8px',
+                                                                    background: '#f1f5f9',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '0.75rem',
+                                                                    fontWeight: 700,
+                                                                    color: '#475569',
+                                                                    marginBottom: '6px',
+                                                                    border: '1px solid #e2e8f0'
+                                                                }}>
+                                                                    Size: {item.selectedSize}
+                                                                </div>
+                                                            )}
                                                             {/* Categories have been removed for a cleaner look as requested */}
                                                             <div className="model-bottom-row">
                                                                 <div className="model-price-group">
@@ -123,9 +139,16 @@ const CartDrawer = ({
                                                                     {item.discount > 0 && <span className="model-price-old">₹{(item.price / (1 - item.discount / 100)).toFixed(0)}</span>}
                                                                 </div>
                                                                 <div className="model-qty-box">
-                                                                    <button className="model-qty-btn-minus" onClick={() => onRemove(item.id)}><Minus size={14} /></button>
+                                                                    <button className="model-qty-btn-minus" onClick={() => onRemove(item.id, item.selectedSize)}><Minus size={14} /></button>
                                                                     <span className="model-qty-val">{item.quantity}</span>
-                                                                    <button className="model-qty-btn-plus" onClick={() => onAdd(item)}><Plus size={14} /></button>
+                                                                    <button 
+                                                                        className="model-qty-btn-plus" 
+                                                                        onClick={() => onAdd(item, item.selectedSize)}
+                                                                        disabled={item.quantity >= 10}
+                                                                        style={{ opacity: item.quantity >= 10 ? 0.4 : 1, cursor: item.quantity >= 10 ? 'not-allowed' : 'pointer' }}
+                                                                    >
+                                                                        <Plus size={14} />
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -275,6 +298,39 @@ const CartDrawer = ({
                                             value={customerDetails.email}
                                             onChange={e => setCustomerDetails({ ...customerDetails, email: e.target.value })}
                                         />
+                                    </div>
+                                    <div className="checkout-form-group">
+                                        <label className="input-label">Payment Method *</label>
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <div 
+                                                className={`payment-option-card ${customerDetails.payment_method === 'COD' ? 'active' : ''}`}
+                                                style={{ 
+                                                    flex: 1, padding: '12px', border: '2px solid #e2e8f0', 
+                                                    borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
+                                                    background: customerDetails.payment_method === 'COD' ? '#f0fdf4' : 'white',
+                                                    borderColor: customerDetails.payment_method === 'COD' ? '#00b894' : '#e2e8f0',
+                                                    color: customerDetails.payment_method === 'COD' ? '#00b894' : '#0f172a'
+                                                }}
+                                                onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'COD' })}
+                                            >
+                                                <Banknote size={20} style={{ marginBottom: '4px', color: customerDetails.payment_method === 'COD' ? '#00b894' : '#64748b' }} />
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>COD</div>
+                                            </div>
+                                            <div 
+                                                className={`payment-option-card ${customerDetails.payment_method === 'ONLINE' ? 'active' : ''}`}
+                                                style={{ 
+                                                    flex: 1, padding: '12px', border: '2px solid #e2e8f0', 
+                                                    borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
+                                                    background: customerDetails.payment_method === 'ONLINE' ? '#eff6ff' : 'white',
+                                                    borderColor: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#e2e8f0',
+                                                    color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#0f172a'
+                                                }}
+                                                onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'ONLINE' })}
+                                            >
+                                                <CreditCard size={20} style={{ marginBottom: '4px', color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#64748b' }} />
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Online</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

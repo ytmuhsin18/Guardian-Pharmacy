@@ -276,18 +276,45 @@ function Doctors() {
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     animate={{ opacity: 1, scale: 1 }}
                                                     exit={{ opacity: 0, scale: 0.9 }}
+                                                    style={{ padding: '2rem 1rem' }}
                                                 >
                                                     <motion.div
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
-                                                        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+                                                        initial={{ scale: 0, rotate: -15 }}
+                                                        animate={{ scale: 1, rotate: 0 }}
+                                                        transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+                                                        style={{ 
+                                                            width: '80px', 
+                                                            height: '80px', 
+                                                            background: '#f0fdf4', 
+                                                            borderRadius: '50%', 
+                                                            display: 'flex', 
+                                                            alignItems: 'center', 
+                                                            justifyContent: 'center',
+                                                            margin: '0 auto 1.5rem',
+                                                            border: '4px solid #ccfbf1'
+                                                        }}
                                                     >
-                                                        <CheckCircle size={72} color="#0d9488" style={{ marginBottom: '1rem' }} />
+                                                        <CheckCircle size={48} color="#10b981" fill="#10b981" fillOpacity={0.1} />
                                                     </motion.div>
-                                                    <h3 style={{ color: '#0f172a', fontWeight: 800 }}>Booking Confirmed! 🎉</h3>
-                                                    <p className="text-muted mt-2" style={{ fontSize: '0.9rem' }}>
-                                                        Preparing your payment QR...
+                                                    
+                                                    <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.75rem', color: '#0d9488', letterSpacing: '-0.02em' }}>
+                                                        Booking Confirmed!
+                                                    </h2>
+                                                    
+                                                    <p style={{ fontSize: '1.05rem', color: '#64748b', fontWeight: 500, lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                                                        Thank you for choosing Guardian Clinic. Our team is preparing your token details.
+                                                        <br /><br />
+                                                        <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your visit! 🧑‍⚕️🏥✨</span>
                                                     </p>
+                                                    
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                        <motion.div
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                                                            style={{ width: '18px', height: '18px', border: '3px solid #e2e8f0', borderTopColor: '#0d9488', borderRadius: '50%' }}
+                                                        />
+                                                        <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>Preparing payment QR...</span>
+                                                    </div>
                                                 </motion.div>
                                             ) : (
                                                 <motion.div

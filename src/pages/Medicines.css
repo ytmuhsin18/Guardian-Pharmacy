@@ -1760,3 +1760,39 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Payment Selection Premium Styles */
+.payment-option-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-option-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.payment-option-card:active {
+    transform: scale(0.95);
+}
+
+.payment-option-card.active::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+    box-shadow: 0 0 10px currentColor;
+}
+
+.payment-option-card svg {
+    transition: transform 0.3s ease;
+}
+
+.payment-option-card:hover svg {
+    transform: scale(1.1) rotate(-5deg);
+}

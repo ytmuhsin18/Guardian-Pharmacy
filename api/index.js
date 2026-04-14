@@ -185,7 +185,7 @@ appointmentsRouter.put('/:id', async (req, res) => {
 appointmentsRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
-        await sql`DELETE FROM appointments WHERE created_at < NOW() - INTERVAL '72 hours'`;
+        await sql`DELETE FROM appointments WHERE created_at < NOW() - INTERVAL '24 hours'`;
         res.json({ success: true });
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });
@@ -207,7 +207,7 @@ const ordersRouter = express.Router();
 ordersRouter.get('/', async (req, res) => {
     try {
         const sql = getSql();
-        const result = await sql`SELECT id, customer_name, phone, whatsapp, address, pincode, email, total_amount, status, created_at, items::text as items FROM orders ORDER BY created_at DESC LIMIT 500`;
+        const result = await sql`SELECT id, customer_name, phone, whatsapp, address, pincode, email, total_amount, payment_method, status, created_at, items::text as items FROM orders ORDER BY created_at DESC LIMIT 500`;
         res.json(result);
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });
@@ -215,7 +215,8 @@ ordersRouter.post('/', async (req, res) => {
     try {
         const sql = getSql();
         const { customer_name, phone, whatsapp, address, pincode, email, items, total_amount, status } = req.body;
-        const result = await sql`INSERT INTO orders (customer_name, phone, whatsapp, address, pincode, email, items, total_amount, status) VALUES (${customer_name}, ${phone}, ${whatsapp}, ${address}, ${pincode}, ${email || null}, ${JSON.stringify(items)}, ${total_amount}, ${status || 'Pending'}) RETURNING *`;
+        const payment_method = req.body.payment_method || req.body.paymentMethod || 'COD';
+        const result = await sql`INSERT INTO orders (customer_name, phone, whatsapp, address, pincode, email, items, total_amount, status, payment_method) VALUES (${customer_name}, ${phone}, ${whatsapp}, ${address}, ${pincode}, ${email || null}, ${JSON.stringify(items)}, ${total_amount}, ${status || 'Pending'}, ${payment_method}) RETURNING *`;
         res.json([result[0]]);
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });
@@ -232,7 +233,7 @@ ordersRouter.put('/:id', async (req, res) => {
 ordersRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
-        await sql`DELETE FROM orders WHERE created_at < NOW() - INTERVAL '72 hours'`;
+        await sql`DELETE FROM orders WHERE created_at < NOW() - INTERVAL '24 hours'`;
         res.json({ success: true });
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });

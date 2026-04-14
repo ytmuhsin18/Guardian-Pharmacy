@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS orders (
   email TEXT,
   items JSONB NOT NULL,
   total_amount NUMERIC NOT NULL,
+  payment_method TEXT DEFAULT 'COD',
   status TEXT DEFAULT 'Pending',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );

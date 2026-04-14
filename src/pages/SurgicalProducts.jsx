@@ -23,7 +23,7 @@ const CAT_TABS = [
     { id: 'baby', label: 'Baby Care', image: 'https://cdn-icons-png.flaticon.com/512/2717/2717387.png', dbCats: ['Baby Care'] },
     { id: 'skin', label: 'Skin & Hair', image: 'https://cdn-icons-png.flaticon.com/512/4392/4392451.png', dbCats: ['Skin Care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
-    { id: 'surgical', label: 'Ortho & Surgical', image: 'https://cdn-icons-png.flaticon.com/512/10189/10189173.png', dbCats: ['Surgical Products'] },
+    { id: 'surgical', label: 'Ortho & Surgical', image: 'https://cdn-icons-png.flaticon.com/512/10189/10189173.png', dbCats: ['Surgical Products', 'Ortho'] },
     { id: 'adult', label: 'Adult Care', image: 'https://cdn-icons-png.flaticon.com/512/3028/3028514.png', dbCats: ['Sexual Wellness', 'Personal Care'] },
     { id: 'mother', label: 'Mother Care', image: 'https://cdn-icons-png.flaticon.com/512/3663/3663363.png', dbCats: ['Maternity Care'] },
     { id: 'teeth', label: 'Teeth Care', image: 'https://cdn-icons-png.flaticon.com/512/3461/3461654.png', dbCats: ['Teeth Care'] },
@@ -219,12 +219,62 @@ function SurgicalProducts() {
                 </div>
             </section>
 
-            {orderComplete && (
-                <div className="toast success-toast floating-toast">
-                    <CheckCircle size={20} />
-                    <span>Order placed successfully!</span>
-                </div>
-            )}
+            <AnimatePresence>
+                {orderComplete && (
+                    <div className="modal-overlay" style={{ zIndex: 1000 }}>
+                        <motion.div 
+                            className="modal-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setOrderComplete(false)}
+                        />
+                        <motion.div 
+                            className="modal-content success-modal"
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            style={{ maxWidth: '450px', padding: '3rem 2rem', textAlign: 'center' }}
+                        >
+                            <motion.div
+                                initial={{ scale: 0, rotate: -15 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+                                style={{ 
+                                    width: '100px', 
+                                    height: '100px', 
+                                    background: '#f0fdf4', 
+                                    borderRadius: '50%', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    margin: '0 auto 2rem',
+                                    border: '5px solid #ccfbf1'
+                                }}
+                            >
+                                <CheckCircle size={60} color="#10b981" fill="#10b981" fillOpacity={0.1} />
+                            </motion.div>
+
+                            <h2 style={{ fontSize: '2.25rem', fontWeight: 900, marginBottom: '0.75rem', color: '#10b981', letterSpacing: '-0.02em' }}>
+                                Order Confirmed!
+                            </h2>
+                            <p style={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 500, lineHeight: 1.5, marginBottom: '2.4rem' }}>
+                                Thank you for your order! Our team will contact you shortly to confirm your delivery details.
+                                <br /><br />
+                                <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
+                            </p>
+
+                            <button 
+                                className="btn btn-primary btn-block" 
+                                onClick={() => setOrderComplete(false)}
+                                style={{ borderRadius: '15px', padding: '16px', fontWeight: 800 }}
+                            >
+                                Continue Shopping
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

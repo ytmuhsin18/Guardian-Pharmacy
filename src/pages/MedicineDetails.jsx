@@ -14,6 +14,19 @@ function MedicineDetails() {
     const [product, setProduct] = useState(null);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [selectedSize, setSelectedSize] = useState('M');
+
+    const defaultOrthoSizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'UNI'];
+    const ORTHO_SIZES = (product?.availableSizes && product.availableSizes.length > 0) 
+        ? product.availableSizes 
+        : defaultOrthoSizes;
+    const isOrtho = product?.category === 'Ortho';
+
+    useEffect(() => {
+        if (isOrtho && ORTHO_SIZES.length > 0 && !ORTHO_SIZES.includes(selectedSize)) {
+            setSelectedSize(ORTHO_SIZES[0]);
+        }
+    }, [product, isOrtho, ORTHO_SIZES]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -51,8 +64,37 @@ function MedicineDetails() {
         );
     }
 
-    const cartItem = cart.find(item => item.id === product.id);
+    const cartItem = cart.find(item => item.id === product.id && item.selectedSize === (isOrtho ? selectedSize : null));
     const quantity = cartItem ? cartItem.quantity : 0;
+
+    const getPriceData = () => {
+        // Fallback to base product price if sizes aren't defined or selected size doesn't have a price
+        const basePrice = Number(product.price) || 0;
+        const baseMrp = basePrice / (1 - (Number(product.discount) || 0) / 100);
+        const baseDiscount = Number(product.discount) || 0;
+
+        if (!isOrtho || !product.availableSizes || product.availableSizes.length === 0) {
+            return { price: basePrice, mrp: baseMrp, discount: baseDiscount };
+        }
+
+        const sizeData = product.availableSizes.find(s => s.size === selectedSize);
+        if (!sizeData || (!sizeData.price && !sizeData.mrp)) {
+            return { price: basePrice, mrp: baseMrp, discount: baseDiscount };
+        }
+
+        const sPrice = Number(sizeData.price) || basePrice;
+        const sMrp = Number(sizeData.mrp) || (sPrice / (1 - baseDiscount / 100));
+        const sDiscount = sMrp > 0 ? Math.round(((sMrp - sPrice) / sMrp) * 100) : baseDiscount;
+
+        return { price: sPrice, mrp: sMrp, discount: sDiscount };
+    };
+
+    const { price: currentPrice, mrp: oldPrice, discount: currentDiscount } = getPriceData();
+
+    const handleAdd = () => {
+        const productWithCorrectPrice = { ...product, price: currentPrice, discount: currentDiscount };
+        addToCart(productWithCorrectPrice, isOrtho ? selectedSize : null);
+    };
 
     return (
         <div className="medicine-details-container" style={{ background: '#f8fafc' }}>
@@ -169,13 +211,49 @@ function MedicineDetails() {
 
                         <div className="pricing-section">
                             <div className="price-display">
-                                <span className="actual-price">₹{Number(product.price).toFixed(2)}</span>
-                                {product.discount > 0 && (
-                                    <span className="mrp-display">MRP <s>₹{(product.price / (1 - product.discount / 100)).toFixed(2)}</s></span>
+                                <span className="actual-price">₹{currentPrice.toFixed(2)}</span>
+                                {currentDiscount > 0 && (
+                                    <span className="mrp-display">MRP <s>₹{oldPrice.toFixed(2)}</s></span>
                                 )}
                             </div>
                             <p className="tax-info">Inclusive of all taxes</p>
                         </div>
+
+                        {isOrtho && (
+                            <div className="size-selection-section" style={{ marginBottom: '2rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: '#475569' }}>Select Size</h4>
+                                    <span style={{ fontSize: '0.85rem', color: '#0d9488', fontWeight: 600, cursor: 'pointer' }}>Size Chart</span>
+                                </div>
+                                <div className="size-buttons-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {ORTHO_SIZES.map(size => (
+                                        <button
+                                            key={size}
+                                            onClick={() => setSelectedSize(size)}
+                                            className={`size-btn ${selectedSize === size ? 'active' : ''}`}
+                                            style={{
+                                                minWidth: '50px',
+                                                height: '42px',
+                                                borderRadius: '10px',
+                                                border: selectedSize === size ? '2px solid #0d9488' : '1px solid #e2e8f0',
+                                                background: selectedSize === size ? '#f0fdfa' : 'white',
+                                                color: selectedSize === size ? '#0d9488' : '#64748b',
+                                                fontWeight: 700,
+                                                fontSize: '0.9rem',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                boxShadow: selectedSize === size ? '0 4px 12px rgba(13, 148, 136, 0.15)' : 'none'
+                                            }}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="action-section">
                             <div className="purchase-controls-wrapper">
@@ -183,14 +261,16 @@ function MedicineDetails() {
                                     <div className="quantity-box" style={{ background: '#0f172a' }}>
                                         <button
                                             className="qty-btn"
-                                            onClick={() => removeFromCart(product.id)}
+                                            onClick={() => removeFromCart(product.id, isOrtho ? selectedSize : null)}
                                         >
                                             <Minus size={18} color="#0f172a" />
                                         </button>
                                         <span className="qty-value" style={{ color: 'white' }}>{quantity}</span>
                                         <button
                                             className="qty-btn"
-                                            onClick={() => addToCart(product)}
+                                            onClick={() => addToCart({ ...product, price: currentPrice, discount: currentDiscount }, isOrtho ? selectedSize : null)}
+                                            style={{ opacity: quantity >= 10 ? 0.5 : 1, cursor: quantity >= 10 ? 'not-allowed' : 'pointer' }}
+                                            disabled={quantity >= 10}
                                         >
                                             <Plus size={18} color="#0f172a" />
                                         </button>
@@ -198,7 +278,7 @@ function MedicineDetails() {
                                 ) : (
                                     <button
                                         className="btn btn-primary add-to-cart-btn"
-                                        onClick={() => addToCart(product)}
+                                        onClick={handleAdd}
                                         disabled={!product.inStock}
                                         style={{ background: '#0d9488', border: 'none', height: '56px', boxShadow: '0 8px 25px rgba(13, 148, 136, 0.3)' }}
                                     >
@@ -311,23 +391,28 @@ function MedicineDetails() {
                 <div className="mobile-action-content">
                     <div className="mobile-price-preview">
                         <span className="mb-label">Total Price</span>
-                        <span className="mb-price">₹{Number(product.price).toFixed(2)}</span>
+                        <span className="mb-price">₹{currentPrice.toFixed(2)}</span>
                     </div>
                     <div className="mobile-action-btns">
                         {quantity > 0 ? (
                             <div className="mobile-qty-control">
-                                <button className="m-qty-btn" onClick={() => removeFromCart(product.id)}>
+                                <button className="m-qty-btn" onClick={() => removeFromCart(product.id, isOrtho ? selectedSize : null)}>
                                     <Minus size={18} />
                                 </button>
                                 <span className="m-qty-val">{quantity}</span>
-                                <button className="m-qty-btn" onClick={() => addToCart(product)}>
+                                <button 
+                                    className="m-qty-btn" 
+                                    onClick={() => addToCart({ ...product, price: currentPrice, discount: currentDiscount }, isOrtho ? selectedSize : null)}
+                                    disabled={quantity >= 10}
+                                    style={{ opacity: quantity >= 10 ? 0.5 : 1 }}
+                                >
                                     <Plus size={18} />
                                 </button>
                             </div>
                         ) : (
                             <button
                                 className="mobile-add-btn"
-                                onClick={() => addToCart(product)}
+                                onClick={handleAdd}
                                 disabled={!product.inStock}
                             >
                                 <ShoppingCart size={20} />
