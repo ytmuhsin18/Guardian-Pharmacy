@@ -108,6 +108,26 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    
+    // Auto-sync global price with first size for Ortho products
+    React.useEffect(() => {
+        if (newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) {
+            const firstSize = newMedicine.availableSizes[0];
+            if (firstSize.mrp !== newMedicine.mrp || firstSize.price !== newMedicine.price) {
+                // Only sync if they were empty or we just added/removed a size
+                // We actually want the global to ALWAYS match the first size for listing purposes
+                setNewMedicine(prev => ({
+                    ...prev,
+                    mrp: firstSize.mrp,
+                    price: firstSize.price,
+                    // Re-calculate discount for global consistency
+                    discount: (firstSize.mrp > 0 && firstSize.price > 0) 
+                        ? (((parseFloat(firstSize.mrp) - parseFloat(firstSize.price)) / parseFloat(firstSize.mrp)) * 100).toFixed(2)
+                        : prev.discount
+                }));
+            }
+        }
+    }, [newMedicine.availableSizes, newMedicine.category]);
 
     const handleImageUpload = async (e) => {
         const files = Array.from(e.target.files);
@@ -284,6 +304,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Digestion">Digestion</option>
                                     <option value="First Aid">First Aid</option>
                                     <option value="Baby Care">Baby Care</option>
+                                    <option value="Adult Care">Adult Care</option>
                                     <option value="Pharmacy">Pharmacy</option>
                                     <option value="Skin Care">Skin Care</option>
                                     <option value="Vitamins">Vitamins</option>
@@ -297,7 +318,9 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Surgical Products">Surgical Products</option>
                                     <option value="Ortho">Ortho</option>
                                     <option value="Physiotherapy">Physiotherapy</option>
-                                    <option value="Teeth Care">Teeth Care</option>
+                                    <option value="Dental care">Dental care</option>
+                                    <option value="Mother Care">Mother Care</option>
+                                    <option value="Quit Smoking">Quit Smoking</option>
                                 </select>
                             </div>
                         </div>
@@ -376,9 +399,20 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                                     placeholder="MRP"
                                                     value={s.mrp}
                                                     onChange={(e) => {
+                                                        const val = e.target.value;
                                                         const updated = [...newMedicine.availableSizes];
-                                                        updated[idx].mrp = e.target.value;
-                                                        setNewMedicine({ ...newMedicine, availableSizes: updated });
+                                                        updated[idx].mrp = val;
+                                                        
+                                                        // If this is the first size, sync to global MRP
+                                                        const updateObj = { ...newMedicine, availableSizes: updated };
+                                                        if (idx === 0) {
+                                                            updateObj.mrp = val;
+                                                            // Also recalculate global price based on current global discount
+                                                            const disc = parseFloat(newMedicine.discount) || 0;
+                                                            const m = parseFloat(val) || 0;
+                                                            updateObj.price = (m - (m * disc / 100)).toFixed(2);
+                                                        }
+                                                        setNewMedicine(updateObj);
                                                     }}
                                                     style={{ height: '38px', borderRadius: '8px', fontSize: '0.9rem' }}
                                                 />
@@ -388,9 +422,22 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                                     placeholder="Price"
                                                     value={s.price}
                                                     onChange={(e) => {
+                                                        const val = e.target.value;
                                                         const updated = [...newMedicine.availableSizes];
-                                                        updated[idx].price = e.target.value;
-                                                        setNewMedicine({ ...newMedicine, availableSizes: updated });
+                                                        updated[idx].price = val;
+                                                        
+                                                        // If this is the first size, sync to global Price
+                                                        const updateObj = { ...newMedicine, availableSizes: updated };
+                                                        if (idx === 0) {
+                                                            updateObj.price = val;
+                                                            // Also recalculate global discount based on current global MRP
+                                                            const m = parseFloat(newMedicine.mrp) || 0;
+                                                            const p = parseFloat(val) || 0;
+                                                            if (m > 0) {
+                                                                updateObj.discount = (((m - p) / m) * 100).toFixed(2);
+                                                            }
+                                                        }
+                                                        setNewMedicine(updateObj);
                                                     }}
                                                     style={{ height: '38px', borderRadius: '8px', fontSize: '0.9rem' }}
                                                 />
@@ -401,12 +448,12 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                             </motion.div>
                         )}
 
-                        <div className="form-row">
+                        <div className="form-row" style={{ display: (newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) ? 'none' : 'flex' }}>
                             <div className="input-group">
                                 <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Actual Price / MRP (₹) <span className="text-danger">*</span></label>
                                 <input
                                     type="number"
-                                    required
+                                    required={!(newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0)}
                                     min="0" step="0.01"
                                     className="input-field"
                                     placeholder="e.g. 10.00"
@@ -428,7 +475,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                             </div>
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row" style={{ display: (newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) ? 'none' : 'flex' }}>
                             <div className="input-group">
                                 <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Final Selling Price (₹) <span className="text-danger">*</span></label>
                                 <div style={{ 
@@ -443,7 +490,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <span style={{ fontWeight: '800', color: '#15803d', fontSize: '1.2rem', marginRight: '6px' }}>₹</span>
                                     <input
                                         type="number"
-                                        required
+                                        required={!(newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0)}
                                         min="0" step="0.01"
                                         placeholder="0.00"
                                         value={newMedicine.price}
@@ -478,6 +525,21 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                 />
                             </div>
                         </div>
+
+                        {(newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) && (
+                            <div className="input-group">
+                                <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Stock Quantity <span className="text-danger">*</span></label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="0"
+                                    className="input-field"
+                                    placeholder="e.g. 50"
+                                    value={newMedicine.stockQuantity}
+                                    onChange={e => setNewMedicine({ ...newMedicine, stockQuantity: e.target.value })}
+                                />
+                            </div>
+                        )}
 
                         <div className="input-group">
                             <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Combination / Composition</label>

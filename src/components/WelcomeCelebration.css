@@ -1,0 +1,134 @@
+.celebration-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    padding: 1.5rem;
+}
+
+.celebration-modal {
+    width: 100%;
+    maxWidth: 450px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 40px;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.25);
+}
+
+.particles-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.celebration-icon-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+}
+
+.main-icon-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0d9488, #10b981);
+    border-radius: 35% 65% 63% 37% / 37% 33% 67% 63%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 40px rgba(13, 148, 136, 0.3);
+    animation: blobby 8s infinite ease-in-out;
+}
+
+@keyframes blobby {
+    0%, 100% { border-radius: 35% 65% 63% 37% / 37% 33% 67% 63%; }
+    50% { border-radius: 65% 35% 37% 63% / 63% 67% 33% 37%; }
+}
+
+.icon-sparkle {
+    position: absolute;
+    z-index: 2;
+}
+
+.icon-sparkle.s1 {
+    top: -10px;
+    right: -10px;
+}
+
+.celebration-content h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+    letter-spacing: -1px;
+}
+
+.welcome-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0d9488;
+    margin-bottom: 1rem;
+}
+
+.welcome-message {
+    font-size: 1.05rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.id-card-snippet {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 1.25rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 2.5rem;
+}
+
+.card-indicator, .card-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.card-indicator {
+    color: #64748b;
+}
+
+.card-check {
+    color: #10b981;
+}
+
+.celebration-btn {
+    width: 100%;
+    height: 60px;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+}

@@ -55,12 +55,30 @@ export function AppProvider({ children }) {
     };
 
     const deleteRegisteredUser = (id) => {
-        if (!window.confirm('Are you sure you want to delete this customer? All their data will be removed.')) return;
+        const userToDelete = registeredUsers.find(u => u.id === id);
+        if (!userToDelete) return;
+        
+        if (!window.confirm(`Are you sure you want to delete ${userToDelete.name}? All their data (orders and delivery info) will be permanently removed.`)) return;
+        
+        // 1. Clean up associated localStorage data
+        const userKeySuffix = userToDelete.phone || userToDelete.email;
+        localStorage.removeItem(`guardian_delivery_details_${userKeySuffix}`);
+        localStorage.removeItem(`my_guardian_orders_${userKeySuffix}`);
+        localStorage.removeItem(`notified_guardian_orders_${userKeySuffix}`);
+
+        // 2. Remove from state and registered list
         setRegisteredUsers(prev => {
             const newList = prev.filter(u => u.id !== id);
             localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
             return newList;
         });
+
+        // 3. If the currently logged-in user is the one being deleted, log them out
+        if (user && (user.id === id || user.phone === userToDelete.phone)) {
+            logout();
+        }
+        
+        showToast('Customer data deleted successfully', 'success');
     };
 
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -173,12 +191,22 @@ export function AppProvider({ children }) {
         }
     };
 
+    const [toasts, setToasts] = useState([]);
+
+    const showToast = (message, type = 'info') => {
+        const id = Date.now() + Math.random();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, 5000);
+    };
+
     const addToCart = (medicine, selectedSize = null) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === medicine.id && item.selectedSize === selectedSize);
             if (existing) {
                 if (existing.quantity >= 10) {
-                    alert('Maximum 10 units allowed per item');
+                    showToast('Maximum 10 units allowed per item', 'error');
                     return prev;
                 }
                 return prev.map(item => (item.id === medicine.id && item.selectedSize === selectedSize) ? { ...item, quantity: item.quantity + 1 } : item);
@@ -766,7 +794,9 @@ export function AppProvider({ children }) {
             logout,
             registeredUsers,
             updateRegisteredUser,
-            deleteRegisteredUser
+            deleteRegisteredUser,
+            toasts,
+            showToast
         }}>
             {children}
         </AppContext.Provider>

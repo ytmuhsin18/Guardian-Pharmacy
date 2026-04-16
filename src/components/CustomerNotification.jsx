@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, CheckCircle, X, Package } from 'lucide-react';
+import { CheckCircle, X, Bell } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 import './CustomerNotification.css';
+
 function CustomerNotification() {
+    const { toasts } = useApp();
     const [notifications, setNotifications] = useState([]);
 
     // Check orders and appointments every 8 seconds
@@ -101,32 +104,48 @@ function CustomerNotification() {
         setNotifications(prev => prev.filter(n => n.id !== id));
     };
 
-    // Don't render anything if no notifications
-    if (notifications.length === 0) return null;
+    const allItems = [
+        ...notifications.map(n => ({ ...n, type: 'order' })),
+        ...toasts.map(t => ({ ...t, type: 'toast' }))
+    ];
+
+    if (allItems.length === 0) return null;
 
     return (
         <div className="customer-notifications-container">
-            <AnimatePresence>
-                {notifications.map(notif => (
-                    <motion.div
-                        key={notif.id}
-                        initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: 50, scale: 0.9 }}
-                        className={`notification-popup glass-panel ${notif.isSuccess ? 'success' : 'error'}`}
-                    >
-                        <div className="notification-icon">
-                            {notif.isSuccess ? <CheckCircle size={28} /> : <X size={28} />}
-                        </div>
-                        <div className="notification-content">
-                            <h4>Order Update</h4>
-                            <p>{notif.message}</p>
-                        </div>
-                        <button className="notification-close" onClick={() => removeNotification(notif.id)}>
-                            <X size={18} />
-                        </button>
-                    </motion.div>
-                ))}
+            <AnimatePresence mode="popLayout">
+                {allItems.map(item => {
+                    const isOrder = item.type === 'order';
+                    const id = item.id;
+                    const isSuccess = isOrder ? item.isSuccess : item.type !== 'error';
+                    const icon = isSuccess ? <CheckCircle size={28} /> : <X size={28} />;
+                    const title = isOrder ? 'Order Update' : 'Notice';
+                    const message = isOrder ? item.message : item.message;
+
+                    return (
+                        <motion.div
+                            key={id}
+                            layout
+                            initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 50, scale: 0.9 }}
+                            className={`notification-popup glass-panel ${isSuccess ? 'success' : 'error'}`}
+                        >
+                            <div className="notification-icon">
+                                {icon}
+                            </div>
+                            <div className="notification-content">
+                                <h4>{title}</h4>
+                                <p>{message}</p>
+                            </div>
+                            {isOrder && (
+                                <button className="notification-close" onClick={() => removeNotification(id)}>
+                                    <X size={18} />
+                                </button>
+                            )}
+                        </motion.div>
+                    );
+                })}
             </AnimatePresence>
         </div>
     );

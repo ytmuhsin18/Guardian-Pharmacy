@@ -511,7 +511,11 @@
 }
 
 @media (min-width: 1024px) {
-    .services-grid { grid-template-columns: repeat(4, 1fr); }
+    .services-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1280px) {
+    .services-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 }
 
 .service-card {

@@ -11,18 +11,29 @@ import './Medicines.css'; // Reuse existing styles
 import surgicalBanner from '../assets/surgical-products.png';
 import painReliefIcon from '../assets/pain-relief-model.png';
 import emptyCartImg from '../assets/empty-cart-3d.png';
+import dentalCareIcon from '../assets/dental-care.png';
+import dermaCareIcon from '../assets/derma-care.png';
+import quitSmokingIcon from '../assets/quit-smoking.png';
+import homeDevicesIcon from '../assets/home-devices.png';
+import motherCareIcon from '../assets/mother-care.png';
+import adultCareIcon from '../assets/adult-care.png';
+import allCategoriesIcon from '../assets/all-categories.png';
+import medicinesIcon from '../assets/medicines-3d.png';
+import babyCareIcon from '../assets/baby-care-3d.png';
+import orthoIcon from '../assets/surgical-3d.png';
 
 const CAT_TABS = [
-    { id: 'all', label: 'All', image: 'https://cdn-icons-png.flaticon.com/512/3063/3063822.png', dbCats: [] },
-    { id: 'medicines', label: 'Medicines', image: 'https://cdn-icons-png.flaticon.com/512/4320/4320337.png', dbCats: ['Fever & Pain', 'Antibiotics', 'Allergy', 'Supplements', 'Digestion', 'Pharmacy', 'Vitamins', 'Ayurvedic'] },
-    { id: 'baby', label: 'Baby Care', image: 'https://cdn-icons-png.flaticon.com/512/2717/2717387.png', dbCats: ['Baby Care'] },
-    { id: 'skin', label: 'Skin & Hair', image: 'https://cdn-icons-png.flaticon.com/512/4392/4392451.png', dbCats: ['Skin Care'] },
+    { id: 'all', label: 'All', image: allCategoriesIcon, dbCats: [] },
+    { id: 'medicines', label: 'Medicines', image: medicinesIcon, dbCats: ['Fever & Pain', 'Antibiotics', 'Allergy', 'Supplements', 'Digestion', 'Pharmacy', 'Vitamins', 'Ayurvedic'] },
+    { id: 'baby', label: 'Baby Care', image: babyCareIcon, dbCats: ['Baby Care'] },
+    { id: 'skin', label: 'Derma care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
-    { id: 'surgical', label: 'Ortho & Surgical', image: 'https://cdn-icons-png.flaticon.com/512/10189/10189173.png', dbCats: ['Surgical Products', 'Ortho'] },
-    { id: 'adult', label: 'Adult Care', image: 'https://cdn-icons-png.flaticon.com/512/3028/3028514.png', dbCats: ['Sexual Wellness', 'Personal Care'] },
-    { id: 'mother', label: 'Mother Care', image: 'https://cdn-icons-png.flaticon.com/512/3663/3663363.png', dbCats: ['Maternity Care'] },
-    { id: 'teeth', label: 'Teeth Care', image: 'https://cdn-icons-png.flaticon.com/512/3461/3461654.png', dbCats: ['Teeth Care'] },
-    { id: 'home', label: 'Home & Devices', image: 'https://cdn-icons-png.flaticon.com/512/3004/3004458.png', dbCats: ['Home Care', 'Healthcare Devices'] },
+    { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
+    { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Sexual Wellness', 'Personal Care'] },
+    { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
+    { id: 'teeth', label: 'Dental care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
+    { id: 'smoking', label: 'Quit smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
+    { id: 'home', label: 'Home & Devices', image: homeDevicesIcon, dbCats: ['Home Care', 'Healthcare Devices'] },
 ];
 
 function SurgicalProducts() {
@@ -133,40 +144,22 @@ function SurgicalProducts() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        padding: '12px',
+                                        padding: '0',
                                         border: isActive ? '2.5px solid var(--primary)' : '1px solid #e2e8f0',
                                         boxShadow: isActive ? '0 8px 20px rgba(2, 132, 199, 0.2)' : '0 2px 4px rgba(0,0,0,0.02)',
-                                        transition: 'all 0.3s ease'
+                                        transition: 'all 0.3s ease',
+                                        overflow: 'hidden'
                                     }}>
-                                        {tab.id === 'skin' ? (
-                                            <div style={{
+                                        <img
+                                            src={tab.image}
+                                            alt={tab.label}
+                                            style={{
                                                 width: '100%',
                                                 height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                background: 'linear-gradient(45deg, #ec4899, #3b82f6)',
-                                                WebkitMaskImage: 'url("https://cdn-icons-png.flaticon.com/512/833/833472.png")',
-                                                WebkitMaskSize: 'contain',
-                                                WebkitMaskRepeat: 'no-repeat',
-                                                WebkitMaskPosition: 'center',
-                                                maskImage: 'url("https://cdn-icons-png.flaticon.com/512/833/833472.png")',
-                                                maskSize: 'contain',
-                                                maskRepeat: 'no-repeat',
-                                                maskPosition: 'center'
-                                            }} />
-                                        ) : (
-                                            <img
-                                                src={tab.image}
-                                                alt={tab.label}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'contain',
-                                                    filter: isActive ? 'none' : 'grayscale(0.2)'
-                                                }}
-                                            />
-                                        )}
+                                                objectFit: 'cover',
+                                                filter: isActive ? 'none' : 'grayscale(0.2)'
+                                            }}
+                                        />
                                     </div>
                                     <span style={{
                                         fontSize: '0.82rem',

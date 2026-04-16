@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Pill, Stethoscope, LayoutGrid, TestTube, Accessibility } from 'lucide-react';
+import { Home, Pill, Stethoscope, LayoutGrid, TestTube, Accessibility, Heart } from 'lucide-react';
 import './MobileNavbar.css';
 
 const navItems = [
@@ -8,7 +8,7 @@ const navItems = [
     { to: '/medicines', icon: Pill, label: 'Meds' },
     { to: '/categories', icon: LayoutGrid, label: 'Categories' },
     { to: '/doctors', icon: Stethoscope, label: 'Docs' },
-    { to: '/lab-tests', icon: TestTube, label: 'Labs' },
+    { to: '/adult-care', icon: Heart, label: 'Adult' },
     { to: '/physiotherapy', icon: Accessibility, label: 'Physio' }
 ];
 

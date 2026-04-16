@@ -60,6 +60,11 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
         }
     }, [isVisible, resolvedImage, medicine.id]);
 
+    const handleAdd = (e) => {
+        e.stopPropagation();
+        onAddToCart(medicine);
+    };
+
     const handleCardClick = () => {
         if (onQuickView) {
             onQuickView(medicine);
@@ -100,17 +105,14 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
                                 <Minus size={14} strokeWidth={3} />
                             </button>
                             <span className="qty-amount">{quantity}</span>
-                            <button className="qty-op-btn" onClick={() => onAddToCart(medicine)}>
+                            <button className="qty-op-btn" onClick={handleAdd}>
                                 <Plus size={14} strokeWidth={3} />
                             </button>
                         </div>
                     ) : (
                         <button
                             className="add-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onAddToCart(medicine);
-                            }}
+                            onClick={handleAdd}
                         >
                             <Plus size={20} strokeWidth={3} />
                         </button>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Shield, AlertCircle, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap, Search, Truck, ArrowLeft } from 'lucide-react';
+import { X, CheckCircle, Shield, AlertCircle, Thermometer, ShoppingCart, Plus, Minus, Activity, Star, Zap, Search, Truck, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ProductCard from '../components/medicines/ProductCard';
 import '../components/medicines/MedicineDetailModal.css';
@@ -18,7 +18,7 @@ function MedicineDetails() {
 
     const defaultOrthoSizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'UNI'];
     const ORTHO_SIZES = (product?.availableSizes && product.availableSizes.length > 0) 
-        ? product.availableSizes 
+        ? product.availableSizes.map(s => typeof s === 'object' ? s.size : s) 
         : defaultOrthoSizes;
     const isOrtho = product?.category === 'Ortho';
 
@@ -143,27 +143,74 @@ function MedicineDetails() {
                                     <motion.div
                                         className="carousel-track"
                                         animate={{ x: `-${activeImageIndex * 100}%` }}
-                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        transition={{ 
+                                            type: 'spring', 
+                                            stiffness: 260, 
+                                            damping: 32,
+                                            mass: 1,
+                                            restDelta: 0.01
+                                        }}
                                         drag="x"
-                                        dragConstraints={{ left: -((product.images?.length - 1) * 100), right: 0 }}
+                                        dragConstraints={{ left: 0, right: 0 }}
+                                        dragElastic={0.2}
                                         onDragEnd={(e, { offset, velocity }) => {
                                             const swipeThreshold = 50;
+                                            const velocityThreshold = 500;
                                             if (Array.isArray(product.images) && product.images.length > 1) {
-                                                if (offset.x > swipeThreshold && activeImageIndex > 0) {
+                                                const swipe = offset.x;
+                                                const speed = velocity.x;
+
+                                                if ((swipe > swipeThreshold || speed > velocityThreshold) && activeImageIndex > 0) {
                                                     setActiveImageIndex(activeImageIndex - 1);
-                                                } else if (offset.x < -swipeThreshold && activeImageIndex < product.images.length - 1) {
+                                                } else if ((swipe < -swipeThreshold || speed < -velocityThreshold) && activeImageIndex < product.images.length - 1) {
                                                     setActiveImageIndex(activeImageIndex + 1);
                                                 }
                                             }
                                         }}
+                                        style={{ display: 'flex', width: '100%', height: '100%', cursor: 'grab' }}
                                     >
                                         {(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image_base64 || 'https://via.placeholder.com/400']).map((img, i) => (
-                                            <div key={i} className="carousel-slide">
+                                            <div 
+                                                key={i} 
+                                                className="carousel-slide"
+                                                onClick={(e) => {
+                                                    const rect = e.currentTarget.getBoundingClientRect();
+                                                    const x = e.clientX - rect.left;
+                                                    if (x > rect.width / 2) {
+                                                        if (activeImageIndex < (product.images?.length || 1) - 1) {
+                                                            setActiveImageIndex(activeImageIndex + 1);
+                                                        }
+                                                    } else {
+                                                        if (activeImageIndex > 0) {
+                                                            setActiveImageIndex(activeImageIndex - 1);
+                                                        }
+                                                    }
+                                                }}
+                                            >
                                                 <img src={img} alt={`${product.name} ${i + 1}`} className="main-image" />
                                             </div>
                                         ))}
                                     </motion.div>
                                 </div>
+
+                                {Array.isArray(product.images) && product.images.length > 1 && (
+                                    <>
+                                        <button 
+                                            className="gallery-nav-btn prev"
+                                            onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => Math.max(0, prev - 1)); }}
+                                            style={{ display: activeImageIndex === 0 ? 'none' : 'flex' }}
+                                        >
+                                            <ChevronLeft size={24} />
+                                        </button>
+                                        <button 
+                                            className="gallery-nav-btn next"
+                                            onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => Math.min((product.images.length - 1), prev + 1)); }}
+                                            style={{ display: activeImageIndex === product.images.length - 1 ? 'none' : 'flex' }}
+                                        >
+                                            <ChevronRight size={24} />
+                                        </button>
+                                    </>
+                                )}
 
                                 {product.discount > 0 && (
                                     <div className="discount-tag">-{Math.round(product.discount)}% OFF</div>
@@ -226,31 +273,46 @@ function MedicineDetails() {
                                     <span style={{ fontSize: '0.85rem', color: '#0d9488', fontWeight: 600, cursor: 'pointer' }}>Size Chart</span>
                                 </div>
                                 <div className="size-buttons-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                    {ORTHO_SIZES.map(size => (
-                                        <button
-                                            key={size}
-                                            onClick={() => setSelectedSize(size)}
-                                            className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                                            style={{
-                                                minWidth: '50px',
-                                                height: '42px',
-                                                borderRadius: '10px',
-                                                border: selectedSize === size ? '2px solid #0d9488' : '1px solid #e2e8f0',
-                                                background: selectedSize === size ? '#f0fdfa' : 'white',
-                                                color: selectedSize === size ? '#0d9488' : '#64748b',
-                                                fontWeight: 700,
-                                                fontSize: '0.9rem',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                boxShadow: selectedSize === size ? '0 4px 12px rgba(13, 148, 136, 0.15)' : 'none'
-                                            }}
-                                        >
-                                            {size}
-                                        </button>
-                                    ))}
+                                    {ORTHO_SIZES.map((size, idx) => {
+                                        const isSelected = selectedSize === size;
+                                        const sizeData = product.availableSizes?.find(s => (s.size === size || s === size));
+                                        
+                                        // Calculate specific price for this button
+                                        const sBasePrice = Number(product.price) || 0;
+                                        const sPrice = (sizeData && typeof sizeData === 'object') ? Number(sizeData.price) || sBasePrice : sBasePrice;
+                                        const sMrp = (sizeData && typeof sizeData === 'object') ? Number(sizeData.mrp) || (sPrice / (1 - (Number(product.discount) || 0) / 100)) : (sPrice / (1 - (Number(product.discount) || 0) / 100));
+                                        const sDiscount = sMrp > 0 ? Math.round(((sMrp - sPrice) / sMrp) * 100) : (Number(product.discount) || 0);
+
+                                        return (
+                                            <button
+                                                key={idx}
+                                                onClick={() => setSelectedSize(size)}
+                                                className={`size-btn ${isSelected ? 'active' : ''}`}
+                                                style={{
+                                                    minWidth: '70px',
+                                                    height: 'auto',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '12px',
+                                                    border: isSelected ? '2px solid #0d9488' : '1px solid #e2e8f0',
+                                                    background: isSelected ? '#f0fdfa' : 'white',
+                                                    color: isSelected ? '#0d9488' : '#64748b',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                    boxShadow: isSelected ? '0 4px 12px rgba(13, 148, 136, 0.15)' : 'none',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    gap: '2px'
+                                                }}
+                                            >
+                                                <span style={{ fontWeight: 800, fontSize: '1rem' }}>{size}</span>
+                                                <span style={{ fontWeight: 700, fontSize: '0.8rem', color: isSelected ? '#0d9488' : '#1e293b' }}>₹{sPrice.toFixed(0)}</span>
+                                                {sDiscount > 0 && (
+                                                    <span style={{ fontWeight: 800, fontSize: '0.65rem', color: '#10b981' }}>{sDiscount}% OFF</span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

@@ -4,11 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Lock, Mail, Eye, EyeOff, ArrowRight, Phone } from 'lucide-react';
 import './UserLogin.css';
 import { useApp } from '../context/AppContext';
+import WelcomeCelebration from '../components/WelcomeCelebration';
 
 function UserLogin() {
     const { login, user, registeredUsers } = useApp();
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
+    const [showCelebration, setShowCelebration] = useState(false);
+    const [isReturningCelebration, setIsReturningCelebration] = useState(false);
+    const [recentSignedUpName, setRecentSignedUpName] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -71,12 +75,25 @@ function UserLogin() {
             };
         }
 
+        setRecentSignedUpName(userData.name);
+        setIsReturningCelebration(isLogin);
+        setShowCelebration(true);
         login(userData);
+    };
+
+    const handleCloseCelebration = () => {
+        setShowCelebration(false);
         navigate(from, { replace: true });
     };
 
     return (
         <div className="user-login-page">
+            <WelcomeCelebration 
+                isOpen={showCelebration} 
+                userName={recentSignedUpName} 
+                isReturning={isReturningCelebration}
+                onClose={handleCloseCelebration} 
+            />
             {/* Animated Background Shapes */}
             <motion.div
                 className="login-bg-shape shape-1"

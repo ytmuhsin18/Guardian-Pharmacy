@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
     Pill, Activity, Clock, ShieldCheck, ArrowRight, MapPin, Phone,
-    Star, Truck, Accessibility, LayoutGrid, Stethoscope
+    Star, Truck, Accessibility, LayoutGrid, Stethoscope, Smile, Heart
 } from 'lucide-react';
 import './Home.css';
 import heroImg1 from '../assets/Screenshot 2026-02-11 083435.png';
@@ -155,7 +155,10 @@ function Home() {
                         <ServiceCard icon={<Pill size={28} className="text-primary" />} title="Authentic Medicines" desc="Wide range of genuine pharmaceuticals available for immediate order and delivery." link="/medicines" />
                         <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Expert Doctors" desc="Book appointments with top-rated specialists and visit the hospital at your convenience." link="/doctors" />
                         <ServiceCard icon={<ShieldCheck size={28} className="text-primary" />} title="Physiotherapy At Home" desc="Professional physiotherapy services and equipment delivered to your doorstep." link="/physiotherapy" />
-                        <ServiceCard icon={<Clock size={28} className="text-primary" />} title="24/7 Support" desc="Our pharmacy is open round the clock to cater to your urgent medical needs." link="/medicines" />
+                        <ServiceCard icon={<LayoutGrid size={28} className="text-primary" />} title="Ortho & Surgical" desc="Quality orthopedic supports, wheelchairs, and surgical equipment for home healthcare." link="/categories" />
+                        <ServiceCard icon={<Smile size={28} className="text-primary" />} title="Dental Care" desc="Complete oral hygiene range including medicated toothpastes, mouthwashes & more." link="/categories" />
+                        <ServiceCard icon={<Heart size={28} className="text-primary" />} title="Adult & Elder Care" desc="Compassionate care products and support for seniors and adult healthcare needs." link="/categories" />
+                        <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Home Healthcare Devices" desc="Modern digital devices like BP monitors, thermometers & more for home vitals." link="/categories" />
                     </motion.div>
                 </div>
             </section>

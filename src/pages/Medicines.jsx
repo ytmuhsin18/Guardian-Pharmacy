@@ -81,8 +81,8 @@ function Medicines() {
                                     setSearchTerm={setSearchTerm}
                                     placeholders={[
                                         "Search for Medicines...", "Search Baby Care...", "Search for Skin Care...",
-                                        "Search for Diabetes...", "Search Ortho & Surgical...", "Search personal care...",
-                                        "Search for Wellness...", "Search for Baby items...", "Search for health devices...",
+                                        "Search for Diabetes...", "Search Ortho & Surgical...", "Search Dental care...",
+                                        "Search for Wellness...", "Search for Ortho items...", "Search for health devices...",
                                         "Search by Category...", "Search for anything..."
                                     ]}
                                 />

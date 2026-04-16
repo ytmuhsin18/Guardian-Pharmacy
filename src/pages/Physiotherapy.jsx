@@ -26,7 +26,7 @@ function Physiotherapy() {
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
 
-    const filteredMedicines = medicines.filter(med => med.category === 'Physiotherapy');
+    const filteredMedicines = medicines.filter(med => med.category === 'Physiotherapy' || med.category === 'Ortho');
 
     const handleHandleCheckout = async (e) => {
         e.preventDefault();
