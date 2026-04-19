@@ -108,7 +108,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     // Auto-sync global price with first size for Ortho products
     React.useEffect(() => {
         if (newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) {
@@ -121,7 +121,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                     mrp: firstSize.mrp,
                     price: firstSize.price,
                     // Re-calculate discount for global consistency
-                    discount: (firstSize.mrp > 0 && firstSize.price > 0) 
+                    discount: (firstSize.mrp > 0 && firstSize.price > 0)
                         ? (((parseFloat(firstSize.mrp) - parseFloat(firstSize.price)) / parseFloat(firstSize.mrp)) * 100).toFixed(2)
                         : prev.discount
                 }));
@@ -129,38 +129,32 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
         }
     }, [newMedicine.availableSizes, newMedicine.category]);
 
-    const handleImageUpload = async (e) => {
+    const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
-            setIsUploading(true);
-            try {
-                const uploadPromises = files.map(file => uploadToCloudinary(file));
-                const uploadedUrls = await Promise.all(uploadPromises);
-
-                setNewMedicine(prev => ({
-                    ...prev,
-                    images: [...prev.images, ...uploadedUrls]
-                }));
-            } catch (error) {
-                console.error("Upload failed:", error);
-                alert("Failed to upload image(s). Make sure you have created an Unsigned Upload Preset named 'guardian_pharma_uploads' in Cloudinary Settings.");
-            } finally {
-                setIsUploading(false);
-            }
+            const fileObjs = files.map(file => ({
+                file: file,
+                preview: URL.createObjectURL(file),
+                isNewFile: true
+            }));
+            setNewMedicine(prev => ({
+                ...prev,
+                images: [...prev.images, ...fileObjs]
+            }));
         }
     };
 
     const handlePricingChange = (field, value) => {
         setNewMedicine(prev => {
             const updated = { ...prev, [field]: value };
-            
+
             // Allow empty values to be typed without immediately forcing to 0/NaN
             if (value === '') return updated;
 
             const mrp = parseFloat(field === 'mrp' ? value : updated.mrp) || 0;
             const discount = parseFloat(field === 'discount' ? value : updated.discount) || 0;
             const price = parseFloat(field === 'price' ? value : updated.price) || 0;
-            
+
             if (field === 'mrp' || field === 'discount') {
                 updated.price = (mrp - (mrp * discount / 100)).toFixed(2);
             } else if (field === 'price') {
@@ -176,6 +170,24 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
 
     const handleMedicineSubmit = async (e) => {
         e.preventDefault();
+        
+        setIsUploading(true);
+        const finalImages = [];
+        try {
+            for (const img of newMedicine.images) {
+                if (img.isNewFile) {
+                    const uploadedUrl = await uploadToCloudinary(img.file);
+                    finalImages.push(uploadedUrl);
+                } else {
+                    finalImages.push(img);
+                }
+            }
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Failed to upload image(s). Make sure you have created an Unsigned Upload Preset named 'guardian_pharma_uploads' in Cloudinary Settings.");
+            setIsUploading(false);
+            return;
+        }
 
         const submissionData = {
             name: newMedicine.name,
@@ -185,7 +197,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
             discount: newMedicine.discount ? parseFloat(newMedicine.discount) : 0,
             description: newMedicine.description || null,
             inStock: parseInt(newMedicine.stockQuantity) > 0,
-            images: newMedicine.images || [],
+            images: finalImages,
             availableSizes: newMedicine.availableSizes || []
         };
 
@@ -204,6 +216,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
 
         setNewMedicine({ name: '', combination: '', category: '', mrp: '', price: '', discount: '', description: '', stockQuantity: '', images: [], availableSizes: [] });
         setEditingMedicineId(null);
+        setIsUploading(false);
 
         setTimeout(() => {
             setUploadSuccess(false);
@@ -302,37 +315,35 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Allergy">Allergy</option>
                                     <option value="Supplements">Supplements</option>
                                     <option value="Digestion">Digestion</option>
-                                    <option value="First Aid">First Aid</option>
-                                    <option value="Baby Care">Baby Care</option>
-                                    <option value="Adult Care">Adult Care</option>
                                     <option value="Pharmacy">Pharmacy</option>
-                                    <option value="Skin Care">Skin Care</option>
                                     <option value="Vitamins">Vitamins</option>
-                                    <option value="Personal Care">Personal Care</option>
                                     <option value="Ayurvedic">Ayurvedic</option>
+                                    <option value="Baby Care">Baby Care</option>
+                                    <option value="Skin Care">Skin Care</option>
+                                    <option value="Derma care">Derma care</option>
                                     <option value="Pain Relief">Pain Relief</option>
-                                    <option value="Healthcare Devices">Healthcare Devices</option>
-                                    <option value="Home Care">Home Care</option>
-                                    <option value="Sexual Wellness">Sexual Wellness</option>
-                                    <option value="Maternity Care">Maternity Care</option>
                                     <option value="Surgical Products">Surgical Products</option>
                                     <option value="Ortho">Ortho</option>
-                                    <option value="Physiotherapy">Physiotherapy</option>
+                                    <option value="Sexual Wellness">Sexual Wellness</option>
+                                    <option value="Personal Care">Personal Care</option>
+                                    <option value="Maternity Care">Maternity Care</option>
+                                    <option value="Teeth Care">Teeth Care</option>
                                     <option value="Dental care">Dental care</option>
-                                    <option value="Mother Care">Mother Care</option>
-                                    <option value="Quit Smoking">Quit Smoking</option>
+                                    <option value="Smoking Cessation">Smoking Cessation</option>
+                                    <option value="Home Care">Home Care</option>
+                                    <option value="Healthcare Devices">Healthcare Devices</option>
                                 </select>
                             </div>
                         </div>
 
                         {newMedicine.category === 'Ortho' && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                style={{ 
-                                    background: '#f8fafc', 
-                                    padding: '1.5rem', 
-                                    borderRadius: '16px', 
+                                style={{
+                                    background: '#f8fafc',
+                                    padding: '1.5rem',
+                                    borderRadius: '16px',
                                     border: '1px solid #e2e8f0',
                                     marginBottom: '1.5rem'
                                 }}
@@ -353,9 +364,9 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                                     if (existing) {
                                                         setNewMedicine({ ...newMedicine, availableSizes: current.filter(s => s.size !== size) });
                                                     } else {
-                                                        setNewMedicine({ 
-                                                            ...newMedicine, 
-                                                            availableSizes: [...current, { size, mrp: newMedicine.mrp || '', price: newMedicine.price || '' }] 
+                                                        setNewMedicine({
+                                                            ...newMedicine,
+                                                            availableSizes: [...current, { size, mrp: newMedicine.mrp || '', price: newMedicine.price || '' }]
                                                         });
                                                     }
                                                 }}
@@ -386,23 +397,23 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                             <span>Selling Price (₹)</span>
                                         </div>
                                         {newMedicine.availableSizes.map((s, idx) => (
-                                            <motion.div 
+                                            <motion.div
                                                 key={s.size}
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 style={{ display: 'grid', gridTemplateColumns: '80px 1fr 1fr', gap: '15px', alignItems: 'center' }}
                                             >
                                                 <span style={{ fontWeight: 800, color: '#0d9488', fontSize: '1rem' }}>{s.size}</span>
-                                                <input 
+                                                <input
                                                     type="number"
-                                                    className="input-field" 
+                                                    className="input-field"
                                                     placeholder="MRP"
                                                     value={s.mrp}
                                                     onChange={(e) => {
                                                         const val = e.target.value;
                                                         const updated = [...newMedicine.availableSizes];
                                                         updated[idx].mrp = val;
-                                                        
+
                                                         // If this is the first size, sync to global MRP
                                                         const updateObj = { ...newMedicine, availableSizes: updated };
                                                         if (idx === 0) {
@@ -416,16 +427,16 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                                     }}
                                                     style={{ height: '38px', borderRadius: '8px', fontSize: '0.9rem' }}
                                                 />
-                                                <input 
+                                                <input
                                                     type="number"
-                                                    className="input-field" 
+                                                    className="input-field"
                                                     placeholder="Price"
                                                     value={s.price}
                                                     onChange={(e) => {
                                                         const val = e.target.value;
                                                         const updated = [...newMedicine.availableSizes];
                                                         updated[idx].price = val;
-                                                        
+
                                                         // If this is the first size, sync to global Price
                                                         const updateObj = { ...newMedicine, availableSizes: updated };
                                                         if (idx === 0) {
@@ -478,9 +489,9 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                         <div className="form-row" style={{ display: (newMedicine.category === 'Ortho' && newMedicine.availableSizes.length > 0) ? 'none' : 'flex' }}>
                             <div className="input-group">
                                 <label className="input-label" style={{ fontWeight: 600, color: '#334155' }}>Final Selling Price (₹) <span className="text-danger">*</span></label>
-                                <div style={{ 
-                                    background: '#f0fdf4', 
-                                    border: '1px solid #bbf7d0', 
+                                <div style={{
+                                    background: '#f0fdf4',
+                                    border: '1px solid #bbf7d0',
                                     borderRadius: 'var(--border-radius-sm)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -575,11 +586,14 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                 <div style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
                                     {newMedicine.images.map((img, idx) => (
                                         <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
-                                            <img src={img} alt={`Preview ${idx}`} style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-color)', padding: '5px', background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} />
+                                            <img src={img.isNewFile ? img.preview : img} alt={`Preview ${idx}`} style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-color)', padding: '5px', background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} />
                                             <button
                                                 type="button"
                                                 onClick={() => {
                                                     const updatedImages = [...newMedicine.images];
+                                                    if (updatedImages[idx].isNewFile) {
+                                                        URL.revokeObjectURL(updatedImages[idx].preview);
+                                                    }
                                                     updatedImages.splice(idx, 1);
                                                     setNewMedicine({ ...newMedicine, images: updatedImages });
                                                 }}

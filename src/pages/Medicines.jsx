@@ -148,34 +148,7 @@ function Medicines() {
                                     </div>
                                 </motion.div>
 
-                                <motion.div
-                                    className="action-banner-item"
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => {
-                                        if (!user) {
-                                            navigate('/signin', { state: { from: '/medicines' } });
-                                        } else {
-                                            window.open("https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20order%20medicines.", "_blank");
-                                        }
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <motion.div
-                                        className="action-icon-wrapper wa-icon"
-                                        animate={{
-                                            boxShadow: ['0 0 0 0 rgba(236, 72, 153, 0.4)', '0 0 0 10px rgba(236, 72, 153, 0)'],
-                                            scale: [1, 1.05, 1]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                                    >
-                                        <Receipt className="action-icon" size={24} />
-                                    </motion.div>
-                                    <div className="action-text-wrapper">
-                                        <h3>Upload Prescription</h3>
-                                        <p>Send on WhatsApp</p>
-                                    </div>
-                                </motion.div>
+
                             </motion.div>
                         )}
                     </AnimatePresence>

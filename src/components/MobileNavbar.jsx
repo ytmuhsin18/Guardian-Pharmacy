@@ -8,7 +8,7 @@ const navItems = [
     { to: '/medicines', icon: Pill, label: 'Meds' },
     { to: '/categories', icon: LayoutGrid, label: 'Categories' },
     { to: '/doctors', icon: Stethoscope, label: 'Docs' },
-    { to: '/adult-care', icon: Heart, label: 'Adult' },
+    { to: '/lab-tests', icon: TestTube, label: 'Labs' },
     { to: '/physiotherapy', icon: Accessibility, label: 'Physio' }
 ];
 

@@ -13,6 +13,7 @@ function UserLogin() {
     const [showCelebration, setShowCelebration] = useState(false);
     const [isReturningCelebration, setIsReturningCelebration] = useState(false);
     const [recentSignedUpName, setRecentSignedUpName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -34,51 +35,68 @@ function UserLogin() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         let userData;
 
-        if (isLogin) {
-            // Find existing user
-            const existingUser = registeredUsers?.find(u => u.phone === formData.phone);
+        try {
+            if (isLogin) {
+                // Call login API
+                const response = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: formData.phone,
+                        password: formData.password
+                    })
+                });
 
-            if (existingUser) {
-                // VERIFY PASSWORD
-                if (existingUser.password !== formData.password) {
-                    setError('Incorrect password. Please try again.');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    setError(data.error || 'Login failed. Please check your credentials.');
+                    setIsLoading(false);
                     return;
                 }
-                userData = { ...existingUser };
+
+                userData = data;
             } else {
-                // If user doesn't exist, we can either throw error or auto-register 
-                // But usually Login should only allow existing users
-                setError('User not found. Please Sign Up first.');
-                return;
-            }
-        } else {
-            // New registration - check if phone already taken
-            const exists = registeredUsers?.some(u => u.phone === formData.phone);
-            if (exists) {
-                setError('Phone number already registered. Please Login.');
-                return;
+                // Call register API
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.name || `User ${formData.phone.slice(-4)}`,
+                        phone: formData.phone,
+                        email: formData.email,
+                        password: formData.password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    setError(data.error || 'Registration failed. Please try again.');
+                    setIsLoading(false);
+                    return;
+                }
+
+                userData = data;
             }
 
-            // New registration
-            userData = {
-                name: formData.name || `User ${formData.phone.slice(-4)}`,
-                phone: formData.phone,
-                email: formData.email,
-                password: formData.password, // Store password
-                id: 'user_' + Math.random().toString(36).substr(2, 9)
-            };
+            setRecentSignedUpName(userData.name);
+            setIsReturningCelebration(isLogin);
+            setShowCelebration(true);
+            login(userData);
+        } catch (err) {
+            console.error('Authentication error:', err);
+            setError('An error occurred during authentication. Please check your connection.');
+        } finally {
+            setIsLoading(false);
         }
-
-        setRecentSignedUpName(userData.name);
-        setIsReturningCelebration(isLogin);
-        setShowCelebration(true);
-        login(userData);
     };
 
     const handleCloseCelebration = () => {
@@ -88,11 +106,11 @@ function UserLogin() {
 
     return (
         <div className="user-login-page">
-            <WelcomeCelebration 
-                isOpen={showCelebration} 
-                userName={recentSignedUpName} 
+            <WelcomeCelebration
+                isOpen={showCelebration}
+                userName={recentSignedUpName}
                 isReturning={isReturningCelebration}
-                onClose={handleCloseCelebration} 
+                onClose={handleCloseCelebration}
             />
             {/* Animated Background Shapes */}
             <motion.div
@@ -272,19 +290,25 @@ function UserLogin() {
                     </div>
 
                     {isLogin && (
-                        <Link to="#" className="forgot-password-link">
+                        <div 
+                            className="forgot-password-link tooltip-container" 
+                            style={{ position: 'relative', display: 'inline-block', cursor: 'help', color: '#64748b' }}
+                            title="If you forgot your password, please contact us at 094874 69098 for assistance."
+                        >
                             Forgot your password?
-                        </Link>
+                        </div>
                     )}
 
                     <motion.button
                         type="submit"
                         className="user-submit-btn"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={!isLoading ? { scale: 1.02 } : {}}
+                        whileTap={!isLoading ? { scale: 0.98 } : {}}
+                        disabled={isLoading}
+                        style={{ opacity: isLoading ? 0.7 : 1 }}
                     >
-                        {isLogin ? 'Sign In' : 'Create Account'}
-                        <ArrowRight size={20} />
+                        {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+                        {!isLoading && <ArrowRight size={20} />}
                     </motion.button>
                 </form>
             </motion.div>

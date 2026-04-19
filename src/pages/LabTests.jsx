@@ -36,7 +36,7 @@ function LabTests() {
                                 transition={{ duration: 0.6, delay: 0.2 }}
                             >
                                 Get professional laboratory diagnostic tests done from the comfort of your home. 
-                                We've simplified the process - just call or send your prescription via WhatsApp.
+                                We've simplified the process - just call or send your test list via WhatsApp.
                             </motion.p>
                         </div>
                     </motion.div>
@@ -113,57 +113,7 @@ function LabTests() {
                             </div>
                         </motion.a>
 
-                        <motion.a 
-                            href="https://wa.me/919487469098?text=Hello,%20I%20would%20like%20to%20upload%20my%20prescription%20to%20book%20a%20lab%20test." 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="action-banner-item" 
-                            variants={{
-                                hidden: { opacity: 0, y: 30, scale: 0.95 },
-                                show: { opacity: 1, y: 0, scale: 1 }
-                            }}
-                            whileHover={{ 
-                                scale: 1.05, 
-                                y: -10,
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
-                                transition: { type: 'spring', stiffness: 300, damping: 20 }
-                            }}
-                            whileTap={{ scale: 0.98 }}
-                            style={{
-                                background: 'white', border: '1px solid #e2e8f0', borderRadius: '32px',
-                                padding: '24px 30px', display: 'flex', alignItems: 'center', gap: '20px',
-                                cursor: 'pointer', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', flex: '1', minWidth: '300px',
-                                maxWidth: '500px', textDecoration: 'none', color: 'inherit',
-                                overflow: 'hidden', position: 'relative'
-                            }}
-                        >
-                            {/* Animated background glow */}
-                            <motion.div 
-                                style={{
-                                    position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%',
-                                    background: 'radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)',
-                                    zIndex: 0
-                                }}
-                                animate={{ 
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3]
-                                }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            />
 
-                            <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', padding: '15px', borderRadius: '20px', color: 'white', flexShrink: 0 }}>
-                                <motion.div
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                >
-                                    <Receipt size={28} />
-                                </motion.div>
-                            </div>
-                            <div style={{ position: 'relative', zIndex: 1 }}>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Upload Prescription</h3>
-                                <p style={{ fontSize: '1rem', color: '#64748b', margin: '4px 0 0 0', fontWeight: 600 }}>Send on WhatsApp</p>
-                            </div>
-                        </motion.a>
                     </motion.div>
                 </div>
             </section>
@@ -196,7 +146,7 @@ function LabTests() {
                         <FeatureCard 
                             icon={<Phone className="text-primary" />} 
                             title="1. Contact Us" 
-                            desc="Call or share your prescription/test list via WhatsApp to our health advisors."
+                            desc="Call or share your test list via WhatsApp to our health advisors."
                         />
                         <FeatureCard 
                             icon={<Clock className="text-primary" />} 

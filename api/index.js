@@ -250,41 +250,73 @@ ordersRouter.post('/statusCheck', async (req, res) => {
 });
 app.use('/api/orders', ordersRouter);
 
-// Prescriptions
-const prescriptionsRouter = express.Router();
-prescriptionsRouter.get('/', async (req, res) => {
+// Prescriptions removed
+
+// Users
+const usersRouter = express.Router();
+
+usersRouter.get('/', async (req, res) => {
     try {
         const sql = getSql();
-        const result = await sql`SELECT id, status, created_at FROM prescriptions ORDER BY created_at DESC LIMIT 200`;
+        const result = await sql`SELECT id, name, email, phone, created_at FROM users ORDER BY created_at DESC`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET users error:', err); res.status(500).json({ error: err.message }); }
 });
-prescriptionsRouter.post('/', async (req, res) => {
+
+usersRouter.post('/register', async (req, res) => {
     try {
         const sql = getSql();
-        const { image_base64, status } = req.body;
-        const result = await sql`INSERT INTO prescriptions (image_base64, status) VALUES (${image_base64}, ${status || 'Pending'}) RETURNING *`;
-        res.json([result[0]]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
-});
-prescriptionsRouter.put('/:id', async (req, res) => {
-    try {
-        const sql = getSql();
-        if (req.body.status) {
-            const result = await sql`UPDATE prescriptions SET status=${req.body.status} WHERE id=${req.params.id} RETURNING *`;
-            return res.json([result[0]]);
+        const { name, email, phone, password } = req.body;
+        // Check if phone exists
+        const existingUser = await sql`SELECT id FROM users WHERE phone = ${phone}`;
+        if (existingUser.length > 0) {
+            return res.status(400).json({ error: 'Phone number already registered. Please Login.' });
         }
-        res.json([]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+        
+        const result = await sql`INSERT INTO users (name, email, phone, password) VALUES (${name}, ${email || null}, ${phone}, ${password}) RETURNING id, name, email, phone, created_at`;
+        res.json(result[0]);
+    } catch (err) { console.error('POST register error:', err); res.status(500).json({ error: err.message }); }
 });
-prescriptionsRouter.get('/:id/image', async (req, res) => {
+
+usersRouter.post('/login', async (req, res) => {
     try {
         const sql = getSql();
-        const result = await sql`SELECT image_base64 FROM prescriptions WHERE id = ${req.params.id}`;
-        res.json(result[0] || {});
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+        const { phone, password } = req.body;
+        const result = await sql`SELECT id, name, email, phone, created_at, password FROM users WHERE phone = ${phone}`;
+        
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'User not found. Please Sign Up first.' });
+        }
+        
+        const user = result[0];
+        if (user.password !== password) {
+            return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+        }
+        
+        // Remove password from response
+        delete user.password;
+        res.json(user);
+    } catch (err) { console.error('POST login error:', err); res.status(500).json({ error: err.message }); }
 });
-app.use('/api/prescriptions', prescriptionsRouter);
+
+usersRouter.put('/:id', async (req, res) => {
+    try {
+        const sql = getSql();
+        const { name, email, phone } = req.body;
+        const result = await sql`UPDATE users SET name=${name}, email=${email || null}, phone=${phone} WHERE id=${req.params.id} RETURNING id, name, email, phone, created_at`;
+        res.json(result[0]);
+    } catch (err) { console.error('PUT user error:', err); res.status(500).json({ error: err.message }); }
+});
+
+usersRouter.delete('/:id', async (req, res) => {
+    try {
+        const sql = getSql();
+        await sql`DELETE FROM users WHERE id = ${req.params.id}`;
+        res.json({ success: true });
+    } catch (err) { console.error('DELETE user error:', err); res.status(500).json({ error: err.message }); }
+});
+
+app.use('/api/users', usersRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

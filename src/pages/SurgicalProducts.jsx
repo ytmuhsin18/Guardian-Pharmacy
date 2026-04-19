@@ -16,6 +16,7 @@ import quitSmokingIcon from '../assets/quit-smoking.png';
 import homeDevicesIcon from '../assets/home-devices.png';
 import motherCareIcon from '../assets/mother-care.png';
 import adultCareIcon from '../assets/adult-care.png';
+import sexualWellnessIcon from '../assets/sexual-wellness.jpg';
 import allCategoriesIcon from '../assets/all-categories.png';
 import medicinesIcon from '../assets/medicines-3d.png';
 import babyCareIcon from '../assets/baby-care-3d.png';
@@ -31,13 +32,14 @@ const CAT_TABS = [
     { id: 'all', label: 'All', image: allCategoriesIcon, dbCats: [] },
     { id: 'medicines', label: 'Medicines', image: medicinesIcon, dbCats: ['Fever & Pain', 'Antibiotics', 'Allergy', 'Supplements', 'Digestion', 'Pharmacy', 'Vitamins', 'Ayurvedic'] },
     { id: 'baby', label: 'Baby Care', image: babyCareIcon, dbCats: ['Baby Care'] },
-    { id: 'skin', label: 'Derma care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
+    { id: 'skin', label: 'Derma Care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
     { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
-    { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Sexual Wellness', 'Personal Care'] },
     { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
-    { id: 'teeth', label: 'Dental care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
-    { id: 'smoking', label: 'Quit smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
+    { id: 'teeth', label: 'Dental Care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
+    { id: 'smoking', label: 'Quit Smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
+    { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Adult Care', 'Personal Care'] },
+    { id: 'sexual', label: 'Sexual Wellness', image: sexualWellnessIcon, dbCats: ['Sexual Wellness'] },
     { id: 'home', label: 'Home & Devices', image: homeDevicesIcon, dbCats: ['Home Care', 'Healthcare Devices'] },
 ];
 
@@ -90,7 +92,7 @@ function SurgicalProducts() {
                                     searchTerm={searchTerm}
                                     setSearchTerm={setSearchTerm}
                                     placeholders={[
-                                        "Search for Categories...", "Search Wheelchairs...", "Search Walkers...", 
+                                        "Search for Categories...", "Search Wheelchairs...", "Search Walkers...",
                                         "Search for Surgical...", "Search Adult Diapers...", "Search Health Devices...",
                                         "Search Mother Care...", "Search Dental Care...", "Search personal care..."
                                     ]}
@@ -215,14 +217,14 @@ function SurgicalProducts() {
             <AnimatePresence>
                 {orderComplete && (
                     <div className="modal-overlay" style={{ zIndex: 1000 }}>
-                        <motion.div 
+                        <motion.div
                             className="modal-backdrop"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setOrderComplete(false)}
                         />
-                        <motion.div 
+                        <motion.div
                             className="modal-content success-modal"
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -233,13 +235,13 @@ function SurgicalProducts() {
                                 initial={{ scale: 0, rotate: -15 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-                                style={{ 
-                                    width: '100px', 
-                                    height: '100px', 
-                                    background: '#f0fdf4', 
-                                    borderRadius: '50%', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
+                                style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    background: '#f0fdf4',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
                                     justifyContent: 'center',
                                     margin: '0 auto 2rem',
                                     border: '5px solid #ccfbf1'
@@ -257,8 +259,8 @@ function SurgicalProducts() {
                                 <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
                             </p>
 
-                            <button 
-                                className="btn btn-primary btn-block" 
+                            <button
+                                className="btn btn-primary btn-block"
                                 onClick={() => setOrderComplete(false)}
                                 style={{ borderRadius: '15px', padding: '16px', fontWeight: 800 }}
                             >

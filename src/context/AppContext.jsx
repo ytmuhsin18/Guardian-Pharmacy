@@ -8,7 +8,6 @@ export function AppProvider({ children }) {
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [orders, setOrders] = useState([]);
-    const [prescriptions, setPrescriptions] = useState([]);
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -17,27 +16,17 @@ export function AppProvider({ children }) {
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
-    const [registeredUsers, setRegisteredUsers] = useState(() => {
-        const saved = localStorage.getItem('guardian_registered_users');
-        if (saved) return JSON.parse(saved);
-        // Default mock users
-        return [
-            { id: '1', name: 'Zubaitha', email: 'zubaitha@example.com', createdAt: '2024-03-20' },
-            { id: '2', name: 'Muhsin', email: 'muhsin@example.com', createdAt: '2024-03-22' }
-        ];
-    });
+    const [registeredUsers, setRegisteredUsers] = useState([]);
 
     const login = (userData) => {
         setUser(userData);
         localStorage.setItem('guardian_user', JSON.stringify(userData));
 
-        // Add to registered users if not exists
+        // Add to registered users locally to avoid refetching everything immediately
         setRegisteredUsers(prev => {
             const exists = prev.find(u => u.phone === userData.phone);
             if (exists) return prev;
-            const newList = [...prev, { ...userData, createdAt: new Date().toISOString() }];
-            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
-            return newList;
+            return [...prev, { ...userData, created_at: new Date().toISOString() }];
         });
     };
 
@@ -46,39 +35,55 @@ export function AppProvider({ children }) {
         localStorage.removeItem('guardian_user');
     };
 
-    const updateRegisteredUser = (id, updatedData) => {
-        setRegisteredUsers(prev => {
-            const newList = prev.map(u => u.id === id ? { ...u, ...updatedData } : u);
-            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
-            return newList;
-        });
+    const updateRegisteredUser = async (id, updatedData) => {
+        try {
+            const res = await fetch(`/api/users/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedData)
+            });
+            if (!res.ok) throw new Error('Failed to update user');
+            const newUserData = await res.json();
+            
+            setRegisteredUsers(prev => {
+                return prev.map(u => u.id === id ? { ...u, ...newUserData } : u);
+            });
+            showToast('Customer data updated successfully', 'success');
+        } catch (error) {
+            console.error('Error updating user:', error);
+            showToast('Failed to update user', 'error');
+        }
     };
 
-    const deleteRegisteredUser = (id) => {
+    const deleteRegisteredUser = async (id) => {
         const userToDelete = registeredUsers.find(u => u.id === id);
         if (!userToDelete) return;
         
         if (!window.confirm(`Are you sure you want to delete ${userToDelete.name}? All their data (orders and delivery info) will be permanently removed.`)) return;
         
-        // 1. Clean up associated localStorage data
-        const userKeySuffix = userToDelete.phone || userToDelete.email;
-        localStorage.removeItem(`guardian_delivery_details_${userKeySuffix}`);
-        localStorage.removeItem(`my_guardian_orders_${userKeySuffix}`);
-        localStorage.removeItem(`notified_guardian_orders_${userKeySuffix}`);
+        try {
+            const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete user');
 
-        // 2. Remove from state and registered list
-        setRegisteredUsers(prev => {
-            const newList = prev.filter(u => u.id !== id);
-            localStorage.setItem('guardian_registered_users', JSON.stringify(newList));
-            return newList;
-        });
+            // 1. Clean up associated localStorage data
+            const userKeySuffix = userToDelete.phone || userToDelete.email;
+            localStorage.removeItem(`guardian_delivery_details_${userKeySuffix}`);
+            localStorage.removeItem(`my_guardian_orders_${userKeySuffix}`);
+            localStorage.removeItem(`notified_guardian_orders_${userKeySuffix}`);
 
-        // 3. If the currently logged-in user is the one being deleted, log them out
-        if (user && (user.id === id || user.phone === userToDelete.phone)) {
-            logout();
+            // 2. Remove from state
+            setRegisteredUsers(prev => prev.filter(u => u.id !== id));
+
+            // 3. If the currently logged-in user is the one being deleted, log them out
+            if (user && (user.id === id || user.phone === userToDelete.phone)) {
+                logout();
+            }
+            
+            showToast('Customer data deleted successfully', 'success');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showToast('Failed to delete user', 'error');
         }
-        
-        showToast('Customer data deleted successfully', 'success');
     };
 
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -161,18 +166,11 @@ export function AppProvider({ children }) {
             }
         };
 
-        const fetchPrescriptionsAsync = async () => {
-            let res;
-            try {
-                res = await fetch('/api/prescriptions');
-            } catch (e) { return; }
-            if (!res.ok) return;
-            const data = await res.json();
-            if (data) {
-                setPrescriptions(data.map(p => ({
-                    ...p,
-                    image_base64: null
-                })));
+        const fetchUsersAsync = async () => {
+            const res = await fetch('/api/users');
+            if (res.ok) {
+                const data = await res.json();
+                if (data) setRegisteredUsers(data);
             }
         };
 
@@ -182,7 +180,7 @@ export function AppProvider({ children }) {
                 fetchDoctorsAsync(),
                 fetchAppointmentsAsync(),
                 fetchOrdersAsync(),
-                fetchPrescriptionsAsync()
+                fetchUsersAsync()
             ]);
         } catch (globalError) {
             console.error("Critical error in concurrent fetchData:", globalError);
@@ -377,36 +375,6 @@ export function AppProvider({ children }) {
             console.log("Old data (24h+) cleaned up successfully");
         } catch (e) {
             console.error("Cleanup error:", e);
-        }
-    };
-
-    const uploadPrescription = async (imageBase64) => {
-        const res = await fetch('/api/prescriptions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image_base64: imageBase64, status: 'Pending' })
-        });
-        const data = await res.json();
-
-        if (res.ok && data && data.length > 0) {
-            setPrescriptions(prev => [data[0], ...prev]);
-            return true;
-        } else {
-            console.error("Failed to upload prescription");
-            return false;
-        }
-    };
-
-    const updatePrescriptionStatus = async (id, status) => {
-        const res = await fetch(`/api/prescriptions/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-        });
-        if (res.ok) {
-            setPrescriptions(prev => prev.map(p => p.id === id ? { ...p, status } : p));
-        } else {
-            console.error("Failed to update prescription status");
         }
     };
 
@@ -622,24 +590,6 @@ export function AppProvider({ children }) {
         return null;
     };
 
-    const fetchPrescriptionImage = async (id) => {
-        try {
-            const res = await fetch(`/api/prescriptions/${id}/image`);
-            const data = await res.json();
-
-            if (res.ok && data && data.image_base64) {
-                const processedImage = ensureBase64Prefix(data.image_base64);
-                setPrescriptions(prev => prev.map(p =>
-                    p.id === id ? { ...p, image_base64: processedImage } : p
-                ));
-                return processedImage;
-            }
-        } catch (e) {
-            console.error("Error fetching prescription image:", e);
-        }
-        return null;
-    };
-
     const addDoctor = async (doctor) => {
         const dbDoctor = {
             name: doctor.name,
@@ -783,10 +733,6 @@ export function AppProvider({ children }) {
             addOrder,
             updateOrderStatus,
             cleanupOldData,
-            prescriptions,
-            uploadPrescription,
-            updatePrescriptionStatus,
-            fetchPrescriptionImage,
             loading,
             fetchData,
             user,

@@ -9,14 +9,13 @@ import {
 import { useApp } from '../context/AppContext';
 import './Medicines.css'; // Reuse existing styles
 import surgicalBanner from '../assets/surgical-products.png';
-import painReliefIcon from '../assets/pain-relief-model.png';
+import painReliefIcon from '../assets/physiotherapy.png';
 import emptyCartImg from '../assets/empty-cart-3d.png';
 import dentalCareIcon from '../assets/dental-care.png';
 import dermaCareIcon from '../assets/derma-care.png';
 import quitSmokingIcon from '../assets/quit-smoking.png';
 import homeDevicesIcon from '../assets/home-devices.png';
 import motherCareIcon from '../assets/mother-care.png';
-import adultCareIcon from '../assets/adult-care.png';
 import allCategoriesIcon from '../assets/all-categories.png';
 import medicinesIcon from '../assets/medicines-3d.png';
 import babyCareIcon from '../assets/baby-care-3d.png';
@@ -29,7 +28,8 @@ const CAT_TABS = [
     { id: 'skin', label: 'Derma care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
     { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
-    { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Sexual Wellness', 'Personal Care'] },
+    { id: 'adult', label: 'Adult Care', image: '/senior-care.jpeg', dbCats: ['Personal Care'] },
+    { id: 'sexual', label: 'Sexual Wellness', image: '/Gemini_Generated_Image_io7t2aio7t2aio7t (1).png', dbCats: ['Sexual Wellness'] },
     { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
     { id: 'teeth', label: 'Dental care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
     { id: 'smoking', label: 'Quit smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
