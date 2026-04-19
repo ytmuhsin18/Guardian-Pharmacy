@@ -58,10 +58,28 @@ function Home() {
                                 <Pill size={18} />
                                 Order Medicines
                             </Link>
-                            <Link to="/doctors" className="btn btn-white btn-lg">
-                                <Stethoscope size={18} />
-                                Book Doctor
-                            </Link>
+                            <a 
+                                href="https://wa.me/919487469098?text=Hi,%20I%20have%20a%20prescription%20I'd%20like%20to%20send%20to%20Guardian%20Pharmacy."
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-secondary btn-lg"
+                                style={{ 
+                                    background: '#25D366', 
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    boxShadow: '0 10px 25px -5px rgba(37, 211, 102, 0.4)'
+                                }}
+                            >
+                                <motion.div
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                    <Sparkles size={18} />
+                                </motion.div>
+                                Send Prescription
+                            </a>
                         </motion.div>
 
                         <motion.div variants={fadeInUp} className="hero-stats">

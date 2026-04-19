@@ -20,6 +20,8 @@ import allCategoriesIcon from '../assets/all-categories.png';
 import medicinesIcon from '../assets/medicines-3d.png';
 import babyCareIcon from '../assets/baby-care-3d.png';
 import orthoIcon from '../assets/surgical-3d.png';
+import adultCareIcon from '../assets/adult-care-new.png';
+import sexualWellnessIcon from '../assets/sexual-wellness-v2.jpg';
 
 const CAT_TABS = [
     { id: 'all', label: 'All', image: allCategoriesIcon, dbCats: [] },
@@ -28,8 +30,8 @@ const CAT_TABS = [
     { id: 'skin', label: 'Derma care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
     { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
-    { id: 'adult', label: 'Adult Care', image: '/senior-care.jpeg', dbCats: ['Personal Care'] },
-    { id: 'sexual', label: 'Sexual Wellness', image: '/Gemini_Generated_Image_io7t2aio7t2aio7t (1).png', dbCats: ['Sexual Wellness'] },
+    { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Adult Care', 'Personal Care'] },
+    { id: 'sexual', label: 'Sexual Wellness', image: sexualWellnessIcon, dbCats: ['Sexual Wellness'] },
     { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
     { id: 'teeth', label: 'Dental care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
     { id: 'smoking', label: 'Quit smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },

@@ -130,7 +130,7 @@ function Medicines() {
                                             window.location.href = "tel:9487469098";
                                         }
                                     }}
-                                    style={{ cursor: 'pointer' }}
+                                    style={{ cursor: 'pointer', borderLeft: '4px solid #0ea5e9' }}
                                 >
                                     <motion.div
                                         className="action-icon-wrapper call-icon"
@@ -148,6 +148,31 @@ function Medicines() {
                                     </div>
                                 </motion.div>
 
+                                <motion.div
+                                    className="action-banner-item"
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        window.open("https://wa.me/919487469098?text=Hi,%20I%20have%20a%20prescription%20I'd%20like%20to%20share.", "_blank");
+                                    }}
+                                    style={{ cursor: 'pointer', borderLeft: '4px solid #25D366' }}
+                                >
+                                    <motion.div
+                                        className="action-icon-wrapper wa-icon"
+                                        style={{ background: 'rgba(37, 211, 102, 0.1)', color: '#25D366' }}
+                                        animate={{
+                                            boxShadow: ['0 0 0 0 rgba(37, 211, 102, 0.4)', '0 0 0 10px rgba(37, 211, 102, 0)'],
+                                            scale: [1, 1.05, 1]
+                                        }}
+                                        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                                    >
+                                        <Receipt className="action-icon" size={24} />
+                                    </motion.div>
+                                    <div className="action-text-wrapper">
+                                        <h3>Send Prescription</h3>
+                                        <p>Order via WhatsApp</p>
+                                    </div>
+                                </motion.div>
 
                             </motion.div>
                         )}

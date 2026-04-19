@@ -82,7 +82,7 @@ function LabTests() {
                                 padding: '24px 30px', display: 'flex', alignItems: 'center', gap: '20px',
                                 cursor: 'pointer', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', flex: '1', minWidth: '300px',
                                 maxWidth: '500px', textDecoration: 'none', color: 'inherit',
-                                overflow: 'hidden', position: 'relative'
+                                overflow: 'hidden', position: 'relative', borderLeft: '6px solid #0ea5e9'
                             }}
                         >
                             {/* Animated background glow */}
@@ -110,6 +110,58 @@ function LabTests() {
                             <div style={{ position: 'relative', zIndex: 1 }}>
                                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Book on Call</h3>
                                 <p style={{ fontSize: '1rem', color: '#64748b', margin: '4px 0 0 0', fontWeight: 600 }}>094874 69098</p>
+                            </div>
+                        </motion.a>
+
+                        <motion.a 
+                            href="https://wa.me/919487469098?text=Hi,%20I'd%20like%20to%20share%20a%20list%20for%20Lab%20Tests." 
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="action-banner-item" 
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                show: { opacity: 1, y: 0, scale: 1 }
+                            }}
+                            whileHover={{ 
+                                scale: 1.05, 
+                                y: -10,
+                                boxShadow: '0 25px 50px -12px rgba(37, 211, 102, 0.2)',
+                                transition: { type: 'spring', stiffness: 300, damping: 20 }
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{
+                                background: 'white', border: '1px solid #e2e8f0', borderRadius: '32px',
+                                padding: '24px 30px', display: 'flex', alignItems: 'center', gap: '20px',
+                                cursor: 'pointer', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', flex: '1', minWidth: '300px',
+                                maxWidth: '500px', textDecoration: 'none', color: 'inherit',
+                                overflow: 'hidden', position: 'relative', borderLeft: '6px solid #25D366'
+                            }}
+                        >
+                            {/* Animated WhatsApp background glow */}
+                            <motion.div 
+                                style={{
+                                    position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%',
+                                    background: 'radial-gradient(circle, rgba(37, 211, 102, 0.1) 0%, transparent 70%)',
+                                    zIndex: 0
+                                }}
+                                animate={{ 
+                                    scale: [1, 1.15, 1],
+                                    opacity: [0.2, 0.4, 0.2]
+                                }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                            />
+
+                            <div style={{ position: 'relative', zIndex: 1, background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)', padding: '15px', borderRadius: '20px', color: 'white', flexShrink: 0 }}>
+                                <motion.div
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                    <Receipt size={28} />
+                                </motion.div>
+                            </div>
+                            <div style={{ position: 'relative', zIndex: 1 }}>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Send Test List</h3>
+                                <p style={{ fontSize: '1rem', color: '#128C7E', margin: '4px 0 0 0', fontWeight: 800 }}>Chat on WhatsApp</p>
                             </div>
                         </motion.a>
 

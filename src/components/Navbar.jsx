@@ -254,9 +254,9 @@ function Navbar() {
                         />
                         <motion.div 
                             className="orders-history-modal glass-panel"
-                            initial={{ opacity: 0, x: '100%' }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: '100%', opacity: 0 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                         >
                             <div className="orders-modal-header">
