@@ -61,7 +61,7 @@ body {
 
 html {
   overflow-x: hidden;
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; -- Removed as it often breaks scroll restoration in React apps */
 }
 
 html.modal-open,
@@ -374,4 +374,94 @@ ul {
   .action-text-wrapper p {
     font-size: 0.68rem;
   }
+}
+
+/* ── Confirmation Modal ── */
+.confirm-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+  color: #10b981;
+  letter-spacing: -0.02em;
+}
+
+.confirm-text {
+  font-size: 1.15rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 480px) {
+  .confirm-title {
+    font-size: 1.75rem;
+  }
+
+  .confirm-text {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.order-summary-box {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 2px dashed #e2e8f0;
+  margin-top: 4px;
+}
+
+.btn-whatsapp-pay {
+  width: 100%;
+  height: 54px;
+  background: #25d366;
+  color: white !important;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-whatsapp-pay:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -8px rgba(37, 211, 102, 0.5);
+  filter: brightness(1.05);
+}
+
+.btn-confirm-done {
+  width: 100%;
+  height: 54px;
+  background: #f1f5f9;
+  color: #64748b !important;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-confirm-done:hover {
+  background: #e2e8f0;
+  color: #1e293b !important;
+  transform: translateY(-1px);
 }

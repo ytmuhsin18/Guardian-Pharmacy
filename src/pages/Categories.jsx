@@ -32,7 +32,7 @@ const CAT_TABS = [
     { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
     { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Adult Care', 'Personal Care'] },
     { id: 'sexual', label: 'Sexual Wellness', image: sexualWellnessIcon, dbCats: ['Sexual Wellness'] },
-    { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
+    { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care', 'Mother Care', 'Maternal Health', 'Maternity'] },
     { id: 'teeth', label: 'Dental care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
     { id: 'smoking', label: 'Quit smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
     { id: 'home', label: 'Home & Devices', image: homeDevicesIcon, dbCats: ['Home Care', 'Healthcare Devices'] },

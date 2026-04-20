@@ -191,11 +191,21 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                             {order.status === 'Confirmed' && (
                                                 <button
                                                     className="btn-action-premium confirm"
-                                                    style={{ color: '#0984e3', borderColor: '#0984e3' }}
+                                                    style={{ color: '#0984e3', borderColor: '#0984e3', background: '#eff6ff' }}
                                                     onClick={() => updateOrderStatus(order.id, 'Out for Delivery')}
                                                     title="Set Out for Delivery"
                                                 >
                                                     <Truck size={20} />
+                                                </button>
+                                            )}
+                                            {order.status === 'Out for Delivery' && (
+                                                <button
+                                                    className="btn-action-premium confirm"
+                                                    style={{ color: '#059669', borderColor: '#059669', background: '#ecfdf5' }}
+                                                    onClick={() => updateOrderStatus(order.id, 'Delivered')}
+                                                    title="Mark as Delivered"
+                                                >
+                                                    <CheckCircle size={20} />
                                                 </button>
                                             )}
                                         </div>

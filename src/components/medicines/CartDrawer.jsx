@@ -301,35 +301,78 @@ const CartDrawer = ({
                                     </div>
                                     <div className="checkout-form-group">
                                         <label className="input-label">Payment Method *</label>
-                                        <div style={{ display: 'flex', gap: '10px' }}>
-                                            <div 
+                                        <div style={{ display: 'flex', gap: '12px' }}>
+                                            <motion.div 
                                                 className={`payment-option-card ${customerDetails.payment_method === 'COD' ? 'active' : ''}`}
+                                                whileHover={{ y: -2 }}
+                                                whileTap={{ scale: 0.96 }}
                                                 style={{ 
-                                                    flex: 1, padding: '12px', border: '2px solid #e2e8f0', 
-                                                    borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
-                                                    background: customerDetails.payment_method === 'COD' ? '#f0fdf4' : 'white',
+                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0', 
+                                                    borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
+                                                    background: 'white',
                                                     borderColor: customerDetails.payment_method === 'COD' ? '#00b894' : '#e2e8f0',
-                                                    color: customerDetails.payment_method === 'COD' ? '#00b894' : '#0f172a'
+                                                    color: customerDetails.payment_method === 'COD' ? '#00b894' : '#475569',
+                                                    position: 'relative',
+                                                    overflow: 'hidden'
                                                 }}
                                                 onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'COD' })}
                                             >
-                                                <Banknote size={20} style={{ marginBottom: '4px', color: customerDetails.payment_method === 'COD' ? '#00b894' : '#64748b' }} />
-                                                <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>COD</div>
-                                            </div>
-                                            <div 
+                                                <AnimatePresence>
+                                                    {customerDetails.payment_method === 'COD' && (
+                                                        <motion.div 
+                                                            layoutId="payment-highlight"
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                            style={{ 
+                                                                position: 'absolute', inset: 0, 
+                                                                background: 'rgba(0, 184, 148, 0.08)',
+                                                                zIndex: 0
+                                                            }} 
+                                                        />
+                                                    )}
+                                                </AnimatePresence>
+                                                <div style={{ position: 'relative', zIndex: 1 }}>
+                                                    <Banknote size={24} style={{ marginBottom: '6px', opacity: customerDetails.payment_method === 'COD' ? 1 : 0.6 }} />
+                                                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Cash on Delivery</div>
+                                                </div>
+                                            </motion.div>
+
+                                            <motion.div 
                                                 className={`payment-option-card ${customerDetails.payment_method === 'ONLINE' ? 'active' : ''}`}
+                                                whileHover={{ y: -2 }}
+                                                whileTap={{ scale: 0.96 }}
                                                 style={{ 
-                                                    flex: 1, padding: '12px', border: '2px solid #e2e8f0', 
-                                                    borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
-                                                    background: customerDetails.payment_method === 'ONLINE' ? '#eff6ff' : 'white',
+                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0', 
+                                                    borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
+                                                    background: 'white',
                                                     borderColor: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#e2e8f0',
-                                                    color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#0f172a'
+                                                    color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#475569',
+                                                    position: 'relative',
+                                                    overflow: 'hidden'
                                                 }}
                                                 onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'ONLINE' })}
                                             >
-                                                <CreditCard size={20} style={{ marginBottom: '4px', color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#64748b' }} />
-                                                <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>Online</div>
-                                            </div>
+                                                <AnimatePresence>
+                                                    {customerDetails.payment_method === 'ONLINE' && (
+                                                        <motion.div 
+                                                            layoutId="payment-highlight"
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                            style={{ 
+                                                                position: 'absolute', inset: 0, 
+                                                                background: 'rgba(9, 132, 227, 0.08)',
+                                                                zIndex: 0
+                                                            }} 
+                                                        />
+                                                    )}
+                                                </AnimatePresence>
+                                                <div style={{ position: 'relative', zIndex: 1 }}>
+                                                    <CreditCard size={24} style={{ marginBottom: '6px', opacity: customerDetails.payment_method === 'ONLINE' ? 1 : 0.6 }} />
+                                                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Online Payment</div>
+                                                </div>
+                                            </motion.div>
                                         </div>
                                     </div>
                                 </div>

@@ -101,21 +101,21 @@ function Navbar() {
     const { setIsCartOpen, totalItems, cartTotal, user, logout, orders } = useApp();
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [showOrdersModal, setShowOrdersModal] = useState(false);
-    
+
     // Filter orders for the current user (by phone, email, or private device history)
     const userOrders = orders.filter(order => {
         const matchesPhone = user?.phone && user.phone !== 'N/A' && order.phone === user.phone;
         const matchesEmail = user?.email && order.email === user.email;
-        
+
         // Check device-local history SPECIFIC to THIS user
         const userKeySuffix = user ? (user.phone || user.email) : 'guest';
         const historyKey = `my_guardian_orders_${userKeySuffix}`;
         const localOrders = JSON.parse(localStorage.getItem(historyKey) || '[]');
         const matchesLocal = localOrders.includes(order.id);
-        
+
         return matchesPhone || matchesEmail || matchesLocal;
     });
-    
+
     const handleLogoutClick = () => {
         setShowLogoutConfirm(true);
     };
@@ -125,11 +125,11 @@ function Navbar() {
         setShowLogoutConfirm(false);
     };
     const showPromo = location.pathname === '/medicines';
-    
+
     // Only show cart icon on medicines listing, details, and categories page
-    const shouldShowCart = location.pathname.startsWith('/medicines') || 
-                          location.pathname.startsWith('/medicine/') || 
-                          location.pathname.startsWith('/categories');
+    const shouldShowCart = location.pathname.startsWith('/medicines') ||
+        location.pathname.startsWith('/medicine/') ||
+        location.pathname.startsWith('/categories');
 
     return (
         <>
@@ -169,7 +169,7 @@ function Navbar() {
                         {!location.pathname.startsWith('/admin') && (
                             !user ? (
                                 <Link to="/signin" className="nav-signin-link">
-                                    <motion.div 
+                                    <motion.div
                                         className="nav-signin-btn"
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -182,7 +182,7 @@ function Navbar() {
                                 </Link>
                             ) : (
                                 <div className="nav-user-pill">
-                                    <button 
+                                    <button
                                         className="user-profile-info-btn"
                                         onClick={() => setShowOrdersModal(true)}
                                     >
@@ -191,7 +191,7 @@ function Navbar() {
                                         </div>
                                         <span className="user-name-text desktop-only">{user.name.split(' ')[0]}</span>
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={handleLogoutClick}
                                         className="user-logout-action"
                                         title="Log Out"
@@ -204,7 +204,7 @@ function Navbar() {
                         )}
 
                         {shouldShowCart && totalItems > 0 && (
-                            <motion.button 
+                            <motion.button
                                 className="nav-cart-btn-premium"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -245,14 +245,14 @@ function Navbar() {
             <AnimatePresence>
                 {showOrdersModal && (
                     <div className="modal-overlay" style={{ zIndex: 10002 }}>
-                        <motion.div 
+                        <motion.div
                             className="modal-backdrop"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setShowOrdersModal(false)}
                         />
-                        <motion.div 
+                        <motion.div
                             className="orders-history-modal glass-panel"
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -282,8 +282,8 @@ function Navbar() {
                                         </div>
                                         <h4>No orders yet</h4>
                                         <p>Your medicine purchase history will appear here once you place an order.</p>
-                                        <button 
-                                            className="shop-now-btn" 
+                                        <button
+                                            className="shop-now-btn"
                                             onClick={() => { setShowOrdersModal(false); navigate('/medicines'); }}
                                         >
                                             Start Shopping
@@ -293,76 +293,83 @@ function Navbar() {
                                 ) : (
                                     <div className="orders-list">
                                         {userOrders.map((order, idx) => (
-                                                <motion.div 
-                                                    key={order.id} 
-                                                    className="order-history-card"
-                                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                    whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
-                                                    transition={{ delay: idx * 0.1, type: "spring", stiffness: 300, damping: 20 }}
-                                                >
-                                                    <div className="order-card-header">
-                                                        <div className="order-id-info">
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                <span className="order-tag">Order #{order.id}</span>
-                                                                {(order.status === 'Delivered' || order.status === 'Confirmed' || order.status === 'Pending') && (
-                                                                    <motion.div 
-                                                                        className="green-signal-dot"
-                                                                        animate={{ scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
-                                                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                                                    />
-                                                                )}
-                                                            </div>
-                                                            <div className="order-date">
-                                                                <Calendar size={12} />
-                                                                {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                            </div>
+                                            <motion.div
+                                                key={order.id}
+                                                className="order-history-card"
+                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                whileHover={{ y: -5, boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                                transition={{ delay: idx * 0.1, type: "spring", stiffness: 300, damping: 20 }}
+                                            >
+                                                <div className="order-card-header">
+                                                    <div className="order-id-info">
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <span className="order-tag">Order #{order.id}</span>
+                                                            {(order.status === 'Delivered' || order.status === 'Confirmed' || order.status === 'Pending') && (
+                                                                <motion.div
+                                                                    className="green-signal-dot"
+                                                                    animate={{ scale: [1, 1.5, 1], opacity: [1, 0.4, 1] }}
+                                                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                                                />
+                                                            )}
                                                         </div>
-                                                        <motion.div 
-                                                            className={`order-status-pill ${order.status?.toLowerCase() || 'pending'}`}
-                                                            animate={order.status === 'Delivered' || order.status === 'Confirmed' ? 
-                                                                { scale: [1, 1.05, 1], opacity: [1, 0.8, 1] } : {}
-                                                            }
-                                                            transition={{ duration: 2, repeat: Infinity }}
-                                                        >
-                                                            {order.status || 'Pending'}
-                                                        </motion.div>
+                                                        <div className="order-date">
+                                                            <Calendar size={12} />
+                                                            {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        </div>
                                                     </div>
+                                                    <motion.div
+                                                        className={`order-status-pill ${order.status?.toLowerCase().replace(/\s+/g, '-') || 'pending'}`}
+                                                        animate={order.status === 'Delivered' || order.status === 'Confirmed' ?
+                                                            { scale: [1, 1.05, 1], opacity: [1, 0.8, 1] } : {}
+                                                        }
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                    >
+                                                        {order.status === 'Delivered' ? <Check size={14} /> : 
+                                                         order.status?.toLowerCase().includes('delivery') ? <Truck size={14} /> : 
+                                                         order.status?.toLowerCase().includes('confirmed') ? <Package size={14} /> :
+                                                         <Clock size={14} />}
+                                                        <span>{order.status || 'Processing Order'}</span>
+                                                    </motion.div>
+                                                </div>
 
-                                                    <div className="order-items-preview">
-                                                        {order.items?.map((item, i) => (
-                                                            <div key={i} className="history-item-row">
-                                                                <div className="item-name-qty">
-                                                                    <motion.span 
-                                                                        className="item-qty"
-                                                                        initial={{ scale: 0.5 }}
-                                                                        animate={{ scale: 1 }}
-                                                                        transition={{ delay: (idx * 0.1) + (i * 0.05) }}
-                                                                    >
-                                                                        {item.quantity}x
-                                                                    </motion.span>
-                                                                    <span className="item-name">{item.name}</span>
+                                                <div className="order-items-preview">
+                                                    {order.items?.map((item, i) => (
+                                                        <div key={i} className="history-item-row">
+                                                            <div className="item-main-info">
+                                                                <div className="history-item-img">
+                                                                    {item.image ? (
+                                                                        <img src={item.image} alt={item.name} />
+                                                                    ) : (
+                                                                        <Pill size={16} />
+                                                                    )}
+                                                                    <span className="item-qty-badge">{item.quantity}x</span>
                                                                 </div>
-                                                                <span className="item-price">₹{item.price * item.quantity}</span>
+                                                                <div className="item-details-text">
+                                                                    <span className="item-name">{item.name}</span>
+                                                                    {item.selectedSize && <span className="item-meta">Size: {item.selectedSize}</span>}
+                                                                </div>
                                                             </div>
-                                                        ))}
-                                                    </div>
-
-                                                    <div className="order-card-footer">
-                                                        <div className="order-total-info">
-                                                            <span>Total Paid</span>
-                                                            <span className="total-amt">₹{order.total_amount}</span>
+                                                            <span className="item-price">₹{(item.price * item.quantity).toFixed(0)}</span>
                                                         </div>
-                                                        <motion.div 
-                                                            className="order-eta"
-                                                            animate={{ x: [0, 3, 0] }}
-                                                            transition={{ duration: 3, repeat: Infinity }}
-                                                        >
-                                                            <Clock size={12} />
-                                                            <span>{order.status === 'Delivered' ? 'Completed' : 'Processing Order'}</span>
-                                                        </motion.div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="order-card-footer">
+                                                    <div className="order-total-info">
+                                                        <span>Total Paid</span>
+                                                        <span className="total-amt">₹{order.total_amount}</span>
                                                     </div>
-                                                </motion.div>
+                                                    <motion.div
+                                                        className="order-eta"
+                                                        animate={{ x: [0, 3, 0] }}
+                                                        transition={{ duration: 3, repeat: Infinity }}
+                                                    >
+                                                        <Clock size={12} />
+                                                        <span>{order.status === 'Delivered' ? 'Completed' : 'Processing Order'}</span>
+                                                    </motion.div>
+                                                </div>
+                                            </motion.div>
                                         ))}
                                     </div>
                                 )}
@@ -375,14 +382,14 @@ function Navbar() {
             <AnimatePresence>
                 {showLogoutConfirm && (
                     <div className="logout-confirm-overlay">
-                        <motion.div 
+                        <motion.div
                             className="logout-confirm-backdrop"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setShowLogoutConfirm(false)}
                         />
-                        <motion.div 
+                        <motion.div
                             className="logout-confirm-modal"
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -394,17 +401,17 @@ function Navbar() {
                             </div>
                             <h3>Confirm Logout</h3>
                             <p>Are you sure you want to sign out of your account?</p>
-                            
+
                             <div className="logout-confirm-actions">
-                                <button 
-                                    className="confirm-btn-no" 
+                                <button
+                                    className="confirm-btn-no"
                                     onClick={() => setShowLogoutConfirm(false)}
                                 >
                                     <CloseIcon size={18} />
                                     No, Keep Me In
                                 </button>
-                                <button 
-                                    className="confirm-btn-yes" 
+                                <button
+                                    className="confirm-btn-yes"
                                     onClick={confirmLogout}
                                 >
                                     <Check size={18} />

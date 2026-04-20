@@ -44,7 +44,7 @@ export function AppProvider({ children }) {
             });
             if (!res.ok) throw new Error('Failed to update user');
             const newUserData = await res.json();
-            
+
             setRegisteredUsers(prev => {
                 return prev.map(u => u.id === id ? { ...u, ...newUserData } : u);
             });
@@ -58,9 +58,9 @@ export function AppProvider({ children }) {
     const deleteRegisteredUser = async (id) => {
         const userToDelete = registeredUsers.find(u => u.id === id);
         if (!userToDelete) return;
-        
+
         if (!window.confirm(`Are you sure you want to delete ${userToDelete.name}? All their data (orders and delivery info) will be permanently removed.`)) return;
-        
+
         try {
             const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
             if (!res.ok) throw new Error('Failed to delete user');
@@ -78,7 +78,7 @@ export function AppProvider({ children }) {
             if (user && (user.id === id || user.phone === userToDelete.phone)) {
                 logout();
             }
-            
+
             showToast('Customer data deleted successfully', 'success');
         } catch (error) {
             console.error('Error deleting user:', error);

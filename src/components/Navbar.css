@@ -482,15 +482,21 @@
 }
 
 .order-status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     padding: 6px 14px;
     border-radius: 12px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
 }
 
-.order-status-pill.pending { background: #fff7ed; color: #f97316; }
+.order-status-pill.pending { background: #f1f5f9; color: #475569; }
+.order-status-pill.processing { background: #fff7ed; color: #f97316; }
+.order-status-pill.confirmed { background: #eff6ff; color: #3b82f6; }
+.order-status-pill.out-for-delivery, .order-status-pill["out for delivery"] { background: #fdf2f8; color: #db2777; }
 .order-status-pill.delivered { background: #f0fdf4; color: #10b981; }
 .order-status-pill.cancelled { background: #fef2f2; color: #ef4444; }
 
@@ -501,31 +507,66 @@
     margin-bottom: 0.75rem;
 }
 
-.item-name-qty {
+.item-main-info {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 12px;
 }
 
-.item-qty {
+.history-item-img {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background: #f8fafc;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    border: 1px solid #f1f5f9;
+}
+
+.history-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.item-qty-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--primary);
+    color: white;
+    font-size: 0.65rem;
     font-weight: 800;
-    color: var(--primary);
-    font-size: 0.8rem;
-    background: rgba(16, 185, 129, 0.08);
-    padding: 4px 8px;
-    border-radius: 8px;
-    min-width: 32px;
-    text-align: center;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.item-details-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .item-name {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #334155;
+    font-weight: 700;
+}
+
+.item-meta {
+    font-size: 0.75rem;
+    color: #94a3b8;
     font-weight: 600;
 }
 
 .item-price {
-    font-weight: 750;
+    font-weight: 800;
     color: #0f172a;
     font-size: 1rem;
 }
@@ -593,21 +634,81 @@
         justify-content: center;
     }
 
+@media (max-width: 768px) {
     .orders-history-modal {
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
+        width: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
         border-radius: 0;
         top: 0;
         left: 0;
-        transform: none;
-        animation: slideInRight 0.3s ease-out;
+        margin: 0;
+        border: none;
+        background: #f8fafc; /* Lighter background for the shell */
     }
 
-    @keyframes slideInRight {
-        from { transform: translateX(100%); }
-        to { transform: translateX(0); }
+    .orders-modal-header {
+        padding: 1.25rem 1.5rem;
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
+
+    .history-icon-bg {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+
+    .header-icon-title h3 {
+        font-size: 1.2rem;
+    }
+
+    .orders-modal-content {
+        padding: 1.25rem;
+        background: #f8fafc;
+    }
+
+    .order-history-card {
+        padding: 1.25rem;
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .order-card-header {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .order-tag {
+        font-size: 1rem;
+    }
+
+    .history-item-row {
+        padding: 0.5rem 0;
+    }
+
+    .item-name {
+        font-size: 0.9rem;
+    }
+
+    .total-amt {
+        font-size: 1.2rem;
+    }
+
+    .order-eta {
+        padding: 6px 12px;
+    }
+
+    @keyframes slideInUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+}
 
     @media (max-width: 640px) {
         .orders-history-modal {

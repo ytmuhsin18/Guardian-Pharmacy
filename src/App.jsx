@@ -152,6 +152,11 @@ function App() {
       clearCart();
       setShowCheckoutForm(false);
       setIsCartOpen(false);
+      // Play success sound
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.log("Audio play deferred:", e));
+
       // Step 1: show the delivery box animation
       setShowOrderAnim(true);
       // Step 2: after 2.6s transition to the confirmation panel
@@ -348,8 +353,9 @@ function App() {
                 exit={{ scale: 0.5, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 280, damping: 18 }}
                 style={{
-                  maxWidth: '400px',
-                  padding: '3rem',
+                  width: '90%',
+                  maxWidth: '450px',
+                  padding: '2.5rem 1.5rem',
                   borderRadius: '32px',
                   boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
                 }}
@@ -370,29 +376,26 @@ function App() {
                     />
                   </div>
                 </motion.div>
-                <h2 style={{ fontSize: '2.25rem', fontWeight: 900, marginBottom: '0.75rem', color: '#10b981', letterSpacing: '-0.02em' }}>
+                <h2 className="confirm-title">
                   Order Confirmed!
                 </h2>
-                <p style={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 500, lineHeight: 1.5, marginBottom: '2rem' }}>
+                <p className="confirm-text">
                   {(finalOrderSummary?.paymentMethod === 'ONLINE') 
                     ? "Thank you for your order! Our team will contact you on WhatsApp shortly to provide the payment link/QR code."
                     : "Thank you for your order! Our team will contact you shortly to confirm your delivery details."}
                   <br /><br />
-                  <div style={{ 
-                    background: '#f8fafc', padding: '16px', borderRadius: '16px', 
-                    border: '1px solid #e2e8f0', marginBottom: '1.5rem'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div className="order-summary-box">
+                    <div className="summary-row">
                       <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Items Total:</span>
                       <span style={{ fontSize: '0.95rem', fontWeight: 600, color: '#475569' }}>₹{(finalOrderSummary?.total || 0).toFixed(2)}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div className="summary-row">
                       <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Delivery Fee:</span>
                       <span style={{ fontSize: '0.95rem', fontWeight: 600, color: (finalOrderSummary?.total || 0) >= 500 ? '#10b981' : '#475569' }}>
                         {(finalOrderSummary?.total || 0) >= 500 ? 'FREE' : '₹40.00'}
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '12px', borderTop: '2px dashed #e2e8f0' }}>
+                    <div className="summary-total-row">
                       <span style={{ fontSize: '1rem', fontWeight: 700, color: '#1e293b' }}>Total Paid:</span>
                       <span style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a' }}>
                         ₹{((finalOrderSummary?.total || 0) + ((finalOrderSummary?.total || 0) >= 500 ? 0 : 40)).toFixed(2)}
@@ -401,37 +404,28 @@ function App() {
                   </div>
                   <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {finalOrderSummary?.paymentMethod === 'ONLINE' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginTop: '0.5rem' }}>
+                    {finalOrderSummary?.paymentMethod === 'ONLINE' && (
+                      <button 
+                        className="btn btn-whatsapp-pay" 
+                        onClick={() => {
+                          const message = encodeURIComponent(`Hello! I just placed an order (Online Payment). My name is ${finalOrderSummary?.name}. Please provide the payment QR code/link.`);
+                          window.open(`https://wa.me/919487469098?text=${message}`, '_blank');
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                        Click to Pay on WhatsApp
+                      </button>
+                    )}
                     <button 
-                      className="btn btn-primary" 
-                      style={{ 
-                        width: '100%', borderRadius: '16px', height: '54px', 
-                        background: '#25D366', border: 'none', color: 'white',
-                        fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
-                      }}
-                      onClick={() => {
-                        const message = encodeURIComponent(`Hello! I just placed an order (Online Payment). My name is ${finalOrderSummary?.name}. Please provide the payment QR code/link.`);
-                        window.open(`https://wa.me/919487469098?text=${message}`, '_blank');
-                      }}
+                      className="btn btn-confirm-done" 
+                      onClick={() => setOrderComplete(false)}
                     >
-                      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                      </svg>
-                      Click to Pay on WhatsApp
+                      Done
                     </button>
-                  )}
-                  <button 
-                    className="btn btn-primary" 
-                    style={{ 
-                      width: '100%', borderRadius: '16px', height: '54px',
-                      background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0'
-                    }}
-                    onClick={() => setOrderComplete(false)}
-                  >
-                    Done
-                  </button>
-                </div>
+                  </div>
               </motion.div>
             </motion.div>
           )}

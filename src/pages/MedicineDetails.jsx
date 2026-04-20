@@ -373,6 +373,13 @@ function MedicineDetails() {
                                     <p>Free delivery on orders above ₹500</p>
                                 </div>
                             </div>
+                            <div className="trust-card shadow-sm" style={{ background: 'white' }}>
+                                <AlertCircle size={28} className="text-primary" style={{ color: '#f59e0b' }} />
+                                <div>
+                                    <h4 style={{ color: '#0f172a' }}>Return Policy</h4>
+                                    <p>This item is non-returnable</p>
+                                </div>
+                            </div>
                         </div>
 
                     </div>

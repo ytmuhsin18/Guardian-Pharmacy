@@ -35,7 +35,7 @@ const CAT_TABS = [
     { id: 'skin', label: 'Derma Care', image: dermaCareIcon, dbCats: ['Skin Care', 'Derma care'] },
     { id: 'pain', label: 'Pain Relief', image: painReliefIcon, dbCats: ['Pain Relief'] },
     { id: 'surgical', label: 'Ortho & Surgical', image: orthoIcon, dbCats: ['Surgical Products', 'Ortho'] },
-    { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care'] },
+    { id: 'mother', label: 'Mother Care', image: motherCareIcon, dbCats: ['Maternity Care', 'Mother Care', 'Maternal Health', 'Maternity'] },
     { id: 'teeth', label: 'Dental Care', image: dentalCareIcon, dbCats: ['Teeth Care', 'Dental care'] },
     { id: 'smoking', label: 'Quit Smoking', image: quitSmokingIcon, dbCats: ['Smoking Cessation'] },
     { id: 'adult', label: 'Adult Care', image: adultCareIcon, dbCats: ['Adult Care', 'Personal Care'] },
@@ -53,14 +53,19 @@ function SurgicalProducts() {
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (med.combination && med.combination.toLowerCase().includes(searchTerm.toLowerCase()));
+            (med.combination && med.combination.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (med.category && med.category.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        if (activeTab === 'all') return matchesSearch;
+        // If there's a search term, show results globally across all categories
+        if (searchTerm.trim().length > 0) {
+            return matchesSearch;
+        }
+
+        // If no search term, use category filtering
+        if (activeTab === 'all') return true;
 
         const currentTabConfig = CAT_TABS.find(t => t.id === activeTab);
-        const matchesCategory = currentTabConfig.dbCats.includes(med.category);
-
-        return matchesCategory && matchesSearch;
+        return currentTabConfig.dbCats.includes(med.category);
     });
 
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -192,7 +197,9 @@ function SurgicalProducts() {
                     ) : (
                         <>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', color: '#64748b' }}>
-                                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{CAT_TABS.find(t => t.id === activeTab).label}</span>
+                                <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>
+                                    {searchTerm.trim() ? 'Search Results' : CAT_TABS.find(t => t.id === activeTab).label}
+                                </span>
                                 <ChevronRight size={14} />
                                 <span style={{ fontSize: '0.9rem' }}>Showing {filteredMedicines.length} items</span>
                             </div>
