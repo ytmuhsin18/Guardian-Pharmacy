@@ -141,8 +141,8 @@ const CartDrawer = ({
                                                                 <div className="model-qty-box">
                                                                     <button className="model-qty-btn-minus" onClick={() => onRemove(item.id, item.selectedSize)}><Minus size={14} /></button>
                                                                     <span className="model-qty-val">{item.quantity}</span>
-                                                                    <button 
-                                                                        className="model-qty-btn-plus" 
+                                                                    <button
+                                                                        className="model-qty-btn-plus"
                                                                         onClick={() => onAdd(item, item.selectedSize)}
                                                                         disabled={item.quantity >= 10}
                                                                         style={{ opacity: item.quantity >= 10 ? 0.4 : 1, cursor: item.quantity >= 10 ? 'not-allowed' : 'pointer' }}
@@ -302,12 +302,12 @@ const CartDrawer = ({
                                     <div className="checkout-form-group">
                                         <label className="input-label">Payment Method *</label>
                                         <div style={{ display: 'flex', gap: '12px' }}>
-                                            <motion.div 
+                                            <motion.div
                                                 className={`payment-option-card ${customerDetails.payment_method === 'COD' ? 'active' : ''}`}
                                                 whileHover={{ y: -2 }}
                                                 whileTap={{ scale: 0.96 }}
-                                                style={{ 
-                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0', 
+                                                style={{
+                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0',
                                                     borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
                                                     background: 'white',
                                                     borderColor: customerDetails.payment_method === 'COD' ? '#00b894' : '#e2e8f0',
@@ -319,16 +319,16 @@ const CartDrawer = ({
                                             >
                                                 <AnimatePresence>
                                                     {customerDetails.payment_method === 'COD' && (
-                                                        <motion.div 
+                                                        <motion.div
                                                             layoutId="payment-highlight"
                                                             initial={{ opacity: 0 }}
                                                             animate={{ opacity: 1 }}
                                                             exit={{ opacity: 0 }}
-                                                            style={{ 
-                                                                position: 'absolute', inset: 0, 
+                                                            style={{
+                                                                position: 'absolute', inset: 0,
                                                                 background: 'rgba(0, 184, 148, 0.08)',
                                                                 zIndex: 0
-                                                            }} 
+                                                            }}
                                                         />
                                                     )}
                                                 </AnimatePresence>
@@ -338,12 +338,12 @@ const CartDrawer = ({
                                                 </div>
                                             </motion.div>
 
-                                            <motion.div 
+                                            <motion.div
                                                 className={`payment-option-card ${customerDetails.payment_method === 'ONLINE' ? 'active' : ''}`}
                                                 whileHover={{ y: -2 }}
                                                 whileTap={{ scale: 0.96 }}
-                                                style={{ 
-                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0', 
+                                                style={{
+                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0',
                                                     borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
                                                     background: 'white',
                                                     borderColor: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#e2e8f0',
@@ -355,16 +355,16 @@ const CartDrawer = ({
                                             >
                                                 <AnimatePresence>
                                                     {customerDetails.payment_method === 'ONLINE' && (
-                                                        <motion.div 
+                                                        <motion.div
                                                             layoutId="payment-highlight"
                                                             initial={{ opacity: 0 }}
                                                             animate={{ opacity: 1 }}
                                                             exit={{ opacity: 0 }}
-                                                            style={{ 
-                                                                position: 'absolute', inset: 0, 
+                                                            style={{
+                                                                position: 'absolute', inset: 0,
                                                                 background: 'rgba(9, 132, 227, 0.08)',
                                                                 zIndex: 0
-                                                            }} 
+                                                            }}
                                                         />
                                                     )}
                                                 </AnimatePresence>

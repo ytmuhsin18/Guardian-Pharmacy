@@ -324,13 +324,14 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                                     <option value="Pain Relief">Pain Relief</option>
                                     <option value="Surgical Products">Surgical Products</option>
                                     <option value="Ortho">Ortho</option>
+                                    <option value="Adult Care">Adult Care</option>
                                     <option value="Sexual Wellness">Sexual Wellness</option>
                                     <option value="Personal Care">Personal Care</option>
+                                    <option value="Women's Care">Women's Care</option>
                                     <option value="Maternity Care">Maternity Care</option>
                                     <option value="Teeth Care">Teeth Care</option>
                                     <option value="Dental care">Dental care</option>
                                     <option value="Smoking Cessation">Smoking Cessation</option>
-                                    <option value="Home Care">Home Care</option>
                                     <option value="Healthcare Devices">Healthcare Devices</option>
                                 </select>
                             </div>

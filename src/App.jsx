@@ -173,9 +173,9 @@ function App() {
       <ScrollToTop />
       <div className="page-layout">
 
-        <Navbar />
-        <CustomerNotification />
-        <main className="main-content">
+        {!isAdminPage && <Navbar />}
+        {!isAdminPage && <CustomerNotification />}
+        <main className={isAdminPage ? "" : "main-content"}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/medicines" element={<Medicines />} />
@@ -190,9 +190,9 @@ function App() {
             <Route path="/tokens" element={<TokenStatus />} />
           </Routes>
         </main>
-        <Footer />
-        <MobileNavbar />
-        <WhatsAppButton />
+        {!isAdminPage && <Footer />}
+        {!isAdminPage && <MobileNavbar />}
+        {!isAdminPage && <WhatsAppButton />}
 
         {!shouldHideCart && (
           <CartDrawer

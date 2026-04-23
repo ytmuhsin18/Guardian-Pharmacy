@@ -178,6 +178,7 @@ function Home() {
                         <ServiceCard icon={<TestTube size={28} className="text-primary" />} title="Lab Tests" desc="Professional laboratory diagnostic tests and home sample collection services." link="/lab-tests" />
                         <ServiceCard icon={<Sparkles size={28} className="text-primary" />} title="Sexual Wellness" desc="Quality personal wellness and healthcare products for your intimate health." link="/categories" />
                         <ServiceCard icon={<Heart size={28} className="text-primary" />} title="Adult Care" desc="Compassionate care products, hygiene essentials, and support for seniors." link="/categories" />
+                        <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Women's Care" desc="Essential healthcare products, supplements, and maternity care for women." link="/categories" />
                         <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Home Healthcare Devices" desc="Modern digital devices like BP monitors, thermometers & more for home vitals." link="/categories" />
                     </motion.div>
                 </div>
