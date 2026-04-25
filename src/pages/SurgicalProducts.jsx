@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search, ShoppingCart, Plus, Minus, X, CheckCircle,
     Activity, Heart, Thermometer, Shield, AlertCircle, Pill,
-    Baby, User, Zap, Sparkles, ShieldPlus, Smile, Accessibility, Home as HomeIcon, ChevronRight
+    Baby, User, Zap, Sparkles, ShieldPlus, Smile, Accessibility, Home as HomeIcon, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './Medicines.css'; // Reuse existing styles
@@ -46,14 +46,52 @@ const CAT_TABS = [
     { id: 'sexual', label: 'Sexual Wellness', image: sexualWellnessIcon, dbCats: ['Sexual Wellness'] },
     { id: 'home', label: 'Home & Devices', image: homeDevicesIcon, dbCats: ['Home Care', 'Healthcare Devices'] },
 ];
-
-function SurgicalProducts() {
+const SurgicalProducts = () => {
     const navigate = useNavigate();
-    const { medicines, cart, addToCart, removeFromCart, setIsCartOpen } = useApp();
+    const { medicines, cart, addToCart, removeFromCart } = useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('all');
     const [orderComplete, setOrderComplete] = useState(false);
     const [addedToCart, setAddedToCart] = useState(null);
+
+    const scrollRef = useRef(null);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(true);
+
+    const handleScroll = () => {
+        if (scrollRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+            setShowLeftArrow(scrollLeft > 10);
+            setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+        }
+    };
+
+    const scroll = (direction) => {
+        if (scrollRef.current) {
+            const scrollAmount = 300;
+            scrollRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    useEffect(() => {
+        const currentRef = scrollRef.current;
+        if (currentRef) {
+            currentRef.addEventListener('scroll', handleScroll);
+            // Initial check
+            handleScroll();
+            // Also check on window resize
+            window.addEventListener('resize', handleScroll);
+        }
+        return () => {
+            if (currentRef) {
+                currentRef.removeEventListener('scroll', handleScroll);
+            }
+            window.removeEventListener('resize', handleScroll);
+        };
+    }, []);
 
     const filteredMedicines = medicines.filter(med => {
         const matchesSearch = med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,16 +162,77 @@ function SurgicalProducts() {
                     </div>
 
                     {/* Horizontal Categories Bar */}
-                    <div className="category-tabs-container" style={{ marginTop: '2.5rem', overflowX: 'auto', paddingBottom: '10px', display: 'flex', gap: '20px', scrollbarWidth: 'none' }}>
-                        {CAT_TABS.map((tab) => {
+                    <div style={{ position: 'relative', marginTop: '2.5rem' }}>
+                        <AnimatePresence>
+                            {showLeftArrow && (
+                                <motion.button
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10 }}
+                                    whileHover={{ scale: 1.1, boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => scroll('left')}
+                                    className="category-scroll-btn left"
+                                    style={{
+                                        position: 'absolute',
+                                        left: '-15px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        zIndex: 10,
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        background: 'rgba(255, 255, 255, 0.9)',
+                                        backdropFilter: 'blur(4px)',
+                                        border: '1px solid #e2e8f0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        cursor: 'pointer',
+                                        color: 'var(--primary)',
+                                        transition: 'background 0.2s ease'
+                                    }}
+                                >
+                                    <ChevronLeft size={24} />
+                                </motion.button>
+                            )}
+                        </AnimatePresence>
+
+                        <motion.div
+                            ref={scrollRef}
+                            className="category-tabs-container"
+                            style={{
+                                overflowX: 'auto',
+                                paddingBottom: '10px',
+                                display: 'flex',
+                                gap: '20px',
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none'
+                            }}
+                            initial="initial"
+                            whileInView="animate"
+                            viewport={{ once: true, margin: "-50px" }}
+                            variants={{
+                                initial: {},
+                                animate: { transition: { staggerChildren: 0.05 } }
+                            }}
+                        >
+                            {CAT_TABS.map((tab, index) => {
                             const isActive = activeTab === tab.id;
                             return (
-                                <button
+                                <motion.button
                                     key={tab.id}
                                     onClick={() => {
                                         if (tab.id === 'physio') navigate('/physiotherapy');
                                         else setActiveTab(tab.id);
                                     }}
+                                    variants={{
+                                        initial: { opacity: 0, y: 20, scale: 0.8 },
+                                        animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 20 } }
+                                    }}
+                                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                                    whileTap={{ scale: 0.95 }}
                                     style={{
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -146,22 +245,23 @@ function SurgicalProducts() {
                                         transition: 'all 0.3s ease',
                                         minWidth: '85px',
                                         flexShrink: 0,
-                                        transform: isActive ? 'scale(1.05)' : 'scale(1)'
+                                        position: 'relative'
                                     }}
                                 >
                                     <div style={{
                                         width: '74px',
                                         height: '74px',
                                         borderRadius: '50%',
-                                        background: isActive ? 'var(--primary-light, #e0f2fe)' : '#f8fafc',
+                                        background: isActive ? 'var(--primary-light, #e0f2fe)' : '#fff',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         padding: '0',
                                         border: isActive ? '2.5px solid var(--primary)' : '1px solid #e2e8f0',
-                                        boxShadow: isActive ? '0 8px 20px rgba(2, 132, 199, 0.2)' : '0 2px 4px rgba(0,0,0,0.02)',
+                                        boxShadow: isActive ? '0 10px 25px rgba(2, 132, 199, 0.25)' : '0 4px 6px rgba(0,0,0,0.02)',
                                         transition: 'all 0.3s ease',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        zIndex: 2
                                     }}>
                                         <img
                                             src={tab.image}
@@ -170,22 +270,93 @@ function SurgicalProducts() {
                                                 width: '100%',
                                                 height: '100%',
                                                 objectFit: 'cover',
-                                                filter: isActive ? 'none' : 'grayscale(0.2)'
+                                                transition: 'transform 0.3s ease',
+                                                transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                                                filter: isActive ? 'none' : 'grayscale(0.1)'
                                             }}
                                         />
                                     </div>
+
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeTabGlow"
+                                            style={{
+                                                position: 'absolute',
+                                                top: '12px',
+                                                width: '74px',
+                                                height: '74px',
+                                                borderRadius: '50%',
+                                                background: 'var(--primary)',
+                                                filter: 'blur(15px)',
+                                                opacity: 0.2,
+                                                zIndex: 1
+                                            }}
+                                        />
+                                    )}
+
                                     <span style={{
-                                        fontSize: '0.82rem',
+                                        fontSize: '0.85rem',
                                         fontWeight: isActive ? 800 : 600,
                                         color: isActive ? 'var(--primary)' : '#475569',
                                         whiteSpace: 'nowrap',
-                                        textAlign: 'center'
+                                        textAlign: 'center',
+                                        transition: 'color 0.3s ease'
                                     }}>
                                         {tab.label}
                                     </span>
-                                </button>
+
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="activeUnderline"
+                                            style={{
+                                                width: '20px',
+                                                height: '3px',
+                                                background: 'var(--primary)',
+                                                borderRadius: '10px',
+                                                marginTop: '-4px'
+                                            }}
+                                        />
+                                    )}
+                                </motion.button>
                             );
                         })}
+                        </motion.div>
+
+                        <AnimatePresence>
+                            {showRightArrow && (
+                                <motion.button
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 10 }}
+                                    whileHover={{ scale: 1.1, boxShadow: '0 6px 20px rgba(0,0,0,0.15)' }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => scroll('right')}
+                                    className="category-scroll-btn right"
+                                    style={{
+                                        position: 'absolute',
+                                        right: '-15px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        zIndex: 10,
+                                        width: '40px',
+                                        height: '40px',
+                                        borderRadius: '50%',
+                                        background: 'rgba(255, 255, 255, 0.9)',
+                                        backdropFilter: 'blur(4px)',
+                                        border: '1px solid #e2e8f0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        cursor: 'pointer',
+                                        color: 'var(--primary)',
+                                        transition: 'background 0.2s ease'
+                                    }}
+                                >
+                                    <ChevronRight size={24} />
+                                </motion.button>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
             </section>

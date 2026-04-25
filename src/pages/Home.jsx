@@ -10,6 +10,8 @@ import heroImg1 from '../assets/Screenshot 2026-02-11 083435.png';
 import heroImg2 from '../assets/Screenshot 2026-02-11 083832.png';
 import heroImg4 from '../assets/Screenshot 2026-02-11 084037.png';
 
+
+
 function Home() {
     const fadeInUp = {
         initial: { opacity: 0, y: 40 },
@@ -58,13 +60,13 @@ function Home() {
                                 <Pill size={18} />
                                 Order Medicines
                             </Link>
-                            <a 
+                            <a
                                 href="https://wa.me/919487469098?text=Hi,%20I%20have%20a%20prescription%20I'd%20like%20to%20send%20to%20Guardian%20Pharmacy."
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-secondary btn-lg"
-                                style={{ 
-                                    background: '#25D366', 
+                                style={{
+                                    background: '#25D366',
                                     color: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -117,13 +119,13 @@ function Home() {
                                 <motion.img
                                     src={heroImg2}
                                     className="grid-img shadow-md"
-                                    alt="Medicine"
+                                    alt="Guardian Pharmacy Inside"
                                     whileHover={{ scale: 1.03 }}
                                 />
                                 <motion.img
                                     src={heroImg4}
                                     className="grid-img shadow-md"
-                                    alt="Doctor"
+                                    alt="Guardian Pharmacy Night"
                                     whileHover={{ scale: 1.03 }}
                                 />
                             </div>
@@ -149,6 +151,8 @@ function Home() {
             </section>
 
 
+
+
             {/* ── Services Section ── */}
             <section className="services-section section-padding">
                 <div className="container">
@@ -172,14 +176,7 @@ function Home() {
                     >
                         <ServiceCard icon={<Pill size={28} className="text-primary" />} title="Authentic Medicines" desc="Wide range of genuine pharmaceuticals available for immediate order and delivery." link="/medicines" />
                         <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Expert Doctors" desc="Book appointments with top-rated specialists and visit the hospital at your convenience." link="/doctors" />
-                        <ServiceCard icon={<ShieldCheck size={28} className="text-primary" />} title="Physiotherapy At Home" desc="Professional physiotherapy services and equipment delivered to your doorstep." link="/physiotherapy" />
-                        <ServiceCard icon={<LayoutGrid size={28} className="text-primary" />} title="Ortho & Surgical" desc="Quality orthopedic supports, wheelchairs, and surgical equipment for home healthcare." link="/categories" />
-                        <ServiceCard icon={<Smile size={28} className="text-primary" />} title="Dental Care" desc="Complete oral hygiene range including medicated toothpastes, mouthwashes & more." link="/categories" />
                         <ServiceCard icon={<TestTube size={28} className="text-primary" />} title="Lab Tests" desc="Professional laboratory diagnostic tests and home sample collection services." link="/lab-tests" />
-                        <ServiceCard icon={<Sparkles size={28} className="text-primary" />} title="Sexual Wellness" desc="Quality personal wellness and healthcare products for your intimate health." link="/categories" />
-                        <ServiceCard icon={<Heart size={28} className="text-primary" />} title="Adult Care" desc="Compassionate care products, hygiene essentials, and support for seniors." link="/categories" />
-                        <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Women's Care" desc="Essential healthcare products, supplements, and maternity care for women." link="/categories" />
-                        <ServiceCard icon={<Activity size={28} className="text-primary" />} title="Home Healthcare Devices" desc="Modern digital devices like BP monitors, thermometers & more for home vitals." link="/categories" />
                     </motion.div>
                 </div>
             </section>

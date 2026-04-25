@@ -1,6 +1,7 @@
 import React, { memo, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Package, CheckCircle, X, Search, Truck, Banknote, CreditCard } from 'lucide-react';
+import OrderPrintSlip from './OrderPrintSlip';
 
 const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -8,7 +9,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
     const filteredOrders = useMemo(() => {
         if (!searchTerm.trim()) return orders;
         const lowSearch = searchTerm.toLowerCase();
-        return orders.filter(order => 
+        return orders.filter(order =>
             (order.customer_name || '').toLowerCase().includes(lowSearch) ||
             (order.phone || '').includes(lowSearch) ||
             (order.whatsapp || '').includes(lowSearch)
@@ -33,10 +34,10 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
             {/* Search Bar Container */}
             <div className="search-bar-premium" style={{ marginBottom: '2rem' }}>
                 <Search className="search-icon" size={20} />
-                <input 
-                    type="text" 
-                    placeholder="Search by name, phone or address..." 
-                    className="input-field" 
+                <input
+                    type="text"
+                    placeholder="Search by name, phone or address..."
+                    className="input-field"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -95,11 +96,11 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                                 <span className="order-item-qty">Qty: {item.quantity}</span>
                                                                 {item.selectedSize && (
-                                                                    <span style={{ 
-                                                                        fontSize: '0.7rem', 
-                                                                        background: '#f1f5f9', 
-                                                                        color: '#475569', 
-                                                                        padding: '1px 6px', 
+                                                                    <span style={{
+                                                                        fontSize: '0.7rem',
+                                                                        background: '#f1f5f9',
+                                                                        color: '#475569',
+                                                                        padding: '1px 6px',
                                                                         borderRadius: '4px',
                                                                         border: '1px solid #e2e8f0',
                                                                         fontWeight: 700
@@ -119,7 +120,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                             {(() => {
                                                 const itemsTotal = (order.items || []).reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
                                                 const deliveryFee = Math.max(0, Number(order.total_amount) - itemsTotal);
-                                                
+
                                                 return (
                                                     <>
                                                         <div style={{ fontSize: '0.8rem', color: '#64748b', display: 'flex', gap: '8px' }}>
@@ -130,9 +131,9 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                             <span>Delivery:</span>
                                                             <span style={{ fontWeight: 600 }}>{deliveryFee > 0 ? `₹${deliveryFee.toFixed(2)}` : 'FREE'}</span>
                                                         </div>
-                                                        <div style={{ 
-                                                            fontSize: '1.2rem', fontWeight: 800, color: '#1e293b', 
-                                                            borderTop: '1px solid #f1f5f9', paddingTop: '4px', marginTop: '2px' 
+                                                        <div style={{
+                                                            fontSize: '1.2rem', fontWeight: 800, color: '#1e293b',
+                                                            borderTop: '1px solid #f1f5f9', paddingTop: '4px', marginTop: '2px'
                                                         }}>
                                                             ₹{Number(order.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                                         </div>
@@ -143,10 +144,10 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                 const pMethod = order.payment_method || order.paymentMethod || 'COD';
                                                 const normalized = pMethod.toLowerCase();
                                                 const isOnline = normalized === 'online' || normalized === 'prepaid';
-                                                
+
                                                 return (
-                                                    <div style={{ 
-                                                        display: 'flex', alignItems: 'center', gap: '6px', 
+                                                    <div style={{
+                                                        display: 'flex', alignItems: 'center', gap: '6px',
                                                         fontSize: '0.75rem', color: isOnline ? '#0984e3' : '#059669',
                                                         background: isOnline ? '#eff6ff' : '#ecfdf5',
                                                         padding: '4px 10px', borderRadius: '8px', width: 'fit-content',
@@ -163,7 +164,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                         </div>
                                     </td>
                                     <td>
-                                        <span className={`status-pill-premium ${order.status.toLowerCase()}`}>
+                                        <span className={`status-pill-premium ${(order.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`}>
                                             <span className="dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
                                             {order.status}
                                         </span>
@@ -183,6 +184,26 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                         className="btn-action-premium cancel"
                                                         onClick={() => updateOrderStatus(order.id, 'Cancelled')}
                                                         title="Cancel Order"
+                                                    >
+                                                        <X size={20} />
+                                                    </button>
+                                                </>
+                                            )}
+                                            {order.status === 'Cancel Requested' && (
+                                                <>
+                                                    <button
+                                                        className="btn-action-premium confirm"
+                                                        style={{ color: '#ef4444', borderColor: '#ef4444', background: '#fef2f2' }}
+                                                        onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                                        title="Approve Cancellation"
+                                                    >
+                                                        <CheckCircle size={20} />
+                                                    </button>
+                                                    <button
+                                                        className="btn-action-premium cancel"
+                                                        style={{ color: '#10b981', borderColor: '#10b981', background: '#ecfdf5' }}
+                                                        onClick={() => updateOrderStatus(order.id, 'Pending')}
+                                                        title="Reject Cancellation"
                                                     >
                                                         <X size={20} />
                                                     </button>
@@ -209,6 +230,8 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                 </button>
                                             )}
                                         </div>
+                                        {/* Print Order Slip */}
+                                        <OrderPrintSlip order={order} />
                                     </td>
                                 </tr>
                             ))}

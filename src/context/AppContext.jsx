@@ -499,6 +499,8 @@ export function AppProvider({ children }) {
             name: mappedName,
             availability_start: d.availability_start || '06:00 PM',
             availability_end: d.availability_end || '10:00 PM',
+            availability_start_2: d.availability_start_2 || '',
+            availability_end_2: d.availability_end_2 || '',
             image_base64: ensureBase64Prefix(d.image_base64)
         };
     };
@@ -598,7 +600,9 @@ export function AppProvider({ children }) {
             about: doctor.about,
             image_base64: doctor.image_base64 || null,
             availability_start: doctor.availability_start || '06:00 PM',
-            availability_end: doctor.availability_end || '10:00 PM'
+            availability_end: doctor.availability_end || '10:00 PM',
+            availability_start_2: doctor.availability_start_2 || '',
+            availability_end_2: doctor.availability_end_2 || ''
         };
         const res = await fetch('/api/doctors', {
             method: 'POST',
@@ -629,14 +633,14 @@ export function AppProvider({ children }) {
         }
     };
 
-    const updateDoctorAvailability = async (id, start, end) => {
+    const updateDoctorAvailability = async (id, start, end, start_2, end_2) => {
         const res = await fetch(`/api/doctors/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ availability_start: start, availability_end: end })
+            body: JSON.stringify({ availability_start: start, availability_end: end, availability_start_2: start_2, availability_end_2: end_2 })
         });
         if (res.ok) {
-            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, availability_start: start, availability_end: end } : doc));
+            setDoctors(prev => prev.map(doc => doc.id === id ? { ...doc, availability_start: start, availability_end: end, availability_start_2: start_2, availability_end_2: end_2 } : doc));
             return true;
         } else {
             console.error("Failed to update doctor availability");
@@ -652,7 +656,9 @@ export function AppProvider({ children }) {
             about: updatedData.about,
             image_base64: updatedData.image_base64 || null,
             availability_start: updatedData.availability_start,
-            availability_end: updatedData.availability_end
+            availability_end: updatedData.availability_end,
+            availability_start_2: updatedData.availability_start_2,
+            availability_end_2: updatedData.availability_end_2
         };
         const res = await fetch(`/api/doctors/${id}`, {
             method: 'PUT',

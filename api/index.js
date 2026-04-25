@@ -109,8 +109,8 @@ doctorsRouter.get('/', async (req, res) => {
 doctorsRouter.post('/', async (req, res) => {
     try {
         const sql = getSql();
-        const { name, specialty, experience, about, image_base64, availability_start, availability_end } = req.body;
-        const result = await sql`INSERT INTO doctors (name, specialty, experience, about, image_base64, availability_start, availability_end) VALUES (${name}, ${specialty}, ${experience}, ${about}, ${image_base64 || null}, ${availability_start || null}, ${availability_end || null}) RETURNING *`;
+        const { name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2 } = req.body;
+        const result = await sql`INSERT INTO doctors (name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2) VALUES (${name}, ${specialty}, ${experience}, ${about}, ${image_base64 || null}, ${availability_start || null}, ${availability_end || null}, ${availability_start_2 || null}, ${availability_end_2 || null}) RETURNING *`;
         res.json([result[0]]);
     } catch (err) { 
         console.error('POST doctor error details:', err); 
@@ -125,12 +125,12 @@ doctorsRouter.put('/:id', async (req, res) => {
             const result = await sql`UPDATE doctors SET image_base64=${req.body.image_base64} WHERE id=${id} RETURNING *`;
             return res.json([result[0]]);
         }
-        if (req.body.availability_start && req.body.availability_end && Object.keys(req.body).length === 2) {
-            const result = await sql`UPDATE doctors SET availability_start=${req.body.availability_start}, availability_end=${req.body.availability_end} WHERE id=${id} RETURNING *`;
+        if (req.body.availability_start !== undefined && req.body.availability_end !== undefined && Object.keys(req.body).length <= 4) {
+            const result = await sql`UPDATE doctors SET availability_start=${req.body.availability_start}, availability_end=${req.body.availability_end}, availability_start_2=${req.body.availability_start_2 || null}, availability_end_2=${req.body.availability_end_2 || null} WHERE id=${id} RETURNING *`;
             return res.json([result[0]]);
         }
-        const { name, specialty, experience, about, image_base64, availability_start, availability_end } = req.body;
-        const result = await sql`UPDATE doctors SET name=${name}, specialty=${specialty}, experience=${experience}, about=${about || null}, image_base64=${image_base64 || null}, availability_start=${availability_start || null}, availability_end=${availability_end || null} WHERE id=${id} RETURNING *`;
+        const { name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2 } = req.body;
+        const result = await sql`UPDATE doctors SET name=${name}, specialty=${specialty}, experience=${experience}, about=${about || null}, image_base64=${image_base64 || null}, availability_start=${availability_start || null}, availability_end=${availability_end || null}, availability_start_2=${availability_start_2 || null}, availability_end_2=${availability_end_2 || null} WHERE id=${id} RETURNING *`;
         res.json([result[0]]);
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });

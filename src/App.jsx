@@ -24,6 +24,8 @@ import SurgicalProducts from './pages/SurgicalProducts';
 import Physiotherapy from './pages/Physiotherapy';
 
 import UserLogin from './pages/UserLogin';
+import noInternetImg from './assets/no-internet.png';
+import { WifiOff, RefreshCw } from 'lucide-react';
 
 function App() {
   const {
@@ -45,6 +47,30 @@ function App() {
     name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'COD'
   });
   const [finalOrderSummary, setFinalOrderSummary] = React.useState(null);
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  const [showOnlineToast, setShowOnlineToast] = React.useState(false);
+  const prevOnline = React.useRef(navigator.onLine);
+
+  React.useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (!prevOnline.current) {
+        setShowOnlineToast(true);
+        setTimeout(() => setShowOnlineToast(false), 4000);
+      }
+      prevOnline.current = true;
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      prevOnline.current = false;
+    };
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (isCartOpen) {
@@ -58,35 +84,35 @@ function App() {
   // Load user-specific delivery details when user changes
   React.useEffect(() => {
     if (user) {
-       const userKey = `guardian_delivery_details_${user.phone || user.email}`;
-       const saved = localStorage.getItem(userKey);
-       if (saved) {
-         const parsed = JSON.parse(saved);
-         // Migration: handles old key name
-         if (parsed.paymentMethod) { parsed.payment_method = parsed.paymentMethod; delete parsed.paymentMethod; }
-         setCustomerDetails(parsed);
-       } else {
-         // Fallback to basic user info if no saved delivery details yet
-         setCustomerDetails({
-           name: user.name || '',
-           phone: user.phone && user.phone !== 'N/A' ? user.phone : '',
-           email: user.email || '',
-           whatsapp: user.phone && user.phone !== 'N/A' ? user.phone : '',
-           address: '',
-           pincode: '',
-           payment_method: 'COD'
-         });
-       }
+      const userKey = `guardian_delivery_details_${user.phone || user.email}`;
+      const saved = localStorage.getItem(userKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Migration: handles old key name
+        if (parsed.paymentMethod) { parsed.payment_method = parsed.paymentMethod; delete parsed.paymentMethod; }
+        setCustomerDetails(parsed);
+      } else {
+        // Fallback to basic user info if no saved delivery details yet
+        setCustomerDetails({
+          name: user.name || '',
+          phone: user.phone && user.phone !== 'N/A' ? user.phone : '',
+          email: user.email || '',
+          whatsapp: user.phone && user.phone !== 'N/A' ? user.phone : '',
+          address: '',
+          pincode: '',
+          payment_method: 'COD'
+        });
+      }
     } else {
-       // Check for global guest details
-       const savedGuest = localStorage.getItem('guardian_delivery_details_guest');
-       if (savedGuest) {
-         const parsed = JSON.parse(savedGuest);
-         if (parsed.paymentMethod) { parsed.payment_method = parsed.paymentMethod; delete parsed.paymentMethod; }
-         setCustomerDetails(parsed);
-       } else {
-         setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'COD' });
-       }
+      // Check for global guest details
+      const savedGuest = localStorage.getItem('guardian_delivery_details_guest');
+      if (savedGuest) {
+        const parsed = JSON.parse(savedGuest);
+        if (parsed.paymentMethod) { parsed.payment_method = parsed.paymentMethod; delete parsed.paymentMethod; }
+        setCustomerDetails(parsed);
+      } else {
+        setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'COD' });
+      }
     }
   }, [user]);
 
@@ -94,7 +120,7 @@ function App() {
   React.useEffect(() => {
     const userKeySuffix = user ? (user.phone || user.email) : 'guest';
     const userKey = `guardian_delivery_details_${userKeySuffix}`;
-    
+
     // Only save if some details are entered to avoid overwriting with blanks initially
     if (customerDetails.name || customerDetails.address || customerDetails.phone) {
       localStorage.setItem(userKey, JSON.stringify(customerDetails));
@@ -129,20 +155,20 @@ function App() {
     if (success) {
       // Store delivery details SPECIFICALLY for this user
       const userKeySuffix = user ? (user.phone || user.email) : 'guest';
-      
+
       if (user) {
         const userKey = `guardian_delivery_details_${userKeySuffix}`;
         localStorage.setItem(userKey, JSON.stringify(customerDetails));
       }
-      
+
       // Also track order completion per-user
       const historyKey = `my_guardian_orders_${userKeySuffix}`;
       const myOrders = JSON.parse(localStorage.getItem(historyKey) || '[]');
       // Using an ID or generating one if data[0] is not available here
       // AppContext's addOrder returns success and handles internal storage, 
       // but we can track the IDs here too for UI convenience.
-      
-      
+
+
       setFinalOrderSummary({
         total: cartTotal,
         paymentMethod: customerDetails.payment_method || 'COD',
@@ -164,7 +190,9 @@ function App() {
         setShowOrderAnim(false);
         setOrderComplete(true);
       }, 2600);
-      setTimeout(() => setOrderComplete(false), 13000);
+
+      const timeoutDuration = customerDetails.payment_method === 'ONLINE' ? 600000 : 13000;
+      setTimeout(() => setOrderComplete(false), timeoutDuration);
     }
   };
 
@@ -379,11 +407,12 @@ function App() {
                 <h2 className="confirm-title">
                   Order Confirmed!
                 </h2>
-                <p className="confirm-text">
-                  {(finalOrderSummary?.paymentMethod === 'ONLINE') 
-                    ? "Thank you for your order! Our team will contact you on WhatsApp shortly to provide the payment link/QR code."
-                    : "Thank you for your order! Our team will contact you shortly to confirm your delivery details."}
-                  <br /><br />
+                <div className="confirm-text-container">
+                  <p className="confirm-text">
+                    {(finalOrderSummary?.paymentMethod === 'ONLINE')
+                      ? "Thank you for your order! Our team will contact you on WhatsApp shortly to provide the payment link/QR code."
+                      : "Thank you for your order! Our team will contact you shortly to confirm your delivery details."}
+                  </p>
                   <div className="order-summary-box">
                     <div className="summary-row">
                       <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Items Total:</span>
@@ -402,35 +431,158 @@ function App() {
                       </span>
                     </div>
                   </div>
-                  <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
-                </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginTop: '0.5rem' }}>
-                    {finalOrderSummary?.paymentMethod === 'ONLINE' && (
-                      <button 
-                        className="btn btn-whatsapp-pay" 
-                        onClick={() => {
-                          const message = encodeURIComponent(`Hello! I just placed an order (Online Payment). My name is ${finalOrderSummary?.name}. Please provide the payment QR code/link.`);
-                          window.open(`https://wa.me/919487469098?text=${message}`, '_blank');
-                        }}
-                      >
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                        </svg>
-                        Click to Pay on WhatsApp
-                      </button>
-                    )}
-                    <button 
-                      className="btn btn-confirm-done" 
-                      onClick={() => setOrderComplete(false)}
+                  <p className="confirm-footer-text">
+                    <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginTop: '0.5rem' }}>
+                  {finalOrderSummary?.paymentMethod === 'ONLINE' && (
+                    <button
+                      className="btn btn-whatsapp-pay"
+                      onClick={() => {
+                        const message = encodeURIComponent(`Hello! I just placed an order (Online Payment). My name is ${finalOrderSummary?.name}. Please provide the payment QR code/link.`);
+                        window.open(`https://wa.me/919487469098?text=${message}`, '_blank');
+                      }}
                     >
-                      Done
+                      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                      </svg>
+                      Click to Pay on WhatsApp
                     </button>
-                  </div>
+                  )}
+                  <button
+                    className="btn btn-confirm-done"
+                    onClick={() => setOrderComplete(false)}
+                  >
+                    Done
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+
+        {/* ── Online Success Overlay ── */}
+        <AnimatePresence>
+          {showOnlineToast && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 30005,
+                background: 'rgba(255,255,255,0.85)',
+                backdropFilter: 'blur(15px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textAlign: 'center'
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                exit={{ scale: 1.2, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                style={{
+                  padding: '3rem',
+                  borderRadius: '40px',
+                  background: 'white',
+                  boxShadow: '0 30px 60px -12px rgba(16, 185, 129, 0.25)',
+                  border: '1px solid rgba(16, 185, 129, 0.1)',
+                  maxWidth: '400px'
+                }}
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 500, damping: 15 }}
+                  style={{
+                    width: '100px', height: '100px', borderRadius: '50%',
+                    background: '#f0fdf4', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 2rem',
+                    border: '4px solid #d1fae5'
+                  }}
+                >
+                  <CheckCircle size={54} color="#10b981" />
+                </motion.div>
+
+                <h2 style={{ fontSize: '2.25rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+                  Welcome <span className="gradient-text">Back!</span>
+                </h2>
+                <p style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: 500, marginBottom: '0' }}>
+                  Connection restored. You're back online and ready to go.
+                </p>
+
+                {/* Celebratory subtle wave */}
+                <motion.div
+                  style={{
+                    position: 'absolute', inset: 0, borderRadius: '40px',
+                    border: '2px solid #10b981', zIndex: -1
+                  }}
+                  initial={{ scale: 1, opacity: 0.5 }}
+                  animate={{ scale: 1.4, opacity: 0 }}
+                  transition={{ duration: 1, repeat: 2 }}
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Offline Overlay ── */}
+        <AnimatePresence>
+          {!isOnline && (
+            <motion.div
+              key="offline-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 20000,
+                background: 'rgba(255,255,255,0.9)',
+                backdropFilter: 'blur(10px)',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                textAlign: 'center', padding: '2rem'
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.8, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                style={{ maxWidth: '400px' }}
+              >
+                <img
+                  src={noInternetImg}
+                  alt="No Internet"
+                  style={{ width: '100%', maxWidth: '300px', marginBottom: '2rem' }}
+                />
+                <div style={{ background: '#fee2e2', color: '#ef4444', padding: '10px 20px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', fontWeight: 700 }}>
+                  <WifiOff size={20} />
+                  NO INTERNET CONNECTION
+                </div>
+                <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
+                  Whoops! You're <span className="gradient-text">Offline.</span>
+                </h2>
+                <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+                  It seems you've lost connection. Don't worry, we'll keep your cart safe. Please check your internet and try again.
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '1.2rem 2.5rem', background: 'var(--primary)',
+                    color: 'white', border: 'none', borderRadius: '16px',
+                    fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer',
+                    margin: '0 auto', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)'
+                  }}
+                >
+                  <RefreshCw size={20} />
+                  Try to Reconnect
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div >
     </>
   );
 }

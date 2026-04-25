@@ -28,7 +28,7 @@ function Footer() {
                     <ul className="footer-contact-list">
                         <li>
                             <MapPin size={18} className="text-primary" style={{ flexShrink: 0, marginTop: '4px' }} />
-                            <span>South Madavilagam, Vasan Nagar, Madappuram, Thiruvarur, Tamil Nadu 610001</span>
+                            <span>17- A SOUTH MAIN STREET, THIRUVARUR</span>
                         </li>
                         <li>
                             <Phone size={18} className="text-primary" />
@@ -61,6 +61,9 @@ function Footer() {
             </div>
             <div className="footer-bottom">
                 <p>&copy; {new Date().getFullYear()} Guardian Pharmacy. All rights reserved.</p>
+                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.8 }}>
+                    Web Developed by <a href="mailto:noorulmuhsinbca@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>Muhsin</a>
+                </p>
             </div>
         </footer>
     );

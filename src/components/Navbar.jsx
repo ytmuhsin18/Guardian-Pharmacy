@@ -98,7 +98,7 @@ const NavLink = ({ to, children, IconComponent }) => {
 function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { setIsCartOpen, totalItems, cartTotal, user, logout, orders } = useApp();
+    const { setIsCartOpen, totalItems, cartTotal, user, logout, orders, updateOrderStatus } = useApp();
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [showOrdersModal, setShowOrdersModal] = useState(false);
 
@@ -325,10 +325,10 @@ function Navbar() {
                                                         }
                                                         transition={{ duration: 2, repeat: Infinity }}
                                                     >
-                                                        {order.status === 'Delivered' ? <Check size={14} /> : 
-                                                         order.status?.toLowerCase().includes('delivery') ? <Truck size={14} /> : 
-                                                         order.status?.toLowerCase().includes('confirmed') ? <Package size={14} /> :
-                                                         <Clock size={14} />}
+                                                        {order.status === 'Delivered' ? <Check size={14} /> :
+                                                            order.status?.toLowerCase().includes('delivery') ? <Truck size={14} /> :
+                                                                order.status?.toLowerCase().includes('confirmed') ? <Package size={14} /> :
+                                                                    <Clock size={14} />}
                                                         <span>{order.status || 'Processing Order'}</span>
                                                     </motion.div>
                                                 </div>
@@ -355,19 +355,37 @@ function Navbar() {
                                                     ))}
                                                 </div>
 
-                                                <div className="order-card-footer">
-                                                    <div className="order-total-info">
-                                                        <span>Total Paid</span>
-                                                        <span className="total-amt">₹{order.total_amount}</span>
+                                                <div className="order-card-footer" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
+                                                    <div className="footer-main-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <div className="order-total-info">
+                                                            <span>Total Paid</span>
+                                                            <span className="total-amt">₹{order.total_amount}</span>
+                                                        </div>
+                                                        <motion.div
+                                                            className="order-eta"
+                                                            animate={{ x: [0, 3, 0] }}
+                                                            transition={{ duration: 3, repeat: Infinity }}
+                                                        >
+                                                            <Clock size={12} />
+                                                            <span>{order.status === 'Delivered' ? 'Completed' : order.status === 'Cancelled' ? 'Order Cancelled' : order.status === 'Cancel Requested' ? 'Cancel Requested' : 'Processing Order'}</span>
+                                                        </motion.div>
                                                     </div>
-                                                    <motion.div
-                                                        className="order-eta"
-                                                        animate={{ x: [0, 3, 0] }}
-                                                        transition={{ duration: 3, repeat: Infinity }}
-                                                    >
-                                                        <Clock size={12} />
-                                                        <span>{order.status === 'Delivered' ? 'Completed' : 'Processing Order'}</span>
-                                                    </motion.div>
+
+                                                    {(order.status === 'Pending' || !order.status) && (
+                                                        <motion.button
+                                                            className="btn-cancel-order"
+                                                            whileHover={{ scale: 1.01, background: '#ef4444', color: 'white' }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                            style={{ width: '100%', padding: '12px', fontSize: '0.8rem' }}
+                                                            onClick={() => {
+                                                                if (window.confirm("Are you sure you want to request cancellation for this order?")) {
+                                                                    updateOrderStatus(order.id, 'Cancel Requested');
+                                                                }
+                                                            }}
+                                                        >
+                                                            REQUEST TO CANCEL
+                                                        </motion.button>
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         ))}

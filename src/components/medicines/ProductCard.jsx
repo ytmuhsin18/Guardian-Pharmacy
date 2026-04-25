@@ -77,10 +77,16 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
         <motion.div
             ref={cardRef}
             layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+                mass: 1
+            }}
             exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
             className="product-card"
         >
             <div className="product-image-section">
@@ -90,10 +96,21 @@ const ProductCard = memo(({ medicine, cart, onAddToCart, onRemoveFromCart, onQui
                     style={{ cursor: 'pointer' }}
                 >
                     {resolvedImage ? (
-                        <img src={resolvedImage} alt={medicine.name} className="product-img" loading="lazy" />
+                        <img
+                            src={resolvedImage}
+                            alt={medicine.name}
+                            className="product-img"
+                            loading="lazy"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "";
+                                setLocalImage(null);
+                            }}
+                        />
                     ) : (
-                        <div className="product-placeholder">
-                            <Pill size={40} className="text-muted" />
+                        <div className="product-placeholder" style={{ background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <Pill size={40} className="text-muted" style={{ opacity: 0.5 }} />
+                            <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>Image Unavailable</span>
                         </div>
                     )}
                 </div>

@@ -6,7 +6,8 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAvailability, updateDoctorImage, deleteDoctor }) => {
     const [newDoctor, setNewDoctor] = useState({
         name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '',
-        availability_start: '06:00 PM', availability_end: '10:00 PM'
+        availability_start: '06:00 PM', availability_end: '10:00 PM',
+        availability_start_2: '', availability_end_2: ''
     });
     const [doctorUploadSuccess, setDoctorUploadSuccess] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -14,6 +15,8 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
     const [editingAvailId, setEditingAvailId] = useState(null);
     const [availStart, setAvailStart] = useState('');
     const [availEnd, setAvailEnd] = useState('');
+    const [availStart2, setAvailStart2] = useState('');
+    const [availEnd2, setAvailEnd2] = useState('');
 
     const timeOptions = [
         '06:00 AM', '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -48,7 +51,7 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
             if (success) setDoctorUploadSuccess('Doctor added successfully!');
         }
         if (success !== false) {
-            setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM' });
+            setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM', availability_start_2: '', availability_end_2: '' });
             setEditingDoctorId(null);
             setTimeout(() => setDoctorUploadSuccess(false), 3000);
         }
@@ -58,7 +61,8 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
         setNewDoctor({
             name: doc.name, specialty: doc.specialty, experience: doc.experience || 'Experienced',
             about: doc.about || '', image_base64: doc.image_base64 || '',
-            availability_start: doc.availability_start || '06:00 PM', availability_end: doc.availability_end || '10:00 PM'
+            availability_start: doc.availability_start || '06:00 PM', availability_end: doc.availability_end || '10:00 PM',
+            availability_start_2: doc.availability_start_2 || '', availability_end_2: doc.availability_end_2 || ''
         });
         setEditingDoctorId(doc.id);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,10 +72,12 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
         setEditingAvailId(doc.id);
         setAvailStart(doc.availability_start || '06:00 PM');
         setAvailEnd(doc.availability_end || '10:00 PM');
+        setAvailStart2(doc.availability_start_2 || '');
+        setAvailEnd2(doc.availability_end_2 || '');
     };
 
     const handleAvailSave = async (id) => {
-        const success = await updateDoctorAvailability(id, availStart, availEnd);
+        const success = await updateDoctorAvailability(id, availStart, availEnd, availStart2, availEnd2);
         if (success) {
             setEditingAvailId(null);
         }
@@ -145,21 +151,41 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                         </div>
                         <div className="form-row">
                             <div className="input-group">
-                                <label className="input-label">Availability Start Time</label>
+                                <label className="input-label">Availability Start Time (Slot 1)</label>
                                 <input
-                                    type="text" className="input-field" list="time-options"
+                                    type="text" className="input-field"
                                     placeholder="e.g. 06:00 PM"
                                     value={newDoctor.availability_start}
                                     onChange={e => setNewDoctor({ ...newDoctor, availability_start: e.target.value })}
                                 />
                             </div>
                             <div className="input-group">
-                                <label className="input-label">Availability End Time</label>
+                                <label className="input-label">Availability End Time (Slot 1)</label>
                                 <input
-                                    type="text" className="input-field" list="time-options"
+                                    type="text" className="input-field"
                                     placeholder="e.g. 10:00 PM"
                                     value={newDoctor.availability_end}
                                     onChange={e => setNewDoctor({ ...newDoctor, availability_end: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="input-group">
+                                <label className="input-label">Availability Start Time (Slot 2 - Optional)</label>
+                                <input
+                                    type="text" className="input-field"
+                                    placeholder="e.g. 10:00 AM"
+                                    value={newDoctor.availability_start_2}
+                                    onChange={e => setNewDoctor({ ...newDoctor, availability_start_2: e.target.value })}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label className="input-label">Availability End Time (Slot 2 - Optional)</label>
+                                <input
+                                    type="text" className="input-field"
+                                    placeholder="e.g. 01:00 PM"
+                                    value={newDoctor.availability_end_2}
+                                    onChange={e => setNewDoctor({ ...newDoctor, availability_end_2: e.target.value })}
                                 />
                             </div>
                         </div>
@@ -177,7 +203,7 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                                 {editingDoctorId ? <><Save size={18} style={{ marginRight: '6px' }} /> Update Profile</> : <><Users size={18} style={{ marginRight: '6px' }} /> Add Doctor</>}
                             </button>
                             {editingDoctorId && (
-                                <button type="button" className="btn btn-outline" onClick={() => { setEditingDoctorId(null); setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM' }); }} style={{ borderRadius: '30px' }}>
+                                <button type="button" className="btn btn-outline" onClick={() => { setEditingDoctorId(null); setNewDoctor({ name: '', specialty: '', experience: 'Experienced', about: '', image_base64: '', availability_start: '06:00 PM', availability_end: '10:00 PM', availability_start_2: '', availability_end_2: '' }); }} style={{ borderRadius: '30px' }}>
                                     <X size={18} /> Cancel
                                 </button>
                             )}
@@ -216,18 +242,37 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                                     <td>{doc.specialty}</td>
                                     <td>
                                         {editingAvailId === doc.id ? (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                                 <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--primary)', minWidth: '42px' }}>Slot 1:</span>
                                                     <input
-                                                        type="text" list="time-options" value={availStart}
+                                                        type="text" value={availStart}
                                                         onChange={e => setAvailStart(e.target.value)}
-                                                        style={{ width: '100px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                                        placeholder="e.g. 06:00 PM"
+                                                        style={{ width: '90px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
                                                     />
                                                     <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>to</span>
                                                     <input
-                                                        type="text" list="time-options" value={availEnd}
+                                                        type="text" value={availEnd}
                                                         onChange={e => setAvailEnd(e.target.value)}
-                                                        style={{ width: '100px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                                        placeholder="e.g. 10:00 PM"
+                                                        style={{ width: '90px', padding: '4px 8px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#b45309', minWidth: '42px' }}>Slot 2:</span>
+                                                    <input
+                                                        type="text" value={availStart2}
+                                                        onChange={e => setAvailStart2(e.target.value)}
+                                                        placeholder="e.g. 06:00 PM"
+                                                        style={{ width: '90px', padding: '4px 8px', borderRadius: '6px', border: '1px solid #fcd34d', fontSize: '0.8rem' }}
+                                                    />
+                                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>to</span>
+                                                    <input
+                                                        type="text" value={availEnd2}
+                                                        onChange={e => setAvailEnd2(e.target.value)}
+                                                        placeholder="e.g. 10:00 PM"
+                                                        style={{ width: '90px', padding: '4px 8px', borderRadius: '6px', border: '1px solid #fcd34d', fontSize: '0.8rem' }}
                                                     />
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -237,9 +282,16 @@ const DoctorsTab = memo(({ doctors, addDoctor, updateDoctorData, updateDoctorAva
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <span className="availability-badge">
-                                                    <Clock size={12} /> {doc.availability_start} - {doc.availability_end}
-                                                </span>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span className="availability-badge">
+                                                        <Clock size={12} /> {doc.availability_start} - {doc.availability_end}
+                                                    </span>
+                                                    {doc.availability_start_2 && doc.availability_end_2 && (
+                                                        <span className="availability-badge" style={{ background: '#fef3c7', color: '#b45309' }}>
+                                                            <Clock size={12} /> {doc.availability_start_2} - {doc.availability_end_2}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <button
                                                     className="btn-icon accept" onClick={() => handleAvailEdit(doc)}
                                                     style={{ width: '26px', height: '26px', background: '#e0f2fe', color: 'var(--primary)', border: '1px solid #bae6fd' }}

@@ -55,10 +55,27 @@ const DoctorCard = memo(({ doc, idx, onSelect, fetchImage }) => {
                 </p>
 
                 {doc.reg_no && (
-                    <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1.5rem' }}>
+                    <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1rem' }}>
                         REG NO: {doc.reg_no}
                     </p>
                 )}
+
+                <div className="doc-availability-grid" style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#eff6ff', padding: '6px 12px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+                        <Clock size={14} className="text-primary" />
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1d4ed8' }}>
+                            {doc.availability_start} - {doc.availability_end}
+                        </span>
+                    </div>
+                    {doc.availability_start_2 && doc.availability_end_2 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fffbeb', padding: '6px 12px', borderRadius: '8px', border: '1px solid #fde68a' }}>
+                            <Clock size={14} style={{ color: '#b45309' }} />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#b45309' }}>
+                                {doc.availability_start_2} - {doc.availability_end_2}
+                            </span>
+                        </div>
+                    )}
+                </div>
 
                 <button
                     className="btn btn-primary btn-block mt-auto"
@@ -84,7 +101,8 @@ function Doctors() {
         patientName: '',
         date: '',
         phone: '',
-        reason: ''
+        reason: '',
+        selectedSlot: ''
     });
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [showQR, setShowQR] = useState(false);
@@ -111,13 +129,19 @@ function Doctors() {
             return;
         }
         setSelectedDoctor(doc);
+        
+        // Auto-select slot 1 if it's the only one
+        const slot1 = `${doc.availability_start || '06:00 PM'} - ${doc.availability_end || '10:00 PM'}`;
+        if (!doc.availability_start_2 || !doc.availability_end_2) {
+            setBookingFormData(prev => ({ ...prev, selectedSlot: slot1 }));
+        }
     };
 
     const closeModal = () => {
         setSelectedDoctor(null);
         setBookingSuccess(false);
         setShowQR(false);
-        setBookingFormData({ patientName: '', date: '', phone: '', reason: '' });
+        setBookingFormData({ patientName: '', date: '', phone: '', reason: '', selectedSlot: '' });
     };
 
     const handleInputChange = (e) => {
@@ -142,11 +166,17 @@ function Doctors() {
 
     const handleBookingSubmit = (e) => {
         e.preventDefault();
+        
+        if (!bookingFormData.selectedSlot) {
+            alert("Please select an availability slot before confirming.");
+            return;
+        }
+
         addAppointment({
             doctorId: selectedDoctor.id,
             doctorName: selectedDoctor.name,
             ...bookingFormData,
-            time: `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}`
+            time: bookingFormData.selectedSlot
         });
 
         setBookingSuccess(true);
@@ -402,7 +432,38 @@ function Doctors() {
                                                 </div>
                                                 <div>
                                                     <strong>Doctor Available</strong>
-                                                    <p className="avail-time">{selectedDoctor.availability_start || '06:00 PM'} — {selectedDoctor.availability_end || '10:00 PM'}</p>
+                                                    <div className="avail-slots-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '0.5rem' }}>
+                                                        <button 
+                                                            type="button"
+                                                            className={`slot-select-btn ${bookingFormData.selectedSlot === `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}` ? 'active' : ''}`}
+                                                            onClick={() => setBookingFormData({...bookingFormData, selectedSlot: `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}`})}
+                                                        >
+                                                            <div className="slot-check">
+                                                                <CheckCircle size={14} />
+                                                            </div>
+                                                            <span className="slot-time">
+                                                                {selectedDoctor.availability_start || '06:00 PM'} - {selectedDoctor.availability_end || '10:00 PM'}
+                                                            </span>
+                                                            <span className="slot-label">Slot 1</span>
+                                                        </button>
+
+                                                        {selectedDoctor.availability_start_2 && selectedDoctor.availability_end_2 && (
+                                                            <button 
+                                                                type="button"
+                                                                className={`slot-select-btn ${bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? 'active' : ''}`}
+                                                                onClick={() => setBookingFormData({...bookingFormData, selectedSlot: `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}`})}
+                                                                style={{ borderColor: bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? '#b45309' : '#fde68a' }}
+                                                            >
+                                                                <div className="slot-check" style={{ background: bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? '#b45309' : 'transparent' }}>
+                                                                    <CheckCircle size={14} />
+                                                                </div>
+                                                                <span className="slot-time" style={{ color: bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? '#b45309' : '#a16207' }}>
+                                                                    {selectedDoctor.availability_start_2} - {selectedDoctor.availability_end_2}
+                                                                </span>
+                                                                <span className="slot-label" style={{ color: '#b45309' }}>Slot 2</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                     <span className="avail-note">Consultation Fee: <strong style={{ color: '#0d9488' }}>₹250</strong> · Token assigned by admin after payment.</span>
                                                 </div>
                                             </div>

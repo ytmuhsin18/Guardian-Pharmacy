@@ -110,6 +110,14 @@
     box-shadow: 0 8px 20px rgba(0, 184, 148, 0.35);
 }
 
+@media (max-width: 360px) {
+    .indicator-circle {
+        width: 42px;
+        height: 42px;
+        border-width: 4px;
+    }
+}
+
 .nav-indicator::before {
     content: '';
     position: absolute;

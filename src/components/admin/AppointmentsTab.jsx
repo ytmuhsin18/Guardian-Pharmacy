@@ -78,6 +78,7 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                 <th>Patient Name</th>
                                 <th>Doctor</th>
                                 <th>Date</th>
+                                <th>Time/Slot</th>
                                 <th>Contact</th>
                                 <th>Token #</th>
                                 <th>Status</th>
@@ -92,6 +93,12 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                     <td>
                                         <div className="date-time-cell">
                                             <span>{apt.date}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <Clock size={14} style={{ color: '#0d9488' }} />
+                                            <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '0.9rem' }}>{apt.time || 'Not specified'}</span>
                                         </div>
                                     </td>
                                     <td>{apt.phone}</td>

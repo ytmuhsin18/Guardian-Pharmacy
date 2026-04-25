@@ -120,12 +120,16 @@ ul {
   color: var(--text-main);
   line-height: 1.15;
   letter-spacing: -0.03em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .subtitle {
   font-size: 1.1rem;
   color: var(--text-muted);
   line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 480px) {
