@@ -15,6 +15,9 @@ function MedicineDetails() {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
     const [selectedSize, setSelectedSize] = useState('M');
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
+    const [lastTap, setLastTap] = useState(0);
 
     const defaultOrthoSizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'UNI'];
     const ORTHO_SIZES = (product?.availableSizes && product.availableSizes.length > 0) 
@@ -173,21 +176,70 @@ function MedicineDetails() {
                                             <div 
                                                 key={i} 
                                                 className="carousel-slide"
-                                                onClick={(e) => {
-                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                    const x = e.clientX - rect.left;
-                                                    if (x > rect.width / 2) {
-                                                        if (activeImageIndex < (product.images?.length || 1) - 1) {
-                                                            setActiveImageIndex(activeImageIndex + 1);
-                                                        }
-                                                    } else {
-                                                        if (activeImageIndex > 0) {
-                                                            setActiveImageIndex(activeImageIndex - 1);
-                                                        }
+                                                onMouseEnter={() => {
+                                                    if (window.innerWidth > 768) setIsZoomed(true);
+                                                }}
+                                                onMouseLeave={() => {
+                                                    if (window.innerWidth > 768) setIsZoomed(false);
+                                                }}
+                                                onMouseMove={(e) => {
+                                                    if (window.innerWidth > 768) {
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                                        const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                                        setZoomOrigin({ x, y });
                                                     }
                                                 }}
+                                                onClick={(e) => {
+                                                    const now = Date.now();
+                                                    if (now - lastTap < 300) {
+                                                        // Double tap detected
+                                                        setIsZoomed(!isZoomed);
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                                        const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                                        setZoomOrigin({ x, y });
+                                                    } else {
+                                                        // Single tap - keep original next/prev logic
+                                                        const rect = e.currentTarget.getBoundingClientRect();
+                                                        const x = e.clientX - rect.left;
+                                                        if (x > rect.width / 2) {
+                                                            if (activeImageIndex < (product.images?.length || 1) - 1) {
+                                                                setActiveImageIndex(activeImageIndex + 1);
+                                                            }
+                                                        } else {
+                                                            if (activeImageIndex > 0) {
+                                                                setActiveImageIndex(activeImageIndex - 1);
+                                                            }
+                                                        }
+                                                    }
+                                                    setLastTap(now);
+                                                }}
+                                                style={{ 
+                                                    cursor: isZoomed ? 'zoom-out' : 'zoom-in',
+                                                    position: 'relative',
+                                                    overflow: 'hidden'
+                                                }}
                                             >
-                                                <img src={img} alt={`${product.name} ${i + 1}`} className="main-image" />
+                                                <img 
+                                                    src={img} 
+                                                    alt={`${product.name} ${i + 1}`} 
+                                                    className="main-image" 
+                                                    style={{
+                                                        transform: (isZoomed && window.innerWidth <= 768) ? 'scale(2.5)' : 'scale(1)',
+                                                        transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`
+                                                    }}
+                                                />
+                                                {isZoomed && window.innerWidth > 768 && (
+                                                    <div 
+                                                        className="zoom-lens"
+                                                        style={{
+                                                            left: `${zoomOrigin.x}%`,
+                                                            top: `${zoomOrigin.y}%`
+                                                        }}
+                                                    />
+                                                )}
+                                                {!isZoomed && <div className="zoom-hint">Hover to Zoom</div>}
                                             </div>
                                         ))}
                                     </motion.div>
@@ -214,6 +266,21 @@ function MedicineDetails() {
 
                                 {product.discount > 0 && (
                                     <div className="discount-tag">-{Math.round(product.discount)}% OFF</div>
+                                )}
+
+                                {/* Side Zoom Panel for Desktop */}
+                                {isZoomed && window.innerWidth > 768 && (
+                                    <div className="side-zoom-view shadow-lg">
+                                        <div className="side-zoom-header">Zoom Preview</div>
+                                        <img 
+                                            src={(Array.isArray(product.images) && product.images.length > 0 ? product.images[activeImageIndex] : (product.image_base64 || ''))} 
+                                            alt="Zoomed view"
+                                            style={{
+                                                transform: 'scale(2.5)',
+                                                transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`
+                                            }}
+                                        />
+                                    </div>
                                 )}
 
                                 {/* Pagination Dots for Mobile */}
@@ -428,7 +495,15 @@ function MedicineDetails() {
                 {/* Related Products Section */}
                 {(() => {
                     const related = medicines
-                        .filter(m => m.category === product.category && m.id !== product.id)
+                        .filter(m => m.id !== product.id)
+                        .map(m => {
+                            let score = 0;
+                            if (product.combination && m.combination === product.combination) score += 10;
+                            if (m.category === product.category) score += 5;
+                            return { ...m, score };
+                        })
+                        .filter(m => m.score > 0)
+                        .sort((a, b) => b.score - a.score)
                         .slice(0, 8);
 
                     if (related.length === 0) return null;

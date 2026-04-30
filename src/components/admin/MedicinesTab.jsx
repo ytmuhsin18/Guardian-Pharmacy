@@ -170,7 +170,7 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
 
     const handleMedicineSubmit = async (e) => {
         e.preventDefault();
-        
+
         setIsUploading(true);
         const finalImages = [];
         try {

@@ -120,12 +120,14 @@ const SurgicalProducts = () => {
             <section className="med-header section-padding" style={{ background: '#f8fafc', paddingBottom: '1rem' }}>
                 <div className="container">
                     <div className="med-header-flex">
-                        <div className="header-info-group">
-                            <div>
-                                <h1 className="title"><span className="gradient-text">Categories</span></h1>
-                                <p className="subtitle">Quality healthcare products across all essential categories.</p>
+                        {!searchTerm && (
+                            <div className="header-info-group">
+                                <div>
+                                    <h1 className="title"><span className="gradient-text">Categories</span></h1>
+                                    <p className="subtitle">Quality healthcare products across all essential categories.</p>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="search-bar-container">
                             <motion.div
@@ -162,7 +164,8 @@ const SurgicalProducts = () => {
                     </div>
 
                     {/* Horizontal Categories Bar */}
-                    <div style={{ position: 'relative', marginTop: '2.5rem' }}>
+                    {!searchTerm && (
+                        <div style={{ position: 'relative', marginTop: '2.5rem' }}>
                         <AnimatePresence>
                             {showLeftArrow && (
                                 <motion.button
@@ -358,6 +361,7 @@ const SurgicalProducts = () => {
                             )}
                         </AnimatePresence>
                     </div>
+                    )}
                 </div>
             </section>
 

@@ -48,16 +48,11 @@ function App() {
   });
   const [finalOrderSummary, setFinalOrderSummary] = React.useState(null);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-  const [showOnlineToast, setShowOnlineToast] = React.useState(false);
   const prevOnline = React.useRef(navigator.onLine);
 
   React.useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      if (!prevOnline.current) {
-        setShowOnlineToast(true);
-        setTimeout(() => setShowOnlineToast(false), 4000);
-      }
       prevOnline.current = true;
     };
     const handleOffline = () => {
@@ -462,71 +457,7 @@ function App() {
           )}
         </AnimatePresence>
 
-        {/* ── Online Success Overlay ── */}
-        <AnimatePresence>
-          {showOnlineToast && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                position: 'fixed', inset: 0, zIndex: 30005,
-                background: 'rgba(255,255,255,0.85)',
-                backdropFilter: 'blur(15px)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                textAlign: 'center'
-              }}
-            >
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                exit={{ scale: 1.2, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                style={{
-                  padding: '3rem',
-                  borderRadius: '40px',
-                  background: 'white',
-                  boxShadow: '0 30px 60px -12px rgba(16, 185, 129, 0.25)',
-                  border: '1px solid rgba(16, 185, 129, 0.1)',
-                  maxWidth: '400px'
-                }}
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring', stiffness: 500, damping: 15 }}
-                  style={{
-                    width: '100px', height: '100px', borderRadius: '50%',
-                    background: '#f0fdf4', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center',
-                    margin: '0 auto 2rem',
-                    border: '4px solid #d1fae5'
-                  }}
-                >
-                  <CheckCircle size={54} color="#10b981" />
-                </motion.div>
 
-                <h2 style={{ fontSize: '2.25rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-                  Welcome <span className="gradient-text">Back!</span>
-                </h2>
-                <p style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: 500, marginBottom: '0' }}>
-                  Connection restored. You're back online and ready to go.
-                </p>
-
-                {/* Celebratory subtle wave */}
-                <motion.div
-                  style={{
-                    position: 'absolute', inset: 0, borderRadius: '40px',
-                    border: '2px solid #10b981', zIndex: -1
-                  }}
-                  initial={{ scale: 1, opacity: 0.5 }}
-                  animate={{ scale: 1.4, opacity: 0 }}
-                  transition={{ duration: 1, repeat: 2 }}
-                />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* ── Offline Overlay ── */}
         <AnimatePresence>

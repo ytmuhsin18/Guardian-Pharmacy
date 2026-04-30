@@ -9,6 +9,10 @@ const MedicineDetailModal = memo(({
     activeImageIndex, setActiveImageIndex
 }) => {
     const { fetchMedicineImage } = useApp();
+    const [isZoomed, setIsZoomed] = React.useState(false);
+    const [zoomOrigin, setZoomOrigin] = React.useState({ x: 50, y: 50 });
+    const [lastTap, setLastTap] = React.useState(0);
+    
     if (!medicine) return null;
 
     const cartItem = cart.find(item => item.id === medicine.id);
@@ -46,7 +50,41 @@ const MedicineDetailModal = memo(({
                         <div className="modal-grid">
                             {/* Image Section */}
                             <div className="modal-image-gallery">
-                                <div className="main-image-container">
+                                <div 
+                                    className="main-image-container"
+                                    onMouseEnter={() => {
+                                        if (window.innerWidth > 768) setIsZoomed(true);
+                                    }}
+                                    onMouseLeave={() => {
+                                        if (window.innerWidth > 768) setIsZoomed(false);
+                                    }}
+                                    onMouseMove={(e) => {
+                                        if (window.innerWidth > 768) {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                            const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                            setZoomOrigin({ x, y });
+                                        }
+                                    }}
+                                    onClick={(e) => {
+                                        const now = Date.now();
+                                        if (now - lastTap < 300) {
+                                            setIsZoomed(!isZoomed);
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                            const y = ((e.clientY - rect.top) / rect.height) * 100;
+                                            setZoomOrigin({ x, y });
+                                        }
+                                        setLastTap(now);
+                                    }}
+                                    style={{ 
+                                        cursor: isZoomed ? 'zoom-out' : 'zoom-in',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        background: 'white',
+                                        borderRadius: '16px'
+                                    }}
+                                >
                                     <motion.img
                                         key={activeImageIndex}
                                         src={(Array.isArray(medicine.images) && medicine.images.length > 0) ? medicine.images[activeImageIndex] : (medicine.image_base64 || 'https://via.placeholder.com/400')}
@@ -54,10 +92,38 @@ const MedicineDetailModal = memo(({
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         className="main-modal-img"
+                                        style={{
+                                            transform: (isZoomed && window.innerWidth <= 768) ? 'scale(2.5)' : 'scale(1)',
+                                            transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                                            transition: isZoomed ? 'none' : 'transform 0.3s ease-out'
+                                        }}
                                     />
-                                    {medicine.discount > 0 && (
-                                        <div className="discount-badge-large">{Math.round(medicine.discount)}% OFF</div>
+                                    {isZoomed && window.innerWidth > 768 && (
+                                        <div 
+                                            className="zoom-lens"
+                                            style={{
+                                                left: `${zoomOrigin.x}%`,
+                                                top: `${zoomOrigin.y}%`
+                                            }}
+                                        />
                                     )}
+                                    {medicine.discount > 0 && (
+                                        <div className="discount-badge-large" style={{ zIndex: 5 }}>{Math.round(medicine.discount)}% OFF</div>
+                                    )}
+                                    {isZoomed && window.innerWidth > 768 && (
+                                        <div className="modal-side-zoom shadow-xl">
+                                            <div className="side-zoom-header">Zoom Preview</div>
+                                            <img 
+                                                src={(Array.isArray(medicine.images) && medicine.images.length > 0) ? medicine.images[activeImageIndex] : (medicine.image_base64 || '')} 
+                                                alt="Zoomed"
+                                                style={{
+                                                    transform: 'scale(2.5)',
+                                                    transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    {!isZoomed && <div className="zoom-hint">Hover to Zoom</div>}
                                 </div>
                                 {Array.isArray(medicine.images) && medicine.images.length > 1 && (
                                     <div className="thumbnail-grid">

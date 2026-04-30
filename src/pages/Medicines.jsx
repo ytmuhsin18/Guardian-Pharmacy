@@ -53,8 +53,12 @@ function Medicines() {
         return medicines.filter(med => {
             const name = med.name || '';
             const category = med.category || '';
-            return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                category.toLowerCase().includes(searchTerm.toLowerCase());
+            const combination = med.combination || '';
+            const searchTermLower = searchTerm.toLowerCase();
+            
+            return name.toLowerCase().includes(searchTermLower) ||
+                category.toLowerCase().includes(searchTermLower) ||
+                combination.toLowerCase().includes(searchTermLower);
         });
     }, [medicines, searchTerm]);
 
@@ -64,9 +68,11 @@ function Medicines() {
             <section className="med-header section-padding">
                 <div className="container">
                     <div className="med-header-flex">
-                        <div>
-                            <h1 className="title">Pharmacy <span className="gradient-text">Store</span></h1>
-                        </div>
+                        {!searchTerm && (
+                            <div>
+                                <h1 className="title">Pharmacy <span className="gradient-text">Store</span></h1>
+                            </div>
+                        )}
 
                         <div className="search-bar-container">
                             <motion.div
