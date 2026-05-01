@@ -77,12 +77,12 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                             <tr>
                                 <th>Patient Name</th>
                                 <th>Doctor</th>
-                                <th>Date</th>
-                                <th>Time/Slot</th>
-                                <th>Contact</th>
-                                <th>Token #</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th className="nowrap-cell">Date</th>
+                                <th className="nowrap-cell">Time/Slot</th>
+                                <th className="nowrap-cell">Contact</th>
+                                <th className="nowrap-cell">Token #</th>
+                                <th className="nowrap-cell">Status</th>
+                                <th className="nowrap-cell">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,19 +90,19 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                 <tr key={apt.id}>
                                     <td><strong>{apt.patientName}</strong></td>
                                     <td>{apt.doctorName}</td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         <div className="date-time-cell">
                                             <span>{apt.date}</span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                             <Clock size={14} style={{ color: '#0d9488' }} />
                                             <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '0.9rem' }}>{apt.time || 'Not specified'}</span>
                                         </div>
                                     </td>
-                                    <td>{apt.phone}</td>
-                                    <td>
+                                    <td className="nowrap-cell">{apt.phone}</td>
+                                    <td className="nowrap-cell">
                                         {editingTokenId === apt.id ? (
                                             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                                 <input
@@ -151,12 +151,12 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                             </div>
                                         )}
                                     </td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         <span className={`status-badge ${apt.status.toLowerCase()}`}>
                                             {apt.status}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         {apt.status === 'Pending' && (
                                             <div className="action-buttons">
                                                 <button

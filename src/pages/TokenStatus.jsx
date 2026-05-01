@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Hash, Clock, User, CheckCircle, AlertCircle, Phone, Calendar } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -9,6 +9,34 @@ function TokenStatus() {
     const [searchPhone, setSearchPhone] = useState('');
     const [foundAppointments, setFoundAppointments] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+
+    // Auto-update foundAppointments when appointments context changes
+    useEffect(() => {
+        if (foundAppointments !== null) {
+            const cleanSearch = searchPhone.replace(/\D/g, '').slice(-10);
+            if (cleanSearch.length >= 10) {
+                const results = appointments.filter(apt => {
+                    const aptPhone = apt.phone.replace(/\D/g, '').slice(-10);
+                    const aptWhatsapp = (apt.whatsapp || "").replace(/\D/g, '').slice(-10);
+                    return aptPhone === cleanSearch || aptWhatsapp === cleanSearch;
+                });
+                setFoundAppointments(results);
+            }
+        }
+    }, [appointments]);
+
+    // Poll for live updates every 10 seconds if a search is active
+    useEffect(() => {
+        let interval;
+        if (foundAppointments !== null) {
+            interval = setInterval(() => {
+                fetchData();
+            }, 10000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [foundAppointments !== null]);
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();

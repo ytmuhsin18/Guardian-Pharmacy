@@ -56,9 +56,9 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                             <tr>
                                 <th>Customer Details</th>
                                 <th>Items Ordered</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th className="nowrap-cell">Total</th>
+                                <th className="nowrap-cell">Status</th>
+                                <th className="nowrap-cell">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,13 +163,13 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                             })()}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         <span className={`status-pill-premium ${(order.status || 'pending').toLowerCase().replace(/\s+/g, '-')}`}>
                                             <span className="dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }}></span>
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td className="nowrap-cell">
                                         <div className="action-btns-premium">
                                             {order.status === 'Pending' && (
                                                 <>

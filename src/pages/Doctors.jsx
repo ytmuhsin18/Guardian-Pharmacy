@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import EmergencyBanner from '../components/EmergencyBanner';
+
 import './Doctors.css';
 
 // Default image if none exists (moved outside for DoctorCard to use)
@@ -32,61 +32,31 @@ const DoctorCard = memo(({ doc, idx, onSelect, fetchImage }) => {
 
     return (
         <motion.div
-            className="doctor-card glass-panel"
-            whileHover={{ y: -5, boxShadow: 'var(--shadow-lg)' }}
+            className="doctor-card custom-doc-card"
+            whileHover={{ y: -5, boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)' }}
         >
             <div className="doc-img-wrapper">
                 <img src={imageSrc} alt={doc.name} className="doc-image" />
-                <div className="doc-exp-badge">{doc.experience}</div>
             </div>
 
-            <div className="doc-info" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <h3 className="doc-name" style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.5rem 0' }}>{doc.name.toUpperCase()}</h3>
-                <div className="doc-specialty-badge" style={{
-                    background: '#f0fdfa', color: '#0d9488', padding: '4px 12px',
-                    borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700,
-                    marginBottom: '1rem', border: '1px solid #ccfbf1'
-                }}>
-                    {doc.specialty.toUpperCase()}
+            <div className="doc-info">
+                <h3 className="doc-name">{doc.name.toUpperCase()}</h3>
+                
+                <div className="doc-specialty-wrapper">
+                    <span className="doc-specialty-badge">
+                        {doc.specialty.toUpperCase()}
+                    </span>
                 </div>
 
-                <p className="doc-about text-muted" style={{ fontSize: '0.85rem', marginBottom: '0.5rem', lineHeight: '1.4' }}>
-                    {doc.about || "Expert clinical consultant specializing in advanced healthcare and patient care."}
+                <p className="doc-about-reg">
+                    {doc.about && doc.about.toUpperCase()} {doc.reg_no && `REG NO: ${doc.reg_no}`}
                 </p>
 
-                {doc.reg_no && (
-                    <p className="doc-reg text-muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1rem' }}>
-                        REG NO: {doc.reg_no}
-                    </p>
-                )}
-
-                <div className="doc-availability-grid" style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#eff6ff', padding: '6px 12px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-                        <Clock size={14} className="text-primary" />
-                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1d4ed8' }}>
-                            {doc.availability_start} - {doc.availability_end}
-                        </span>
-                    </div>
-                    {doc.availability_start_2 && doc.availability_end_2 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fffbeb', padding: '6px 12px', borderRadius: '8px', border: '1px solid #fde68a' }}>
-                            <Clock size={14} style={{ color: '#b45309' }} />
-                            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#b45309' }}>
-                                {doc.availability_start_2} - {doc.availability_end_2}
-                            </span>
-                        </div>
-                    )}
-                </div>
-
                 <button
-                    className="btn btn-primary btn-block mt-auto"
+                    className="doc-book-btn mt-auto"
                     onClick={() => onSelect(doc)}
-                    style={{
-                        borderRadius: '12px', padding: '12px', fontWeight: 700,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        gap: '8px', width: '100%', border: 'none'
-                    }}
                 >
-                    <Calendar size={18} /> BOOK APPOINTMENT
+                    <Calendar size={16} /> BOOK APPOINTMENT
                 </button>
             </div>
         </motion.div>
@@ -193,7 +163,7 @@ function Doctors() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
         >
-            <EmergencyBanner />
+
             <section className="docs-header section-padding">
                 <div className="container text-center">
                     <motion.h1
