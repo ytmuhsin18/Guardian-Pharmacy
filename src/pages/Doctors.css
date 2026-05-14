@@ -1,19 +1,267 @@
 .doctors-page {
-    min-height: calc(100vh - 72px);
-    background: var(--bg-color);
+    min-height: 100vh;
+    background: #f8fafc;
 }
 
-.docs-header {
+/* --- Hero Section --- */
+.docs-hero {
+    background: #0f172a; /* Dark navy background */
+    padding: 30px 0 60px; /* Minimal padding */
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    color: white;
+}
+
+.hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 25px 25px;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; /* Even smaller */
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+    .docs-hero {
+        padding: 25px 0 50px;
+    }
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    .hero-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+}
+
+.hero-title .highlight {
+    color: #eab308;
+}
+
+.hero-subtitle {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 500px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.4;
+}
+
+.bold-gold {
+    color: #facc15;
+    font-weight: 700;
+}
+
+.hero-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* --- Animated Live Token Button --- */
+.live-token-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    padding: 12px 24px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto; /* Ensure centering */
+    width: fit-content;
+}
+
+.live-token-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    border-radius: 20px;
+}
+
+.live-token-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(16, 185, 129, 0.5);
+    color: white;
+}
+
+.token-icon-box {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.token-text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
+.token-label {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.token-subtext {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    opacity: 0.85;
+    letter-spacing: 1px;
+}
+
+/* Live pulsing dot */
+.live-indicator {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.live-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.live-pulse {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    animation: pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+    0%   { transform: scale(0.6); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+}
+
+@media (max-width: 480px) {
+    .live-token-btn {
+        padding: 10px 16px;
+        gap: 10px;
+        border-radius: 16px;
+    }
+    .token-label {
+        font-size: 0.78rem;
+    }
+}
+
+/* --- Specialists Info Card --- */
+.specialists-info-section {
+    margin-top: -35px; /* Tighter integration */
+    position: relative;
+    z-index: 10;
+}
+
+.specialists-card {
     background: white;
-    border-bottom: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+}
+
+@media (max-width: 768px) {
+    .specialists-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 12px 10px;
+        gap: 10px;
+    }
+}
+
+.card-left {
+    flex: 1;
+}
+
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.title-underline {
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(to right, #0f172a 50%, #eab308 50%);
+    margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+    .title-underline {
+        margin: 0 auto 8px;
+    }
+}
+
+.card-description {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.availability-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    padding: 8px 16px;
+    border-radius: 12px;
+    color: #0d9488;
+    font-weight: 700;
+    font-size: 0.8rem;
 }
 
 .doctors-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 2rem;
-    margin-top: -2rem;
-    /* Pull up slightly over section padding */
+    margin-top: 1rem; /* Reduced from 3rem */
 }
 
 @media (min-width: 640px) {
@@ -155,6 +403,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    /* No overflow here - let modal-content scroll */
 }
 
 .modal-backdrop {
@@ -170,16 +419,14 @@
     border-radius: 40px;
     width: 100%;
     max-width: 1000px;
-    max-height: 90vh;
-    overflow-y: auto;
-    overflow-x: hidden; /* Prevent side scroll */
+    max-height: 92vh;          /* Constrain height to viewport */
+    overflow-y: auto;           /* Scroll inside the card */
+    overflow-x: hidden;
     box-shadow: 0 50px 100px -20px rgba(15, 23, 42, 0.25);
     z-index: 101;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    overscroll-behavior: contain;
-    /* Prevents background scroll chain */
+    overscroll-behavior: contain; /* Prevent background scroll chaining */
     -webkit-overflow-scrolling: touch;
-    /* Smooth scroll on iOS */
 }
 
 @media (max-width: 768px) {

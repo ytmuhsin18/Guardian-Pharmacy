@@ -164,53 +164,101 @@ function Doctors() {
             transition={{ duration: 0.6 }}
         >
 
-            <section className="docs-header section-padding">
-                <div className="container text-center">
+            {/* --- NEW PREMIUM HERO SECTION --- */}
+            <section className="docs-hero">
+                <div className="hero-pattern"></div>
+                <div style={{
+                    position: 'relative',
+                    zIndex: 2,
+                    width: '100%',
+                    maxWidth: '1280px',
+                    margin: '0 auto',
+                    padding: '0 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center'
+                }}>
                     <motion.h1
-                        className="title"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
+                        className="hero-title"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
                     >
-                        Guardian <span className="gradient-text">Pharmacy & Clinic</span>
+                        Meet Our <span className="highlight">Medical Experts</span>
                     </motion.h1>
-                    <p className="subtitle" style={{ marginTop: '1rem', maxWidth: '600px', margin: '1rem auto 0' }}>
-                        Book appointments with our team of expert specialists at Thiruvarur.
-                    </p>
-                    <div style={{ marginTop: '2rem' }}>
-                        <motion.div
-                            animate={{ scale: [1, 1.02, 1] }}
-                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                            style={{ display: 'inline-block' }}
-                        >
-                            <Link to="/tokens" className="btn btn-primary" style={{
-                                display: 'inline-flex', alignItems: 'center', gap: '14px',
-                                padding: '12px 28px', borderRadius: '18px', textDecoration: 'none',
-                                boxShadow: '0 8px 30px rgba(5, 150, 105, 0.25)',
-                                background: 'linear-gradient(135deg, #10b981, #059669)'
-                            }}>
-                                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px', borderRadius: '12px' }}>
-                                    <Hash size={24} color="white" />
+                    <motion.p
+                        className="hero-subtitle"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                    >
+                        Click <span className="bold-gold">Book Appointment</span> to schedule a consultation with our specialists.
+                    </motion.p>
+                    
+                    <motion.div 
+                        className="hero-action"
+                        style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <Link to="/tokens" className="live-token-btn">
+                            <motion.div 
+                                className="token-icon-box"
+                                animate={{ rotate: [0, 15, -15, 0] }}
+                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                            >
+                                <Hash size={20} color="white" />
+                            </motion.div>
+                            <div className="token-text-content">
+                                <span className="token-label">CHECK LIVE TOKEN STATUS</span>
+                                <div className="token-subtext">
+                                    <span>TAP HERE</span>
+                                    <motion.div
+                                        animate={{ y: [0, -4, 0] }}
+                                        transition={{ repeat: Infinity, duration: 1 }}
+                                    >
+                                        <Hand size={14} color="white" fill="white" />
+                                    </motion.div>
                                 </div>
-                                <div style={{ textAlign: 'left' }}>
-                                    <div style={{ color: 'white', fontWeight: 800, fontSize: '1rem', letterSpacing: '0.5px' }}>CHECK LIVE TOKEN STATUS</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                                        <span style={{ fontSize: '0.65rem', fontWeight: 900, color: 'rgba(255,255,255,0.9)', letterSpacing: '1px' }}>TAP HERE</span>
-                                        <motion.div
-                                            animate={{ x: [0, 4, 0] }}
-                                            transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
-                                        >
-                                            <Hand size={14} color="white" fill="white" fillOpacity={0.2} />
-                                        </motion.div>
-                                    </div>
-                                </div>
-                            </Link>
-                        </motion.div>
-                    </div>
+                            </div>
+                            <div className="live-indicator">
+                                <div className="live-dot"></div>
+                                <div className="live-pulse"></div>
+                            </div>
+                        </Link>
+                    </motion.div>
                 </div>
             </section>
 
-            <section className="docs-list section-padding pt-0">
+            {/* --- SPECIALISTS INFO CARD --- */}
+            <section className="specialists-info-section">
+                <div className="container">
+                    <motion.div 
+                        className="specialists-card"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                    >
+                        <div className="card-left">
+                            <h2 className="card-title">Our Specialists</h2>
+                            <div className="title-underline"></div>
+                            <p className="card-description">
+                                Highly experienced doctors and dedicated staff ensuring round-the-clock quality care.
+                            </p>
+                        </div>
+                        <div className="card-right">
+                            <div className="availability-badge">
+                                <User size={18} />
+                                <span>{doctors.length} Specialists Available</span>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
+
+            <section className="docs-list section-padding" style={{ paddingTop: '1rem' }}>
                 <div className="container">
                     {loading ? (
                         <div className="text-center py-8">Loading Doctors...</div>
@@ -296,6 +344,63 @@ function Doctors() {
                                                     >
                                                         <CheckCircle size={48} color="#10b981" fill="#10b981" fillOpacity={0.1} />
                                                     </motion.div>
+
+                                                    {/* 🚀 Rocket Takeoff Animation */}
+                                                    <div style={{ 
+                                                        position: 'relative', 
+                                                        height: '90px', 
+                                                        overflow: 'hidden',
+                                                        width: '60px',
+                                                        margin: '0 auto 0.5rem'
+                                                    }}>
+                                                        <motion.div
+                                                            animate={{ 
+                                                                y: [60, 0, -120],
+                                                                opacity: [0, 1, 0],
+                                                                scale: [0.6, 1, 0.8]
+                                                            }}
+                                                            transition={{ 
+                                                                duration: 2,
+                                                                ease: ['easeIn', 'easeIn', 'easeIn'],
+                                                                repeat: Infinity,
+                                                                repeatDelay: 1.5,
+                                                                times: [0, 0.35, 1]
+                                                            }}
+                                                            style={{ 
+                                                                fontSize: '2.5rem',
+                                                                display: 'block',
+                                                                textAlign: 'center',
+                                                                filter: 'drop-shadow(0 4px 12px rgba(16,185,129,0.5))'
+                                                            }}
+                                                        >
+                                                            🚀
+                                                        </motion.div>
+                                                        {/* Flame trail */}
+                                                        <motion.div
+                                                            animate={{ 
+                                                                y: [80, 20, -110],
+                                                                opacity: [0, 0.7, 0],
+                                                                scaleY: [0.3, 1, 0.2]
+                                                            }}
+                                                            transition={{ 
+                                                                duration: 2,
+                                                                ease: 'easeIn',
+                                                                repeat: Infinity,
+                                                                repeatDelay: 1.5,
+                                                                times: [0, 0.35, 1]
+                                                            }}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                left: '50%',
+                                                                transform: 'translateX(-50%)',
+                                                                fontSize: '1.2rem',
+                                                                textAlign: 'center',
+                                                                top: '10px'
+                                                            }}
+                                                        >
+                                                            🔥
+                                                        </motion.div>
+                                                    </div>
                                                     
                                                     <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.75rem', color: '#0d9488', letterSpacing: '-0.02em' }}>
                                                         Booking Confirmed!

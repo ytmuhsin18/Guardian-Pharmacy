@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   /* Brand Colors */
@@ -67,8 +67,7 @@ html {
 html.modal-open,
 body.modal-open {
   overflow: hidden !important;
-  height: 100% !important;
-  position: relative !important;
+  overscroll-behavior: none;
 }
 
 a {

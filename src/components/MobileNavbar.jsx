@@ -31,7 +31,15 @@ function MobileNavbar() {
                         key={item.to}
                         className={`nav-item ${index === activeIndex ? 'active' : ''}`}
                     >
-                        <Link to={item.to} className="mobile-nav-link">
+                        <Link 
+                            to={item.to} 
+                            className="mobile-nav-link"
+                            onClick={(e) => {
+                                if (location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to))) {
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
+                            }}
+                        >
                             <span className="nav-icon">
                                 <item.icon
                                     size={24}

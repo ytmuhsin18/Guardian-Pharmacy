@@ -1,0 +1,495 @@
+/* ── Token Status Page ─────────────────────────── */
+
+.token-page {
+    min-height: 100vh;
+    background: #f0f4f8;
+}
+
+/* ── Hero ───────────────────────────────────────── */
+.token-hero {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #0a1628 0%, #0f2a4a 50%, #0a1628 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 80px 24px 100px;
+}
+
+/* Grid pattern overlay */
+.token-grid-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+/* Orbiting decorative rings */
+.orbit-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(16, 185, 129, 0.08);
+    pointer-events: none;
+}
+.orbit-1 {
+    width: 500px;
+    height: 500px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: orbit-spin 20s linear infinite;
+}
+.orbit-2 {
+    width: 750px;
+    height: 750px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: orbit-spin 35s linear infinite reverse;
+    border-color: rgba(234, 179, 8, 0.05);
+}
+@keyframes orbit-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ── Cartoon Rocket Scene ────────────────────────── */
+.rocket-scene {
+    position: absolute;
+    right: 8%;
+    bottom: 30px;
+    width: 90px;
+    height: 280px;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .rocket-scene {
+        right: 3%;
+        width: 70px;
+        height: 220px;
+    }
+}
+
+.rocket-ship {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Flame group sits right below the rocket nozzle */
+.rocket-flame-group {
+    position: relative;
+    width: 22px;
+    height: 45px;
+    margin-top: -4px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.flame {
+    position: absolute;
+    top: 0;
+    border-radius: 50% 50% 40% 40%;
+    transform-origin: top center;
+}
+
+/* Outer flame - orange */
+.flame-main {
+    width: 22px;
+    height: 42px;
+    background: linear-gradient(to bottom, #f97316, #ea580c, transparent);
+    opacity: 0.9;
+    left: 0;
+}
+
+/* Mid flame - yellow */
+.flame-inner {
+    width: 14px;
+    height: 34px;
+    background: linear-gradient(to bottom, #fbbf24, #f59e0b, transparent);
+    left: 4px;
+    opacity: 0.95;
+}
+
+/* Core flame - white/light yellow */
+.flame-core {
+    width: 7px;
+    height: 22px;
+    background: linear-gradient(to bottom, white, #fef9c3, transparent);
+    left: 7.5px;
+}
+
+/* Smoke particles */
+.smoke-particle {
+    position: absolute;
+    bottom: 10px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(200, 200, 220, 0.6);
+}
+
+/* ── Hero Content ────────────────────────────────── */
+.token-hero-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Live badge */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 8px 18px;
+    border-radius: 99px;
+    color: #10b981;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.live-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    position: relative;
+    z-index: 1;
+}
+
+.live-badge-pulse {
+    position: absolute;
+    left: 18px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: live-pulse 1.5s ease-out infinite;
+}
+
+@keyframes live-pulse {
+    0%   { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.8); opacity: 0; }
+}
+
+/* Title */
+.token-hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.token-gold {
+    color: #eab308;
+    display: inline;
+}
+
+.token-hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 500px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .token-hero-title { font-size: 2.6rem; }
+    .token-hero-sub   { font-size: 0.92rem; }
+}
+
+@media (max-width: 480px) {
+    .token-hero-title { font-size: 2rem; }
+}
+
+/* ── Search Card ─────────────────────────────────── */
+.token-search-card {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    padding: 28px;
+}
+
+.token-search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.token-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.token-input-icon {
+    position: absolute;
+    left: 18px;
+    color: rgba(255,255,255,0.4);
+    pointer-events: none;
+}
+
+.token-input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 16px 18px 16px 50px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.token-input::placeholder {
+    color: rgba(255,255,255,0.35);
+}
+
+.token-input:focus {
+    border-color: #10b981;
+    background: rgba(16,185,129,0.08);
+    box-shadow: 0 0 0 4px rgba(16,185,129,0.12);
+}
+
+.token-search-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: inherit;
+    box-shadow: 0 8px 30px rgba(16,185,129,0.3);
+    transition: box-shadow 0.3s ease;
+    letter-spacing: 0.2px;
+}
+
+.token-search-btn:hover {
+    box-shadow: 0 12px 40px rgba(16,185,129,0.45);
+}
+
+.token-search-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+}
+
+/* ── Results Section ─────────────────────────────── */
+.token-results-section {
+    padding: 3rem 24px 6rem;
+    background: #f0f4f8;
+}
+
+.token-results-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.token-empty-state {
+    background: white;
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    color: #64748b;
+}
+
+.token-empty-state svg {
+    margin-bottom: 1.5rem;
+    color: #cbd5e1;
+}
+
+.token-empty-state h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.token-empty-state p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* ── Result Cards ────────────────────────────────── */
+.token-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.token-result-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+    border: 1px solid #f1f5f9;
+}
+
+/* Token number area */
+.token-number-section {
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    padding: 28px 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.big-token-number {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    color: white;
+}
+
+.token-hash {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #10b981;
+}
+
+.big-token-number span:last-child {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+}
+
+.waiting-token {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #eab308;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.token-status-pill-badge {
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.token-status-pill-badge.confirmed,
+.token-status-pill-badge.pending {
+    background: rgba(16,185,129,0.15);
+    color: #10b981;
+}
+
+.token-status-pill-badge.cancelled,
+.token-status-pill-badge.cancel-requested {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+}
+
+/* Card body */
+.token-card-body {
+    padding: 24px 28px;
+}
+
+.token-doctor-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+}
+
+.token-detail-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1rem;
+}
+
+.token-detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #10b981;
+}
+
+.token-detail-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Card footer */
+.token-card-footer {
+    padding: 12px 28px;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.arrive-note {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.5rem;
+}

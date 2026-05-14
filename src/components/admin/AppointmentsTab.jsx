@@ -1,11 +1,25 @@
-import React, { memo, useState, useMemo } from 'react';
+import React, { memo, useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, CheckCircle, X, Hash, Edit2, Search } from 'lucide-react';
+import { Clock, CheckCircle, X, Hash, Edit2, Search, Filter } from 'lucide-react';
 
 const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateAppointmentToken }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterDoctor, setFilterDoctor] = useState(
+        () => localStorage.getItem('admin_apt_filter_doctor') || 'all'
+    );
     const [editingTokenId, setEditingTokenId] = useState(null);
     const [tokenValue, setTokenValue] = useState('');
+
+    // Save filter to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('admin_apt_filter_doctor', filterDoctor);
+    }, [filterDoctor]);
+
+    // Get unique doctor names for the filter dropdown
+    const doctorOptions = useMemo(() => {
+        const names = [...new Set(appointments.map(a => a.doctorName).filter(Boolean))];
+        return names.sort();
+    }, [appointments]);
 
     const handleTokenEdit = (apt) => {
         setEditingTokenId(apt.id);
@@ -26,14 +40,16 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
     };
 
     const filteredAppointments = useMemo(() => {
-        if (!searchTerm) return appointments;
-        const lowTerm = searchTerm.toLowerCase();
-        return appointments.filter(apt => 
-            (apt.patientName && apt.patientName.toLowerCase().includes(lowTerm)) ||
-            (apt.phone && apt.phone.includes(searchTerm)) ||
-            (apt.doctorName && apt.doctorName.toLowerCase().includes(lowTerm))
-        );
-    }, [appointments, searchTerm]);
+        return appointments.filter(apt => {
+            const lowTerm = searchTerm.toLowerCase();
+            const matchesSearch = !searchTerm ||
+                (apt.patientName && apt.patientName.toLowerCase().includes(lowTerm)) ||
+                (apt.phone && apt.phone.includes(searchTerm)) ||
+                (apt.doctorName && apt.doctorName.toLowerCase().includes(lowTerm));
+            const matchesDoctor = filterDoctor === 'all' || apt.doctorName === filterDoctor;
+            return matchesSearch && matchesDoctor;
+        });
+    }, [appointments, searchTerm, filterDoctor]);
 
     return (
         <motion.div
@@ -41,13 +57,60 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
             animate={{ opacity: 1, y: 0 }}
             className="appointments-view"
         >
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-                <div className="admin-search-wrapper" style={{ width: '100%', maxWidth: '350px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+                {/* Doctor Filter Dropdown */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Filter size={16} style={{ color: 'var(--text-muted)' }} />
+                    <select
+                        value={filterDoctor}
+                        onChange={(e) => setFilterDoctor(e.target.value)}
+                        style={{
+                            padding: '10px 16px',
+                            borderRadius: '12px',
+                            border: '1.5px solid var(--border-color)',
+                            background: 'white',
+                            fontSize: '0.88rem',
+                            fontWeight: 600,
+                            color: 'var(--text-main)',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            minWidth: '200px',
+                            outline: 'none',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        }}
+                    >
+                        <option value="all">All Doctors</option>
+                        {doctorOptions.map(name => (
+                            <option key={name} value={name}>{name}</option>
+                        ))}
+                    </select>
+                    {filterDoctor !== 'all' && (
+                        <button
+                            onClick={() => setFilterDoctor('all')}
+                            style={{
+                                background: '#fee2e2',
+                                color: '#ef4444',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '6px 12px',
+                                fontSize: '0.78rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                fontFamily: 'inherit'
+                            }}
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+
+                {/* Search */}
+                <div className="admin-search-wrapper" style={{ width: '100%', maxWidth: '320px' }}>
                     <Search className="search-icon" size={18} />
                     <input
                         type="text"
                         className="admin-search-input"
-                        placeholder="Search by Patient Name or Mobile..."
+                        placeholder="Search patient or mobile..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
