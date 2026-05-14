@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hash, Clock, User, CheckCircle, AlertCircle, Phone, Calendar, ArrowRight, Wifi } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import './TokenStatus.css';
 
 function TokenStatus() {
-    const { appointments, fetchData } = useApp();
+    const { appointments, fetchData, user } = useApp();
     const [searchPhone, setSearchPhone] = useState('');
     const [foundAppointments, setFoundAppointments] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const resultsRef = useRef(null);
 
     useEffect(() => {
         if (foundAppointments !== null) {
@@ -35,18 +37,37 @@ function TokenStatus() {
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         setIsSearching(true);
+
+        // Fetch latest data
         await fetchData();
+
+        // Artificial delay for the "automation" feel
         setTimeout(() => {
             const cleanSearch = searchPhone.replace(/\D/g, '').slice(-10);
-            if (cleanSearch.length < 10) { setIsSearching(false); return; }
+            if (cleanSearch.length < 10) {
+                setIsSearching(false);
+                return;
+            }
+
             const results = appointments.filter(apt => {
                 const aptPhone = apt.phone.replace(/\D/g, '').slice(-10);
                 const aptWhatsapp = (apt.whatsapp || "").replace(/\D/g, '').slice(-10);
                 return aptPhone === cleanSearch || aptWhatsapp === cleanSearch;
             });
+
             setFoundAppointments(results);
             setIsSearching(false);
-        }, 300);
+
+            if (results.length > 0) {
+                setShowSuccess(true);
+                
+                // After success animation, scroll to results
+                setTimeout(() => {
+                    setShowSuccess(false);
+                    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 3500);
+            }
+        }, 1200);
     };
 
     return (
@@ -62,81 +83,60 @@ function TokenStatus() {
                 <div className="orbit-ring orbit-2" />
 
                 {/* 🚀 Cartoon Red Rocket Launch Animation */}
-                <div className="rocket-scene">
+                <div className="space-atmosphere">
+                    <div className="stars-layer-1" />
+                    <div className="stars-layer-2" />
+                    <div className="nebula-glow" />
+                </div>
+
+                {/* 🚀 Cinematic Mini Rocket Model */}
+                <div className={`rocket-scene-cinematic mini-version ${isSearching ? 'is-launching-prep' : ''}`}>
                     <motion.div
-                        className="rocket-ship"
-                        animate={{
-                            y: [120, 0, -300],
-                            opacity: [0, 1, 1, 0],
+                        className="rocket-model-mini"
+                        animate={showSuccess ? {
+                            y: [0, -10, -800],
+                            scale: [1, 1.1, 0.6],
+                            opacity: [1, 1, 0],
+                        } : {
+                            y: [0, -12, 0],
+                            rotate: [0, 0.3, -0.3, 0],
                         }}
-                        transition={{
-                            duration: 2.8,
-                            ease: [0.25, 0.1, 0.25, 1],
-                            times: [0, 0.25, 0.8, 1],
+                        transition={showSuccess ? {
+                            duration: 2.2,
+                            ease: [0.4, 0, 0.2, 1],
+                        } : {
+                            duration: 3.5,
                             repeat: Infinity,
-                            repeatDelay: 1.5,
+                            ease: "easeInOut",
                         }}
                     >
-                        {/* SVG Cartoon Rocket */}
-                        <svg width="60" height="110" viewBox="0 0 60 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            {/* Rocket body */}
-                            <ellipse cx="30" cy="60" rx="16" ry="32" fill="#e53e3e" />
-                            {/* Nose cone */}
-                            <path d="M30 10 C18 30 14 45 14 55 H46 C46 45 42 30 30 10Z" fill="#c53030" />
-                            {/* Window */}
-                            <circle cx="30" cy="55" r="8" fill="white" />
-                            <circle cx="30" cy="55" r="5" fill="#bee3f8" />
-                            <circle cx="28" cy="53" r="1.5" fill="white" opacity="0.7" />
-                            {/* Left fin */}
-                            <path d="M14 75 L4 95 L14 88 Z" fill="#c53030" />
-                            {/* Right fin */}
-                            <path d="M46 75 L56 95 L46 88 Z" fill="#c53030" />
-                            {/* Bottom nozzle */}
-                            <rect x="24" y="88" width="12" height="8" rx="2" fill="#744210" />
-                            {/* Shine highlight */}
-                            <ellipse cx="22" cy="45" rx="4" ry="10" fill="white" opacity="0.18" />
+                        {/* High-Detail SVG Rocket Mini Model */}
+                        <svg width="100" height="180" viewBox="0 0 60 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="rocketBodyMini" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#e53e3e" />
+                                    <stop offset="50%" stopColor="#f56565" />
+                                    <stop offset="100%" stopColor="#c53030" />
+                                </linearGradient>
+                                <radialGradient id="windowGlow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stopColor="#e0f2fe" />
+                                    <stop offset="100%" stopColor="#7dd3fc" />
+                                </radialGradient>
+                            </defs>
+
+                            <ellipse cx="30" cy="60" rx="16" ry="34" fill="url(#rocketBodyMini)" />
+                            <path d="M30 8 C18 30 14 45 14 55 H46 C46 45 42 30 30 8Z" fill="#9b2c2c" />
+                            <circle cx="30" cy="55" r="7" fill="url(#windowGlow)" />
+                            <path d="M14 78 L2 98 C2 98 8 92 14 90 Z" fill="#9b2c2c" />
+                            <path d="M46 78 L58 98 C58 98 52 92 46 90 Z" fill="#9b2c2c" />
+                            <path d="M22 92 H38 L36 102 H24 Z" fill="#2d3748" />
                         </svg>
 
-                        {/* Flame exhaust */}
-                        <div className="rocket-flame-group">
-                            <motion.div
-                                className="flame flame-main"
-                                animate={{ scaleY: [1, 1.4, 0.8, 1.2, 1], scaleX: [1, 0.8, 1.1, 0.9, 1] }}
-                                transition={{ repeat: Infinity, duration: 0.18, ease: 'easeInOut' }}
-                            />
-                            <motion.div
-                                className="flame flame-inner"
-                                animate={{ scaleY: [1, 1.6, 0.7, 1.3, 1], scaleX: [1, 0.7, 1.2, 0.8, 1] }}
-                                transition={{ repeat: Infinity, duration: 0.14, ease: 'easeInOut' }}
-                            />
-                            <motion.div
-                                className="flame flame-core"
-                                animate={{ scaleY: [1, 1.8, 0.6, 1.4, 1] }}
-                                transition={{ repeat: Infinity, duration: 0.10, ease: 'easeInOut' }}
-                            />
+                        <div className="rocket-flame-group-mini">
+                            <motion.div className="flame-mini orange" animate={{ scaleY: [1, 1.4, 1] }} transition={{ repeat: Infinity, duration: 0.15 }} />
+                            <motion.div className="flame-mini yellow" animate={{ scaleY: [1, 1.7, 1] }} transition={{ repeat: Infinity, duration: 0.1 }} />
                         </div>
                     </motion.div>
-
-                    {/* Smoke trail particles */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div
-                            key={i}
-                            className="smoke-particle"
-                            style={{ left: `${28 + (i - 1) * 8}px` }}
-                            animate={{
-                                y: [0, 60 + i * 20],
-                                opacity: [0.5, 0],
-                                scale: [0.5, 1.8],
-                            }}
-                            transition={{
-                                duration: 1.2,
-                                delay: i * 0.15,
-                                repeat: Infinity,
-                                repeatDelay: 0.3,
-                                ease: 'easeOut',
-                            }}
-                        />
-                    ))}
                 </div>
 
                 {/* Hero content */}
@@ -160,7 +160,7 @@ function TokenStatus() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
                     >
-                        Track Your <span className="token-gold">Token</span>
+                        Check <span className="token-gold">Token Status</span>
                     </motion.h1>
 
                     <motion.p
@@ -213,8 +213,48 @@ function TokenStatus() {
                 </div>
             </section>
 
+            {/* ── Success Overlay (Cinematic Version) ── */}
+            <AnimatePresence>
+                {showSuccess && (
+                    <motion.div 
+                        className="token-success-overlay cinematic-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div 
+                            className="token-success-card cinematic-card"
+                            initial={{ scale: 0.5, opacity: 0, y: 100 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 1.5, opacity: 0, y: -200 }}
+                            transition={{ type: 'spring', damping: 20 }}
+                        >
+                            <div className="success-check-circle-cinematic">
+                                <CheckCircle size={64} color="#10b981" />
+                            </div>
+
+                            <h2 className="success-title-cinematic">TOKEN FOUND!</h2>
+                            
+                            <p className="success-description-cinematic">
+                                Your live status is now ready.
+                                <span className="cinematic-shine"></span>
+                            </p>
+
+                            <div className="success-footer-cinematic">
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    className="success-spinner-cinematic"
+                                />
+                                <span>INITIALIZING DASHBOARD...</span>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* ── Results ── */}
-            <section className="token-results-section">
+            <section className="token-results-section" ref={resultsRef}>
                 <div className="token-results-container">
                     <AnimatePresence mode="wait">
                         {foundAppointments === null ? null : foundAppointments.length === 0 ? (

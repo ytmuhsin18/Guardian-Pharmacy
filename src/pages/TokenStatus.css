@@ -493,3 +493,204 @@
     font-weight: 500;
     padding: 0.5rem;
 }
+/* ── Cinematic Rocket Experience ─────────────────── */
+.rocket-scene-cinematic {
+    position: absolute;
+    right: 8%;
+    bottom: 40px;
+    width: 100px;
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 5;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mini-version {
+    right: 5%;
+    bottom: 50px;
+}
+
+.is-launching-prep {
+    animation: cinematic-shake 0.1s infinite;
+}
+
+@keyframes cinematic-shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-1px, -1px) rotate(0.2deg); }
+    40% { transform: translate(-1px, 1px) rotate(-0.2deg); }
+    60% { transform: translate(1px, -1px) rotate(0.2deg); }
+    80% { transform: translate(-1px, -1px) rotate(-0.2deg); }
+    100% { transform: translate(1px, 1px) rotate(0deg); }
+}
+
+.rocket-model-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.4));
+}
+
+.rocket-flame-group-mini {
+    position: relative;
+    width: 24px;
+    height: 45px;
+    margin-top: -6px;
+}
+
+.flame-mini {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50% 50% 40% 40%;
+    transform-origin: top center;
+    filter: blur(1.5px);
+}
+
+.flame-mini.orange {
+    width: 22px;
+    height: 40px;
+    background: linear-gradient(to bottom, #f97316, #ea580c, transparent);
+    opacity: 0.8;
+}
+
+.flame-mini.yellow {
+    width: 14px;
+    height: 32px;
+    background: linear-gradient(to bottom, #fbbf24, #f59e0b, transparent);
+}
+
+/* ── Space Atmosphere ────────────────────────────── */
+.space-atmosphere {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.stars-layer-1, .stars-layer-2 {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 100px 150px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 200px 350px, #ddd, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 400px 50px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 550px 250px, #fff, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 700px 450px, #eee, rgba(0,0,0,0));
+    background-size: 800px 800px;
+}
+
+.stars-layer-1 {
+    animation: stars-move 100s linear infinite;
+    opacity: 0.4;
+}
+
+.stars-layer-2 {
+    animation: stars-move 150s linear infinite reverse;
+    opacity: 0.2;
+    background-size: 600px 600px;
+}
+
+@keyframes stars-move {
+    from { transform: translateY(0); }
+    to { transform: translateY(-800px); }
+}
+
+.nebula-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+    filter: blur(60px);
+}
+
+/* ── Cinematic Success UI ───────────────────────── */
+.cinematic-overlay {
+    background: rgba(0, 0, 0, 0.85) !important;
+}
+
+.cinematic-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: white;
+}
+
+.success-check-circle-cinematic {
+    width: 100px;
+    height: 100px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.success-title-cinematic {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.success-description-cinematic {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.cinematic-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: cinematic-shine-sweep 3s infinite;
+}
+
+@keyframes cinematic-shine-sweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.success-footer-cinematic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.success-spinner-cinematic {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(16, 185, 129, 0.2);
+    border-top-color: #10b981;
+    border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+    .rocket-scene-cinematic {
+        width: 120px;
+        height: 240px;
+        right: 2%;
+    }
+    .rocket-model-full svg {
+        width: 100px;
+        height: auto;
+    }
+    .success-title-cinematic {
+        font-size: 1.8rem;
+    }
+}
