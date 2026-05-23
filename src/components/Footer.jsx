@@ -2,6 +2,7 @@ import React from 'react';
 import './Footer.css';
 import { Pill, MapPin, Phone, Star, Instagram, Facebook, Mail } from 'lucide-react';
 import logo from '../assets/gp-logo-new.png';
+import { motion } from 'framer-motion';
 
 function Footer() {
     return (
@@ -61,9 +62,17 @@ function Footer() {
             </div>
             <div className="footer-bottom">
                 <p>&copy; {new Date().getFullYear()} Guardian Pharmacy. All rights reserved.</p>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', opacity: 0.8 }}>
-                    Web Developed by <a href="mailto:noorulmuhsinbca@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>Muhsin</a>
-                </p>
+                <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 0.8, y: 0 }}
+                    viewport={{ once: true }}
+                    whileHover={{ scale: 1.05, opacity: 1 }}
+                    style={{ marginTop: '0.5rem', fontSize: '0.8rem', display: 'inline-block' }}
+                >
+                    <a href="https://myportfoliomuhsin.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                        Web Developed by <span style={{ textDecoration: 'underline' }}>Muhsin</span>
+                    </a>
+                </motion.p>
             </div>
         </footer>
     );
