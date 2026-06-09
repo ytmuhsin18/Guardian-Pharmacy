@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hash, Clock, User, CheckCircle, AlertCircle, Phone, Calendar, ArrowRight, Wifi } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import './TokenStatus.css';
 
 function TokenStatus() {
     const { appointments, fetchData, user } = useApp();
+    const navigate = useNavigate();
     const [searchPhone, setSearchPhone] = useState('');
     const [foundAppointments, setFoundAppointments] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
@@ -44,23 +46,29 @@ function TokenStatus() {
         // Artificial delay for the "automation" feel
         setTimeout(() => {
             const cleanSearch = searchPhone.replace(/\D/g, '').slice(-10);
+
             if (cleanSearch.length < 10) {
                 setIsSearching(false);
+                showToast('Please enter a valid 10-digit mobile number', 'error');
                 return;
             }
 
             const results = appointments.filter(apt => {
-                const aptPhone = apt.phone.replace(/\D/g, '').slice(-10);
+                const aptPhone = (apt.phone || "").replace(/\D/g, '').slice(-10);
                 const aptWhatsapp = (apt.whatsapp || "").replace(/\D/g, '').slice(-10);
                 return aptPhone === cleanSearch || aptWhatsapp === cleanSearch;
             });
+
+            if (results.length === 0) {
+                showToast('No active appointments found for this number', 'info');
+            }
 
             setFoundAppointments(results);
             setIsSearching(false);
 
             if (results.length > 0) {
                 setShowSuccess(true);
-                
+
                 // After success animation, scroll to results
                 setTimeout(() => {
                     setShowSuccess(false);
@@ -72,6 +80,40 @@ function TokenStatus() {
 
     return (
         <div className="token-page">
+            {/* Back Button */}
+            <motion.button
+                className="token-back-btn"
+                onClick={() => navigate(-1)}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ x: -5, background: 'rgba(255, 255, 255, 0.15)' }}
+                style={{
+                    position: 'absolute',
+                    top: '30px',
+                    left: '20px',
+                    zIndex: 100,
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '14px',
+                    padding: '12px 20px',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: 700,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                    letterSpacing: '0.5px'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ArrowRight size={20} style={{ transform: 'rotate(180deg)' }} />
+                </div>
+                <span>BACK</span>
+            </motion.button>
 
             {/* ── Full-screen Hero ── */}
             <section className="token-hero">
@@ -142,17 +184,7 @@ function TokenStatus() {
                 {/* Hero content */}
                 <div className="token-hero-content">
                     {/* Live badge */}
-                    <motion.div
-                        className="live-badge"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <div className="live-badge-dot" />
-                        <div className="live-badge-pulse" />
-                        <Wifi size={14} />
-                        <span>LIVE TOKEN STATUS</span>
-                    </motion.div>
+
 
                     <motion.h1
                         className="token-hero-title"
@@ -216,13 +248,13 @@ function TokenStatus() {
             {/* ── Success Overlay (Cinematic Version) ── */}
             <AnimatePresence>
                 {showSuccess && (
-                    <motion.div 
+                    <motion.div
                         className="token-success-overlay cinematic-overlay"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <motion.div 
+                        <motion.div
                             className="token-success-card cinematic-card"
                             initial={{ scale: 0.5, opacity: 0, y: 100 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -234,7 +266,7 @@ function TokenStatus() {
                             </div>
 
                             <h2 className="success-title-cinematic">TOKEN FOUND!</h2>
-                            
+
                             <p className="success-description-cinematic">
                                 Your live status is now ready.
                                 <span className="cinematic-shine"></span>
@@ -286,7 +318,7 @@ function TokenStatus() {
                                                     animate={{ scale: [1, 1.05, 1] }}
                                                     transition={{ repeat: Infinity, duration: 2 }}
                                                 >
-                                                    <span className="token-hash">#</span>
+
                                                     <span>{apt.token_number}</span>
                                                 </motion.div>
                                             ) : (

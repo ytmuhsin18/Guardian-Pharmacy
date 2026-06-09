@@ -42,9 +42,9 @@ medicinesRouter.post('/', async (req, res) => {
             RETURNING *
         `;
         res.json([result[0]]);
-    } catch (err) { 
-        console.error('POST medicine error details:', err); 
-        res.status(500).json({ error: err.message }); 
+    } catch (err) {
+        console.error('POST medicine error details:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -112,9 +112,9 @@ doctorsRouter.post('/', async (req, res) => {
         const { name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2 } = req.body;
         const result = await sql`INSERT INTO doctors (name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2) VALUES (${name}, ${specialty}, ${experience}, ${about}, ${image_base64 || null}, ${availability_start || null}, ${availability_end || null}, ${availability_start_2 || null}, ${availability_end_2 || null}) RETURNING *`;
         res.json([result[0]]);
-    } catch (err) { 
-        console.error('POST doctor error details:', err); 
-        res.status(500).json({ error: err.message }); 
+    } catch (err) {
+        console.error('POST doctor error details:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 doctorsRouter.put('/:id', async (req, res) => {
@@ -185,7 +185,7 @@ appointmentsRouter.put('/:id', async (req, res) => {
 appointmentsRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
-        await sql`DELETE FROM appointments WHERE created_at < NOW() - INTERVAL '24 hours'`;
+        await sql`DELETE FROM appointments WHERE created_at < NOW() - INTERVAL '72 hours'`;
         res.json({ success: true });
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });
@@ -233,7 +233,7 @@ ordersRouter.put('/:id', async (req, res) => {
 ordersRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
-        await sql`DELETE FROM orders WHERE created_at < NOW() - INTERVAL '24 hours'`;
+        await sql`DELETE FROM orders WHERE created_at < NOW() - INTERVAL '72 hours'`;
         res.json({ success: true });
     } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
 });
@@ -272,7 +272,7 @@ usersRouter.post('/register', async (req, res) => {
         if (existingUser.length > 0) {
             return res.status(400).json({ error: 'Phone number already registered. Please Login.' });
         }
-        
+
         const result = await sql`INSERT INTO users (name, email, phone, password) VALUES (${name}, ${email || null}, ${phone}, ${password}) RETURNING id, name, email, phone, created_at`;
         res.json(result[0]);
     } catch (err) { console.error('POST register error:', err); res.status(500).json({ error: err.message }); }
@@ -283,16 +283,16 @@ usersRouter.post('/login', async (req, res) => {
         const sql = getSql();
         const { phone, password } = req.body;
         const result = await sql`SELECT id, name, email, phone, created_at, password FROM users WHERE phone = ${phone}`;
-        
+
         if (result.length === 0) {
             return res.status(404).json({ error: 'User not found. Please Sign Up first.' });
         }
-        
+
         const user = result[0];
         if (user.password !== password) {
             return res.status(401).json({ error: 'Incorrect password. Please try again.' });
         }
-        
+
         // Remove password from response
         delete user.password;
         res.json(user);
@@ -321,10 +321,10 @@ app.use('/api/users', usersRouter);
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('SERVER FATAL ERROR:', err);
-    res.status(500).json({ 
-        error: 'Global Server Error', 
+    res.status(500).json({
+        error: 'Global Server Error',
         message: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
 

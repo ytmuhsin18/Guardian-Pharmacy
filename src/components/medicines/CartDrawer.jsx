@@ -12,6 +12,16 @@ const CartDrawer = ({
 }) => {
     const remainingForFree = Math.max(0, FREE_DELIVERY_THRESHOLD - cartTotal);
     const deliveryProgress = Math.min(100, (cartTotal / FREE_DELIVERY_THRESHOLD) * 100);
+    const qrSectionRef = React.useRef(null);
+
+    // Auto-scroll to QR when Online Payment is selected
+    React.useEffect(() => {
+        if (customerDetails.payment_method === 'ONLINE' && qrSectionRef.current) {
+            setTimeout(() => {
+                qrSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        }
+    }, [customerDetails.payment_method]);
 
     return (
         <AnimatePresence>
@@ -374,6 +384,76 @@ const CartDrawer = ({
                                                 </div>
                                             </motion.div>
                                         </div>
+
+                                        <AnimatePresence>
+                                            {customerDetails.payment_method === 'ONLINE' && (
+                                                <motion.div
+                                                    ref={qrSectionRef}
+                                                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+                                                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                    style={{ overflow: 'hidden' }}
+                                                >
+                                                    <div style={{
+                                                        background: '#f8fafc',
+                                                        borderRadius: '20px',
+                                                        padding: '20px',
+                                                        border: '1.5px dashed #0984e3',
+                                                        textAlign: 'center'
+                                                    }}>
+                                                        <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>Scan & Pay Online</h4>
+                                                        <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px' }}>Pay via any UPI app (Paytm, GPay, PhonePe, etc.)</p>
+
+                                                        <div style={{
+                                                            background: 'white',
+                                                            padding: '12px',
+                                                            borderRadius: '16px',
+                                                            display: 'inline-block',
+                                                            boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
+                                                            marginBottom: '16px'
+                                                        }}>
+                                                            <a href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR`}>
+                                                                <img
+                                                                    src="/paytm-qr.jpg"
+                                                                    alt="Payment QR"
+                                                                    style={{ width: '160px', height: '160px', borderRadius: '8px' }}
+                                                                />
+                                                            </a>
+                                                        </div>
+
+                                                        <div style={{
+                                                            background: 'white',
+                                                            padding: '12px 16px',
+                                                            borderRadius: '16px',
+                                                            border: '1.5px solid #e2e8f0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            gap: '12px',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s ease',
+                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                                                        }}
+                                                            onClick={() => {
+                                                                navigator.clipboard.writeText('paytmqr5j6flc@ptys');
+                                                                alert('UPI ID copied to clipboard!');
+                                                            }}>
+                                                            <div style={{ textAlign: 'left' }}>
+                                                                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>UPI ID (Tap to Copy)</span>
+                                                                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0984e3' }}>paytmqr5j6flc@ptys</span>
+                                                            </div>
+                                                            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '10px' }}>
+                                                                <Sparkles size={16} color="#0984e3" />
+                                                            </div>
+                                                        </div>
+
+                                                        <p style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '12px', fontStyle: 'italic' }}>
+                                                            * "Pay & Place Order" will automatically redirect you to UPI and register your order.
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </div>
 
@@ -394,12 +474,16 @@ const CartDrawer = ({
                                         <button
                                             type="submit"
                                             className="btn-checkout-premium"
-                                            style={{ flex: 2, height: '54px' }}
+                                            style={{
+                                                flex: 2,
+                                                height: '54px',
+                                                background: customerDetails.payment_method === 'ONLINE' ? 'linear-gradient(135deg, #0984e3, #00cec9)' : 'var(--primary)'
+                                            }}
                                             disabled={isCheckingOut}
                                         >
                                             <div className="btn-content" style={{ justifyContent: 'center' }}>
                                                 <span className="btn-total" style={{ fontSize: '1rem' }}>
-                                                    {isCheckingOut ? 'Processing...' : 'Place Order Now'}
+                                                    {isCheckingOut ? 'Processing...' : (customerDetails.payment_method === 'ONLINE' ? 'Pay & Place Order' : 'Place Order Now')}
                                                 </span>
                                             </div>
                                         </button>

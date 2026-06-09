@@ -140,6 +140,7 @@ function App() {
       address: customerDetails.address,
       pincode: customerDetails.pincode,
       email: customerDetails.email || null,
+      message: customerDetails.message || '',
       items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, selectedSize: item.selectedSize, image: item.images?.[0] || item.image_base64 })),
       total_amount: cartTotal + (cartTotal >= 500 ? 0 : 40),
       payment_method: String(customerDetails.payment_method || 'COD')
@@ -188,6 +189,15 @@ function App() {
 
       const timeoutDuration = customerDetails.payment_method === 'ONLINE' ? 600000 : 13000;
       setTimeout(() => setOrderComplete(false), timeoutDuration);
+
+      // AUTOMATION: If online payment, attempt to open UPI app immediately after order is placed
+      if (customerDetails.payment_method === 'ONLINE') {
+        const upiUrl = `upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR&tn=Order%20for%20${customerDetails.name}`;
+        // Delay slightly to let the "Order Placed" animation start
+        setTimeout(() => {
+          window.location.href = upiUrl;
+        }, 800);
+      }
     }
   };
 
@@ -196,7 +206,7 @@ function App() {
       <ScrollToTop />
       <div className="page-layout">
 
-        {!isAdminPage && <Navbar />}
+        {!isAdminPage && location.pathname !== '/tokens' && <Navbar />}
         {!isAdminPage && <CustomerNotification />}
         <main className={isAdminPage ? "" : "main-content"}>
           <Routes>
@@ -214,8 +224,8 @@ function App() {
           </Routes>
         </main>
         {!isAdminPage && <Footer />}
-        {!isAdminPage && <MobileNavbar />}
-        {!isAdminPage && <WhatsAppButton />}
+        {!isAdminPage && location.pathname !== '/tokens' && <MobileNavbar />}
+        {!isAdminPage && location.pathname !== '/tokens' && <WhatsAppButton />}
 
         {!shouldHideCart && (
           <CartDrawer
@@ -405,7 +415,7 @@ function App() {
                 <div className="confirm-text-container">
                   <p className="confirm-text">
                     {(finalOrderSummary?.paymentMethod === 'ONLINE')
-                      ? "Thank you for your order! Our team will contact you on WhatsApp shortly to provide the payment link/QR code."
+                      ? "Success! Your payment request is received. Our team will verify the transaction and confirm your order shortly."
                       : "Thank you for your order! Our team will contact you shortly to confirm your delivery details."}
                   </p>
                   <div className="order-summary-box">

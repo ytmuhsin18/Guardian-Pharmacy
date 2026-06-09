@@ -1,0 +1,476 @@
+/* ── Lab Tests Page ────────────────────────────────────────── */
+.lab-page {
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* HERO */
+.lab-hero {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 5rem 0 6rem;
+    overflow: hidden;
+}
+
+.lab-hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.lab-orb-1 {
+    width: 500px;
+    height: 500px;
+    top: -20%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+}
+
+.lab-orb-2 {
+    width: 350px;
+    height: 350px;
+    bottom: -15%;
+    left: -8%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+}
+
+.lab-orb-3 {
+    width: 200px;
+    height: 200px;
+    top: 40%;
+    left: 35%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+}
+
+.lab-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.lab-hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #10b981;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.lab-hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.25rem;
+}
+
+.lab-gradient-text {
+    background: linear-gradient(135deg, #10b981, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.lab-hero-sub {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* CTA Row */
+.lab-cta-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 900px;
+}
+
+.lab-cta-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.4rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.lab-cta-card:hover {
+    color: white;
+}
+
+.lab-cta-icon-wrap {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+}
+
+.call-icon {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.wa-icon {
+    background: linear-gradient(135deg, #25d366, #128c50);
+}
+
+.lab-cta-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.lab-cta-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.lab-cta-value {
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.lab-cta-arrow {
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+}
+
+/* SECTION HEADER */
+.lab-section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.lab-section-header h2 {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+.lab-section-header p {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+/* HOW IT WORKS */
+.lab-steps-section {
+    padding: 5rem 0;
+    background: #f8fafc;
+}
+
+.lab-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    position: relative;
+}
+
+.lab-step-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.lab-step-number {
+    font-size: 3rem;
+    font-weight: 900;
+    opacity: 0.12;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.lab-step-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.lab-step-card h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.75rem;
+}
+
+.lab-step-card p {
+    color: #64748b;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.lab-step-connector {
+    display: none;
+    /* hidden on smaller viewports; decorative on large */
+}
+
+/* TEST CATEGORIES */
+.lab-categories-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.lab-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.lab-category-pill {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.lab-category-pill:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.lab-cat-emoji {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.lab-cat-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.lab-cat-tag {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* TRUST SECTION */
+.lab-trust-section {
+    padding: 4rem 0;
+    background: #f8fafc;
+}
+
+.lab-trust-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0f172a 0%, #1a2744 100%);
+    border-radius: 36px;
+    padding: 4rem 3rem;
+    text-align: center;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
+}
+
+.lab-trust-orb-1 {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.lab-trust-orb-2 {
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.lab-trust-content {
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+
+.lab-trust-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 20px;
+    color: #10b981;
+    margin-bottom: 1.5rem;
+}
+
+.lab-trust-card h2 {
+    font-size: 2.25rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.lab-trust-card p {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+}
+
+.lab-trust-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+}
+
+.lab-trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.lab-trust-badge svg {
+    color: #10b981;
+}
+
+.lab-trust-cta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.lab-trust-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.lab-trust-btn.call {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.35);
+}
+
+.lab-trust-btn.wa {
+    background: linear-gradient(135deg, #25d366, #128c50);
+    color: white;
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .lab-hero-title {
+        font-size: 2.6rem;
+    }
+
+    .lab-steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lab-cta-row {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .lab-hero {
+        padding: 4rem 0 5rem;
+    }
+
+    .lab-hero-title {
+        font-size: 2.2rem;
+    }
+
+    .lab-cta-row {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .lab-cta-card {
+        width: 100%;
+        max-width: 380px;
+    }
+
+    .lab-trust-card {
+        padding: 3rem 1.5rem;
+    }
+
+    .lab-trust-card h2 {
+        font-size: 1.75rem;
+    }
+
+    .lab-categories-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

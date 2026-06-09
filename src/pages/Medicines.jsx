@@ -55,7 +55,7 @@ function Medicines() {
             const category = med.category || '';
             const combination = med.combination || '';
             const searchTermLower = searchTerm.toLowerCase();
-            
+
             return name.toLowerCase().includes(searchTermLower) ||
                 category.toLowerCase().includes(searchTermLower) ||
                 combination.toLowerCase().includes(searchTermLower);
@@ -109,80 +109,7 @@ function Medicines() {
                         </div>
                     </div>
 
-                    <AnimatePresence>
-                        {!searchTerm && (
-                            <motion.div
-                                className="quick-action-banners"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                style={{
-                                    marginTop: '2.5rem',
-                                    display: 'flex',
-                                    gap: '1rem',
-                                    flexWrap: 'wrap',
-                                    justifyContent: 'center',
-                                    overflow: 'hidden'
-                                }}
-                            >
-                                <motion.div
-                                    className="action-banner-item"
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => {
-                                        if (!user) {
-                                            navigate('/signin', { state: { from: '/medicines' } });
-                                        } else {
-                                            window.location.href = "tel:9487469098";
-                                        }
-                                    }}
-                                    style={{ cursor: 'pointer', borderLeft: '4px solid #0ea5e9' }}
-                                >
-                                    <motion.div
-                                        className="action-icon-wrapper call-icon"
-                                        animate={{
-                                            boxShadow: ['0 0 0 0 rgba(14, 165, 233, 0.4)', '0 0 0 10px rgba(14, 165, 233, 0)'],
-                                            scale: [1, 1.05, 1]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                    >
-                                        <Phone className="action-icon" size={24} />
-                                    </motion.div>
-                                    <div className="action-text-wrapper">
-                                        <h3>Order on Call</h3>
-                                        <p>94874 69098</p>
-                                    </div>
-                                </motion.div>
 
-                                <motion.div
-                                    className="action-banner-item"
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => {
-                                        window.open("https://wa.me/919487469098?text=Hi,%20I%20have%20a%20prescription%20I'd%20like%20to%20share.", "_blank");
-                                    }}
-                                    style={{ cursor: 'pointer', borderLeft: '4px solid #25D366' }}
-                                >
-                                    <motion.div
-                                        className="action-icon-wrapper wa-icon"
-                                        style={{ background: 'rgba(37, 211, 102, 0.1)', color: '#25D366' }}
-                                        animate={{
-                                            boxShadow: ['0 0 0 0 rgba(37, 211, 102, 0.4)', '0 0 0 10px rgba(37, 211, 102, 0)'],
-                                            scale: [1, 1.05, 1]
-                                        }}
-                                        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                    >
-                                        <Receipt className="action-icon" size={24} />
-                                    </motion.div>
-                                    <div className="action-text-wrapper">
-                                        <h3>Send Prescription</h3>
-                                        <p>Order via WhatsApp</p>
-                                    </div>
-                                </motion.div>
-
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             </section>
 
@@ -210,14 +137,6 @@ function Medicines() {
                                 ))}
                             </AnimatePresence>
                         </motion.div>
-                    )}
-
-                    {filteredMedicines.length === 0 && (
-                        <div className="empty-state">
-                            <div className="empty-icon"><Search size={48} className="text-muted" /></div>
-                            <h3>No medicines found</h3>
-                            <p>We couldn't find any medicines matching "{searchTerm}"</p>
-                        </div>
                     )}
                 </div>
             </section>

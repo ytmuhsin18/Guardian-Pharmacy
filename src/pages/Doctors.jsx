@@ -41,7 +41,7 @@ const DoctorCard = memo(({ doc, idx, onSelect, fetchImage }) => {
 
             <div className="doc-info">
                 <h3 className="doc-name">{doc.name.toUpperCase()}</h3>
-                
+
                 <div className="doc-specialty-wrapper">
                     <span className="doc-specialty-badge">
                         {doc.specialty.toUpperCase()}
@@ -99,11 +99,32 @@ function Doctors() {
             return;
         }
         setSelectedDoctor(doc);
-        
+
+        // Pre-fill today's date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
         // Auto-select slot 1 if it's the only one
         const slot1 = `${doc.availability_start || '06:00 PM'} - ${doc.availability_end || '10:00 PM'}`;
-        if (!doc.availability_start_2 || !doc.availability_end_2) {
-            setBookingFormData(prev => ({ ...prev, selectedSlot: slot1 }));
+        const defaultSlot = (!doc.availability_start_2 || !doc.availability_end_2) ? slot1 : '';
+
+        setBookingFormData({
+            patientName: '',
+            date: todayStr,
+            phone: '',
+            reason: '',
+            selectedSlot: defaultSlot
+        });
+
+        // Check if today is Sunday
+        if (today.getDay() === 0) {
+            setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <strong>094874 69098</strong></>);
+            setBookingFormData(prev => ({ ...prev, date: '' }));
+        } else {
+            setDateError('');
         }
     };
 
@@ -116,7 +137,7 @@ function Doctors() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        
+
         if (name === 'date') {
             const selectedDate = new Date(value);
             if (selectedDate.getDay() === 0) {
@@ -127,7 +148,7 @@ function Doctors() {
                 setDateError('');
             }
         }
-        
+
         setBookingFormData({
             ...bookingFormData,
             [name]: value
@@ -136,7 +157,7 @@ function Doctors() {
 
     const handleBookingSubmit = (e) => {
         e.preventDefault();
-        
+
         if (!bookingFormData.selectedSlot) {
             alert("Please select an availability slot before confirming.");
             return;
@@ -188,54 +209,56 @@ function Doctors() {
                         Meet Our <span className="highlight">Medical Experts</span>
                     </motion.h1>
                     <motion.p
-                        className="hero-subtitle"
+                        className="docs-hero-sub"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
+                        transition={{ delay: 0.3 }}
                     >
                         Click <span className="bold-gold">Book Appointment</span> to schedule a consultation with our specialists.
-                    </motion.p>
-                    
-                    <motion.div 
-                        className="hero-action"
-                        style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 }}
-                    >
-                        <Link to="/tokens" className="live-token-btn">
-                            <motion.div 
-                                className="token-icon-box"
-                                animate={{ rotate: [0, 15, -15, 0] }}
-                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                            >
-                                <Hash size={20} color="white" />
-                            </motion.div>
-                            <div className="token-text-content">
-                                <span className="token-label">CHECK LIVE TOKEN STATUS</span>
-                                <div className="token-subtext">
-                                    <span>TAP HERE</span>
-                                    <motion.div
-                                        animate={{ y: [0, -4, 0] }}
-                                        transition={{ repeat: Infinity, duration: 1 }}
-                                    >
-                                        <Hand size={14} color="white" fill="white" />
-                                    </motion.div>
+                        <br />
+                        <motion.div
+                            className="hero-action"
+                            style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', marginTop: '20px' }}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            <Link to="/tokens" className="live-token-btn">
+                                <motion.div
+                                    className="token-icon-box"
+                                    animate={{ rotate: [0, 15, -15, 0] }}
+                                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                >
+                                    <Hash size={20} color="white" />
+                                </motion.div>
+                                <div className="token-text-content">
+                                    <span className="token-label">CHECK LIVE TOKEN STATUS</span>
+                                    <div className="token-subtext">
+                                        <span>TAP HERE</span>
+                                        <motion.div
+                                            animate={{ y: [0, -4, 0] }}
+                                            transition={{ repeat: Infinity, duration: 1 }}
+                                        >
+                                            <Hand size={14} color="white" fill="white" />
+                                        </motion.div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="live-indicator">
-                                <div className="live-dot"></div>
-                                <div className="live-pulse"></div>
-                            </div>
-                        </Link>
-                    </motion.div>
+                                <div className="live-indicator">
+                                    <div className="live-dot"></div>
+                                    <div className="live-pulse"></div>
+                                </div>
+                            </Link>
+                        </motion.div>
+                    </motion.p>
+
+
                 </div>
             </section>
 
             {/* --- SPECIALISTS INFO CARD --- */}
             <section className="specialists-info-section">
                 <div className="container">
-                    <motion.div 
+                    <motion.div
                         className="specialists-card"
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -330,13 +353,13 @@ function Doctors() {
                                                         initial={{ scale: 0, rotate: -15 }}
                                                         animate={{ scale: 1, rotate: 0 }}
                                                         transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-                                                        style={{ 
-                                                            width: '80px', 
-                                                            height: '80px', 
-                                                            background: '#f0fdf4', 
-                                                            borderRadius: '50%', 
-                                                            display: 'flex', 
-                                                            alignItems: 'center', 
+                                                        style={{
+                                                            width: '80px',
+                                                            height: '80px',
+                                                            background: '#f0fdf4',
+                                                            borderRadius: '50%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
                                                             justifyContent: 'center',
                                                             margin: '0 auto 1.5rem',
                                                             border: '4px solid #ccfbf1'
@@ -346,27 +369,27 @@ function Doctors() {
                                                     </motion.div>
 
                                                     {/* 🚀 Rocket Takeoff Animation */}
-                                                    <div style={{ 
-                                                        position: 'relative', 
-                                                        height: '90px', 
+                                                    <div style={{
+                                                        position: 'relative',
+                                                        height: '90px',
                                                         overflow: 'hidden',
                                                         width: '60px',
                                                         margin: '0 auto 0.5rem'
                                                     }}>
                                                         <motion.div
-                                                            animate={{ 
+                                                            animate={{
                                                                 y: [60, 0, -120],
                                                                 opacity: [0, 1, 0],
                                                                 scale: [0.6, 1, 0.8]
                                                             }}
-                                                            transition={{ 
+                                                            transition={{
                                                                 duration: 2,
                                                                 ease: ['easeIn', 'easeIn', 'easeIn'],
                                                                 repeat: Infinity,
                                                                 repeatDelay: 1.5,
                                                                 times: [0, 0.35, 1]
                                                             }}
-                                                            style={{ 
+                                                            style={{
                                                                 fontSize: '2.5rem',
                                                                 display: 'block',
                                                                 textAlign: 'center',
@@ -377,12 +400,12 @@ function Doctors() {
                                                         </motion.div>
                                                         {/* Flame trail */}
                                                         <motion.div
-                                                            animate={{ 
+                                                            animate={{
                                                                 y: [80, 20, -110],
                                                                 opacity: [0, 0.7, 0],
                                                                 scaleY: [0.3, 1, 0.2]
                                                             }}
-                                                            transition={{ 
+                                                            transition={{
                                                                 duration: 2,
                                                                 ease: 'easeIn',
                                                                 repeat: Infinity,
@@ -401,17 +424,17 @@ function Doctors() {
                                                             🔥
                                                         </motion.div>
                                                     </div>
-                                                    
+
                                                     <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '0.75rem', color: '#0d9488', letterSpacing: '-0.02em' }}>
                                                         Booking Confirmed!
                                                     </h2>
-                                                    
+
                                                     <p style={{ fontSize: '1.05rem', color: '#64748b', fontWeight: 500, lineHeight: 1.5, marginBottom: '1.5rem' }}>
                                                         Thank you for choosing Guardian Clinic. Our team is preparing your token details.
                                                         <br /><br />
                                                         <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your visit! 🧑‍⚕️🏥✨</span>
                                                     </p>
-                                                    
+
                                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                                         <motion.div
                                                             animate={{ rotate: 360 }}
@@ -441,17 +464,28 @@ function Doctors() {
                                                     <p className="qr-subtitle">Scan the QR below via Paytm / any UPI app to confirm your slot</p>
 
                                                     <div className="qr-image-wrapper">
-                                                        <img
-                                                            src="/paytm-qr.jpg"
-                                                            alt="Paytm QR Code"
-                                                            className="qr-image"
-                                                        />
-                                                        <div className="qr-label">Paytm · UPI · GPay · PhonePe</div>
+                                                        <a
+                                                            href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Clinic&am=250&cu=INR&tn=Appointment%20for%20${bookingFormData.patientName}`}
+                                                            className="qr-link"
+                                                            style={{ textDecoration: 'none', display: 'block' }}
+                                                        >
+                                                            <img
+                                                                src="/paytm-qr.jpg"
+                                                                alt="Paytm QR Code"
+                                                                className="qr-image"
+                                                                style={{ cursor: 'pointer' }}
+                                                            />
+                                                            <div className="qr-label">Paytm · UPI · GPay · PhonePe</div>
+                                                            <div className="upi-id-display" style={{ marginTop: '8px', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', background: '#f1f5f9', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                                                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>TAP TO PAY VIA ANY APP</span>
+                                                                <span style={{ color: '#0d9488' }}>paytmqr5j6flc@ptys</span>
+                                                            </div>
+                                                        </a>
                                                     </div>
 
                                                     <p className="qr-note">💡 Your token will be assigned by the admin once payment is verified.</p>
 
-                                                     <div className="qr-actions">
+                                                    <div className="qr-actions">
                                                         <button
                                                             className="btn btn-primary btn-block"
                                                             onClick={closeModal}
@@ -459,7 +493,7 @@ function Doctors() {
                                                         >
                                                             ✅ Done, I've Paid
                                                         </button>
-                                                        
+
                                                         {/* WhatsApp Help Button with Animation */}
                                                         <motion.a
                                                             href="https://wa.me/919487469098?text=I%20need%20help%20with%20my%20appointment%20payment%20verification"
@@ -508,10 +542,10 @@ function Doctors() {
                                                 <div>
                                                     <strong>Doctor Available</strong>
                                                     <div className="avail-slots-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '0.5rem' }}>
-                                                        <button 
+                                                        <button
                                                             type="button"
                                                             className={`slot-select-btn ${bookingFormData.selectedSlot === `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}` ? 'active' : ''}`}
-                                                            onClick={() => setBookingFormData({...bookingFormData, selectedSlot: `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}`})}
+                                                            onClick={() => setBookingFormData({ ...bookingFormData, selectedSlot: `${selectedDoctor.availability_start || '06:00 PM'} - ${selectedDoctor.availability_end || '10:00 PM'}` })}
                                                         >
                                                             <div className="slot-check">
                                                                 <CheckCircle size={14} />
@@ -523,10 +557,10 @@ function Doctors() {
                                                         </button>
 
                                                         {selectedDoctor.availability_start_2 && selectedDoctor.availability_end_2 && (
-                                                            <button 
+                                                            <button
                                                                 type="button"
                                                                 className={`slot-select-btn ${bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? 'active' : ''}`}
-                                                                onClick={() => setBookingFormData({...bookingFormData, selectedSlot: `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}`})}
+                                                                onClick={() => setBookingFormData({ ...bookingFormData, selectedSlot: `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` })}
                                                                 style={{ borderColor: bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? '#b45309' : '#fde68a' }}
                                                             >
                                                                 <div className="slot-check" style={{ background: bookingFormData.selectedSlot === `${selectedDoctor.availability_start_2} - ${selectedDoctor.availability_end_2}` ? '#b45309' : 'transparent' }}>

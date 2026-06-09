@@ -5,48 +5,48 @@ import gpLogo from '../../assets/gp-logo-new.png';
 // A5 dimensions: 148mm x 210mm
 
 const OrderPrintSlip = ({ order }) => {
-    const printRef = useRef(null);
+  const printRef = useRef(null);
 
-    const itemsTotal = (order.items || []).reduce(
-        (sum, item) => sum + Number(item.price) * (item.quantity || 1),
-        0
-    );
-    const deliveryFee = Math.max(0, Number(order.total_amount) - itemsTotal);
+  const itemsTotal = (order.items || []).reduce(
+    (sum, item) => sum + Number(item.price) * (item.quantity || 1),
+    0
+  );
+  const deliveryFee = Math.max(0, Number(order.total_amount) - itemsTotal);
 
-    const pMethod = order.payment_method || order.paymentMethod || 'COD';
-    const isOnline = ['online', 'prepaid'].includes(pMethod.toLowerCase());
+  const pMethod = order.payment_method || order.paymentMethod || 'COD';
+  const isOnline = ['online', 'prepaid'].includes(pMethod.toLowerCase());
 
-    const orderDate = order.created_at
-        ? new Date(order.created_at).toLocaleString('en-IN', {
-              day: '2-digit', month: 'short', year: 'numeric',
-              hour: '2-digit', minute: '2-digit'
-          })
-        : new Date().toLocaleString('en-IN', {
-              day: '2-digit', month: 'short', year: 'numeric',
-              hour: '2-digit', minute: '2-digit'
-          });
+  const orderDate = order.created_at
+    ? new Date(order.created_at).toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    })
+    : new Date().toLocaleString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
 
-    const handlePrint = async () => {
-        // Convert logo to base64 so it works in a detached print window
-        let logoDataUrl = '';
-        try {
-            const res = await fetch(gpLogo);
-            const blob = await res.blob();
-            logoDataUrl = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-        } catch (_) {
-            // logo fetch failed – print without it
-        }
+  const handlePrint = async () => {
+    // Convert logo to base64 so it works in a detached print window
+    let logoDataUrl = '';
+    try {
+      const res = await fetch(gpLogo);
+      const blob = await res.blob();
+      logoDataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    } catch (_) {
+      // logo fetch failed – print without it
+    }
 
-        const content = printRef.current.innerHTML;
-        // Replace the placeholder src with the real base64 data URL
-        const injected = content.replace('__LOGO_SRC__', logoDataUrl);
+    const content = printRef.current.innerHTML;
+    // Replace the placeholder src with the real base64 data URL
+    const injected = content.replace('__LOGO_SRC__', logoDataUrl);
 
-        const printWindow = window.open('', '_blank', 'width=600,height=800');
-        printWindow.document.write(`
+    const printWindow = window.open('', '_blank', 'width=600,height=800');
+    printWindow.document.write(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -221,107 +221,107 @@ const OrderPrintSlip = ({ order }) => {
 </body>
 </html>
         `);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 600);
-    };
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 600);
+  };
 
-    return (
-        <>
-            {/* Hidden slip content – rendered off-screen */}
-            <div ref={printRef} style={{ display: 'none' }}>
-                {/* Header */}
-                <div className="slip-header">
-                    {/* eslint-disable-next-line */}
-                    <img src="__LOGO_SRC__" alt="Guardian Pharmacy" className="logo-img" />
-                    <div className="store-info">
-                        <div className="store-name">Guardian Pharmacy</div>
-                        <div className="store-tagline">Your trusted neighbourhood pharmacy</div>
-                        <div className="store-contact">📞 94874 69098 &nbsp;|&nbsp; 📍 17- A SOUTH MAIN STREET, THIRUVARUR</div>
-                    </div>
-                </div>
+  return (
+    <>
+      {/* Hidden slip content – rendered off-screen */}
+      <div ref={printRef} style={{ display: 'none' }}>
+        {/* Header */}
+        <div className="slip-header">
+          {/* eslint-disable-next-line */}
+          <img src="__LOGO_SRC__" alt="Guardian Pharmacy" className="logo-img" />
+          <div className="store-info">
+            <div className="store-name">Guardian Pharmacy</div>
+            <div className="store-tagline">Your trusted neighbourhood pharmacy</div>
+            <div className="store-contact">📞 94874 69098 &nbsp;|&nbsp; 📍 17- A SOUTH MAIN STREET, THIRUVARUR</div>
+          </div>
+        </div>
 
-                {/* Order Meta */}
-                <div className="order-meta">
-                    <span className="order-id">Order #{order.id ? String(order.id).slice(0, 8).toUpperCase() : 'N/A'}</span>
-                    <span>{orderDate}</span>
-                </div>
+        {/* Order Meta */}
+        <div className="order-meta">
+          <span className="order-id">Order {order.id ? String(order.id).slice(0, 8).toUpperCase() : 'N/A'}</span>
+          <span>{orderDate}</span>
+        </div>
 
-                {/* Customer Details */}
-                <div className="section-title">Customer Details</div>
-                <div className="customer-block">
-                    <div className="customer-name">{order.customer_name}</div>
-                    <div className="customer-detail-row">
-                        <span><strong>📞</strong> {order.phone}</span>
-                        {order.whatsapp && <span><strong>WhatsApp:</strong> {order.whatsapp}</span>}
-                    </div>
-                    <div className="customer-address">
-                        <strong>📍 Address:</strong> {order.address}{order.pincode ? `, ${order.pincode}` : ''}
-                    </div>
-                </div>
+        {/* Customer Details */}
+        <div className="section-title">Customer Details</div>
+        <div className="customer-block">
+          <div className="customer-name">{order.customer_name}</div>
+          <div className="customer-detail-row">
+            <span><strong>📞</strong> {order.phone}</span>
+            {order.whatsapp && <span><strong>WhatsApp:</strong> {order.whatsapp}</span>}
+          </div>
+          <div className="customer-address">
+            <strong>📍 Address:</strong> {order.address}{order.pincode ? `, ${order.pincode}` : ''}
+          </div>
+        </div>
 
 
 
-                {/* Totals */}
-                <div className="totals-block">
-                    <div className="totals-row">
-                        <span>Items Total</span>
-                        <span>₹{itemsTotal.toFixed(2)}</span>
-                    </div>
-                    <div className={`totals-row ${deliveryFee === 0 ? 'delivery' : ''}`}>
-                        <span>Delivery Charge</span>
-                        <span>{deliveryFee > 0 ? `₹${deliveryFee.toFixed(2)}` : 'FREE'}</span>
-                    </div>
-                    <div className="totals-row grand">
-                        <span>Grand Total</span>
-                        <span>₹{Number(order.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                    <div>
-                        <span className={`payment-badge ${isOnline ? 'online' : 'cod'}`}>
-                            {isOnline ? '💳 Online Payment' : '💵 Cash on Delivery'}
-                        </span>
-                    </div>
-                </div>
+        {/* Totals */}
+        <div className="totals-block">
+          <div className="totals-row">
+            <span>Items Total</span>
+            <span>₹{itemsTotal.toFixed(2)}</span>
+          </div>
+          <div className={`totals-row ${deliveryFee === 0 ? 'delivery' : ''}`}>
+            <span>Delivery Charge</span>
+            <span>{deliveryFee > 0 ? `₹${deliveryFee.toFixed(2)}` : 'FREE'}</span>
+          </div>
+          <div className="totals-row grand">
+            <span>Grand Total</span>
+            <span>₹{Number(order.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          </div>
+          <div>
+            <span className={`payment-badge ${isOnline ? 'online' : 'cod'}`}>
+              {isOnline ? '💳 Online Payment' : '💵 Cash on Delivery'}
+            </span>
+          </div>
+        </div>
 
-                {/* Footer */}
-                <div className="slip-footer">
-                    <strong>Thank you for choosing Guardian Pharmacy!</strong><br />
-                    For queries call: 94874 69098
-                </div>
-            </div>
+        {/* Footer */}
+        <div className="slip-footer">
+          <strong>Thank you for choosing Guardian Pharmacy!</strong><br />
+          For queries call: 94874 69098
+        </div>
+      </div>
 
-            {/* Print Button */}
-            <button
-                onClick={handlePrint}
-                title="Print Order Slip (A5)"
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    padding: '6px 10px',
-                    background: '#1e3a5f',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    letterSpacing: '0.3px',
-                    transition: 'background 0.2s',
-                    marginTop: '4px',
-                    whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = '#2d5a8e'}
-                onMouseLeave={e => e.currentTarget.style.background = '#1e3a5f'}
-            >
-                <Printer size={14} />
-                Print Slip
-            </button>
-        </>
-    );
+      {/* Print Button */}
+      <button
+        onClick={handlePrint}
+        title="Print Order Slip (A5)"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '5px',
+          padding: '6px 10px',
+          background: '#1e3a5f',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          letterSpacing: '0.3px',
+          transition: 'background 0.2s',
+          marginTop: '4px',
+          whiteSpace: 'nowrap',
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = '#2d5a8e'}
+        onMouseLeave={e => e.currentTarget.style.background = '#1e3a5f'}
+      >
+        <Printer size={14} />
+        Print Slip
+      </button>
+    </>
+  );
 };
 
 export default OrderPrintSlip;

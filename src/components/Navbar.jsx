@@ -304,7 +304,7 @@ function Navbar() {
                                                 <div className="order-card-header">
                                                     <div className="order-id-info">
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <span className="order-tag">Order #{order.id}</span>
+                                                            <span className="order-tag">Order {order.id}</span>
                                                             {(order.status === 'Delivered' || order.status === 'Confirmed' || order.status === 'Pending') && (
                                                                 <motion.div
                                                                     className="green-signal-dot"

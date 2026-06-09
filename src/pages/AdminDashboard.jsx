@@ -55,6 +55,22 @@ function AdminDashboard() {
                     >
                         <Package size={20} />
                         Orders
+                        {orders.filter(o => o.status === 'Pending' || o.status === 'Cancel Requested').length > 0 && (
+                            <span style={{
+                                marginLeft: 'auto',
+                                background: activeTab === 'orders' ? 'rgba(255,255,255,0.3)' : '#ef4444',
+                                color: 'white',
+                                borderRadius: '12px',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                padding: '1px 7px',
+                                minWidth: '20px',
+                                textAlign: 'center',
+                                animation: 'pulse-badge 1.5s ease-in-out infinite'
+                            }}>
+                                {orders.filter(o => o.status === 'Pending' || o.status === 'Cancel Requested').length}
+                            </span>
+                        )}
                     </button>
 
                     <button
@@ -101,7 +117,7 @@ function AdminDashboard() {
                     <h1 className="title">
                         {activeTab === 'orders' ? 'Customer Orders' :
                             activeTab === 'appointments' ? 'Doctor Appointments' :
-                                activeTab === 'upload' ? 'Manage Medicines' : 
+                                activeTab === 'upload' ? 'Manage Medicines' :
                                     activeTab === 'customers' ? 'Registered Customers' : 'Edit Doctors'}
                     </h1>
                 </header>

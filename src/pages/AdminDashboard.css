@@ -77,6 +77,20 @@
     color: white;
 }
 
+@keyframes pulse-badge {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 0.85;
+    }
+}
+
 .mobile-logout-only {
     margin-top: auto;
 }
@@ -375,7 +389,8 @@
     }
 
     .admin-profile {
-        display: none; /* Hide profile in mobile sidebar to save space */
+        display: none;
+        /* Hide profile in mobile sidebar to save space */
     }
 
     .admin-nav {
@@ -383,11 +398,13 @@
         overflow-x: auto;
         padding: 0.5rem 1rem;
         gap: 0.5rem;
-        scrollbar-width: none; /* Hide scrollbar Firefox */
+        scrollbar-width: none;
+        /* Hide scrollbar Firefox */
     }
 
     .admin-nav::-webkit-scrollbar {
-        display: none; /* Hide scrollbar Chrome/Safari */
+        display: none;
+        /* Hide scrollbar Chrome/Safari */
     }
 
     .admin-nav-item {
@@ -397,7 +414,8 @@
     }
 
     .admin-sidebar-footer {
-        display: none; /* Hide logout in mobile list, maybe put in header? */
+        display: none;
+        /* Hide logout in mobile list, maybe put in header? */
     }
 
     .admin-main {
@@ -414,7 +432,8 @@
     }
 
     .admin-table {
-        min-width: 800px; /* Force scroll for wide data */
+        min-width: 800px;
+        /* Force scroll for wide data */
     }
 
     .admin-table th,
@@ -517,7 +536,7 @@
 
 .customer-card-premium:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
 }
 
 .customer-card-header {
@@ -671,6 +690,7 @@
     color: #94a3b8;
     max-width: 220px;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -790,6 +810,12 @@
     border: 1px solid #fecaca;
 }
 
+.status-pill-premium.paid-\&-proceeded {
+    background: #f0fdfa;
+    color: #0d9488;
+    border: 1px solid #99f6e4;
+}
+
 .action-btns-premium {
     display: flex;
     gap: 8px;
@@ -843,5 +869,35 @@
 @media (max-width: 1024px) {
     .order-item-name {
         max-width: 200px;
+    }
+}
+
+/* ── New Order Badge ──────────────────────────────── */
+.new-order-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25), 0 2px 8px rgba(16, 185, 129, 0.35);
+    animation: badge-glow 1.5s ease-in-out infinite alternate;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+@keyframes badge-glow {
+    from {
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+
+    to {
+        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1), 0 4px 16px rgba(16, 185, 129, 0.45);
     }
 }

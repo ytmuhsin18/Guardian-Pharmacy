@@ -1,14 +1,31 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
+    const lastOrderCount = useRef(0);
+    const lastAptCount = useRef(0);
+
+    const playNotificationSound = () => {
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3');
+        audio.volume = 0.4;
+        audio.play().catch(e => console.log("Sound error", e));
+    };
+
     const [medicines, setMedicines] = useState([]);
 
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
     const [orders, setOrders] = useState([]);
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(() => {
+        const savedCart = localStorage.getItem('guardian_cart');
+        try {
+            return savedCart ? JSON.parse(savedCart) : [];
+        } catch (e) {
+            console.error("Error parsing cart from localStorage", e);
+            return [];
+        }
+    });
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(() => {
@@ -90,11 +107,23 @@ export function AppProvider({ children }) {
     const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
     useEffect(() => {
+        localStorage.setItem('guardian_cart', JSON.stringify(cart));
+    }, [cart]);
+
+    useEffect(() => {
         fetchData();
+        // Polling ONLY for admins to keep the dashboard "live"
+        const interval = setInterval(() => {
+            const isAdmin = localStorage.getItem('guardian_admin_auth') === 'true';
+            if (isAdmin) {
+                fetchData(true);
+            }
+        }, 15000);
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (isSilent = false) => {
+        if (!isSilent) setLoading(true);
 
         const fetchMedicinesAsync = async () => {
             const res = await fetch('/api/medicines');
@@ -111,16 +140,29 @@ export function AppProvider({ children }) {
         };
 
         const fetchAppointmentsAsync = async () => {
-            const twentyFourHoursAgo = new Date();
-            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+            const seventyTwoHoursAgo = new Date();
+            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
 
             const res = await fetch('/api/appointments');
             if (!res.ok) throw new Error('API Error');
             const data = await res.json();
 
             if (data) {
-                // Filter locally first
-                const currentAppointments = data.filter(apt => new Date(apt.created_at) > twentyFourHoursAgo);
+                // Filter locally first to ensure performance
+                const currentAppointments = data.filter(apt => new Date(apt.created_at) > seventyTwoHoursAgo);
+
+                // NOTIFICATION: Detect new appointments
+                if (!isSilent) {
+                    lastAptCount.current = currentAppointments.length;
+                } else if (currentAppointments.length > lastAptCount.current) {
+                    const isAdmin = localStorage.getItem('guardian_admin_auth') === 'true';
+                    const isAdminPage = window.location.pathname.startsWith('/admin');
+                    if (isAdmin && isAdminPage) {
+                        showToast(`New Appointment: ${currentAppointments[0].patientname}`, 'info');
+                        playNotificationSound();
+                    }
+                    lastAptCount.current = currentAppointments.length;
+                }
 
                 setAppointments(currentAppointments.map(a => ({
                     ...a,
@@ -138,8 +180,8 @@ export function AppProvider({ children }) {
         };
 
         const fetchOrdersAsync = async () => {
-            const twentyFourHoursAgo = new Date();
-            twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+            const seventyTwoHoursAgo = new Date();
+            seventyTwoHoursAgo.setHours(seventyTwoHoursAgo.getHours() - 72);
 
             let res;
             try {
@@ -156,7 +198,24 @@ export function AppProvider({ children }) {
 
             if (data) {
                 // Filter orders locally to ensure UI is fresh immediately
-                const currentOrders = data.filter(order => new Date(order.created_at) > twentyFourHoursAgo);
+                const currentOrders = data.filter(order => new Date(order.created_at) > seventyTwoHoursAgo);
+
+                // NOTIFICATION: Detect new orders
+                if (!isSilent) {
+                    lastOrderCount.current = currentOrders.length;
+                } else if (currentOrders.length > lastOrderCount.current) {
+                    const isAdmin = localStorage.getItem('guardian_admin_auth') === 'true';
+                    const isAdminPage = window.location.pathname.startsWith('/admin');
+                    if (isAdmin && isAdminPage) {
+                        const newCount = currentOrders.length - lastOrderCount.current;
+                        const newOrder = currentOrders[0];
+                        const itemCount = (newOrder.items || []).reduce((s, i) => s + (i.quantity || 1), 0);
+                        showToast(`🛒 New Order from ${newOrder.customer_name} — ${itemCount} item${itemCount !== 1 ? 's' : ''}, ₹${Number(newOrder.total_amount).toLocaleString('en-IN')}${newCount > 1 ? ` (+${newCount - 1} more)` : ''}`, 'success');
+                        playNotificationSound();
+                    }
+                    lastOrderCount.current = currentOrders.length;
+                }
+
                 setOrders(currentOrders);
 
                 // If we find orders older than 72 hours, trigger a background delete
@@ -317,6 +376,7 @@ export function AppProvider({ children }) {
             address: orderDetails.address,
             pincode: orderDetails.pincode,
             email: orderDetails.email || null,
+            message: orderDetails.message || '',
             items: sanitizedItems,
             total_amount: orderDetails.total_amount,
             payment_method: orderDetails.payment_method || orderDetails.paymentMethod || 'COD',

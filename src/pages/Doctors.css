@@ -5,8 +5,10 @@
 
 /* --- Hero Section --- */
 .docs-hero {
-    background: #0f172a; /* Dark navy background */
-    padding: 30px 0 60px; /* Minimal padding */
+    background: #0f172a;
+    /* Dark navy background */
+    padding: 30px 0 60px;
+    /* Minimal padding */
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -17,9 +19,9 @@
     position: absolute;
     inset: 0;
     opacity: 0.12;
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size: 25px 25px;
     pointer-events: none;
 }
@@ -32,7 +34,8 @@
 
 .hero-title {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem; /* Even smaller */
+    font-size: 1.8rem;
+    /* Even smaller */
     font-weight: 800;
     margin-bottom: 0.5rem;
     line-height: 1.2;
@@ -42,9 +45,11 @@
     .docs-hero {
         padding: 25px 0 50px;
     }
+
     .hero-title {
         font-size: 1.5rem;
     }
+
     .hero-subtitle {
         font-size: 0.85rem;
         margin-bottom: 1rem;
@@ -61,6 +66,66 @@
     max-width: 500px;
     margin: 0 auto 1.5rem;
     line-height: 1.4;
+}
+
+.subtle-token-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.subtle-token-link:hover {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+    transform: translateY(-1px);
+}
+
+.subtle-token-link span {
+    color: #facc15;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.pulsing-text {
+    animation: gold-pulse 2s infinite;
+}
+
+@keyframes gold-pulse {
+    0% {
+        color: #facc15;
+        text-shadow: 0 0 0px rgba(250, 204, 21, 0);
+    }
+
+    50% {
+        color: #fff;
+        text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    }
+
+    100% {
+        color: #facc15;
+        text-shadow: 0 0 0px rgba(250, 204, 21, 0);
+    }
+}
+
+.live-indicator-tiny {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
 }
 
 .bold-gold {
@@ -89,7 +154,8 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    margin: 0 auto; /* Ensure centering */
+    margin: 0 auto;
+    /* Ensure centering */
     width: fit-content;
 }
 
@@ -97,7 +163,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
     border-radius: 20px;
 }
 
@@ -171,8 +237,15 @@
 }
 
 @keyframes pulse-ring {
-    0%   { transform: scale(0.6); opacity: 0.8; }
-    100% { transform: scale(1.8); opacity: 0; }
+    0% {
+        transform: scale(0.6);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
 }
 
 @media (max-width: 480px) {
@@ -181,6 +254,7 @@
         gap: 10px;
         border-radius: 16px;
     }
+
     .token-label {
         font-size: 0.78rem;
     }
@@ -188,7 +262,8 @@
 
 /* --- Specialists Info Card --- */
 .specialists-info-section {
-    margin-top: -35px; /* Tighter integration */
+    margin-top: -35px;
+    /* Tighter integration */
     position: relative;
     z-index: 10;
 }
@@ -261,7 +336,8 @@
     display: grid;
     grid-template-columns: repeat(1, 1fr);
     gap: 2rem;
-    margin-top: 1rem; /* Reduced from 3rem */
+    margin-top: 1rem;
+    /* Reduced from 3rem */
 }
 
 @media (min-width: 640px) {
@@ -296,7 +372,8 @@
     position: relative;
     display: flex;
     justify-content: center;
-    background: #f8fafc; /* light background in case image is smaller */
+    background: #f8fafc;
+    /* light background in case image is smaller */
 }
 
 .custom-doc-card .doc-image {
@@ -419,13 +496,16 @@
     border-radius: 40px;
     width: 100%;
     max-width: 1000px;
-    max-height: 92vh;          /* Constrain height to viewport */
-    overflow-y: auto;           /* Scroll inside the card */
+    max-height: 92vh;
+    /* Constrain height to viewport */
+    overflow-y: auto;
+    /* Scroll inside the card */
     overflow-x: hidden;
     box-shadow: 0 50px 100px -20px rgba(15, 23, 42, 0.25);
     z-index: 101;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    overscroll-behavior: contain; /* Prevent background scroll chaining */
+    overscroll-behavior: contain;
+    /* Prevent background scroll chaining */
     -webkit-overflow-scrolling: touch;
 }
 
@@ -476,7 +556,9 @@
 }
 
 @media (max-width: 768px) {
-    .doc-profile-side, .doc-booking-side {
+
+    .doc-profile-side,
+    .doc-booking-side {
         padding: 1.5rem;
     }
 }
@@ -719,7 +801,8 @@
 
 .input-field {
     background: white;
-    border: none !important; /* Borderless inputs as per user request */
+    border: none !important;
+    /* Borderless inputs as per user request */
     border-radius: 16px;
     font-weight: 500;
     padding: 1rem 1.25rem;
@@ -727,11 +810,13 @@
 }
 
 .icon-input-wrapper .input-icon {
-    display: none !important; /* Removing the calendar icon inside inputs */
+    display: none !important;
+    /* Removing the calendar icon inside inputs */
 }
 
 .with-icon {
-    padding-left: 1.25rem !important; /* Adjusting padding after icon removal */
+    padding-left: 1.25rem !important;
+    /* Adjusting padding after icon removal */
 }
 
 .modal-wa-btn {
@@ -922,6 +1007,7 @@
         width: 170px;
         height: 170px;
     }
+
     .qr-payment-screen {
         gap: 0.5rem;
     }

@@ -162,3 +162,42 @@
         display: none !important;
     }
 }
+
+.nav-notif-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background: #ef4444;
+    border: 2px solid white;
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.nav-item.active .nav-notif-dot {
+    top: 5px;
+    right: 5px;
+}
+
+@keyframes notif-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.nav-notif-dot {
+    animation: notif-pulse 1.5s infinite ease-in-out;
+}

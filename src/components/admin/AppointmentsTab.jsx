@@ -143,7 +143,7 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                 <th className="nowrap-cell">Date</th>
                                 <th className="nowrap-cell">Time/Slot</th>
                                 <th className="nowrap-cell">Contact</th>
-                                <th className="nowrap-cell">Token #</th>
+                                <th className="nowrap-cell">Token</th>
                                 <th className="nowrap-cell">Status</th>
                                 <th className="nowrap-cell">Actions</th>
                             </tr>
@@ -198,7 +198,7 @@ const AppointmentsTab = memo(({ appointments, updateAppointmentStatus, updateApp
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                 {apt.token_number ? (
                                                     <span className="token-badge">
-                                                        <Hash size={12} /> {apt.token_number}
+                                                        {apt.token_number}
                                                     </span>
                                                 ) : (
                                                     <span className="text-muted text-sm">—</span>

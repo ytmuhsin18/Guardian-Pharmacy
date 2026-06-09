@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useApp } from '../context/AppContext';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Pill, Stethoscope, LayoutGrid, TestTube, Accessibility, Heart } from 'lucide-react';
 import './MobileNavbar.css';
@@ -16,12 +17,30 @@ function MobileNavbar() {
     const location = useLocation();
     const [activeIndex, setActiveIndex] = useState(0);
 
+    const { appointments } = useApp();
+    const [hasActiveApt, setHasActiveApt] = useState(false);
+
     useEffect(() => {
         const index = navItems.findIndex(item =>
             item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)
         );
         if (index !== -1) setActiveIndex(index);
     }, [location]);
+
+    useEffect(() => {
+        try {
+            const myAptIds = JSON.parse(localStorage.getItem('my_guardian_appointments') || '[]');
+            if (myAptIds.length === 0) {
+                setHasActiveApt(false);
+                return;
+            }
+            // Check if any of MY appointments are in the current live set
+            const active = appointments.some(apt => myAptIds.includes(apt.id));
+            setHasActiveApt(active);
+        } catch (e) {
+            setHasActiveApt(false);
+        }
+    }, [appointments]);
 
     return (
         <nav className="mobile-bottom-nav">
@@ -31,8 +50,8 @@ function MobileNavbar() {
                         key={item.to}
                         className={`nav-item ${index === activeIndex ? 'active' : ''}`}
                     >
-                        <Link 
-                            to={item.to} 
+                        <Link
+                            to={item.to}
                             className="mobile-nav-link"
                             onClick={(e) => {
                                 if (location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to))) {
@@ -45,6 +64,7 @@ function MobileNavbar() {
                                     size={24}
                                     strokeWidth={index === activeIndex ? 2.5 : 2}
                                 />
+
                             </span>
                             <span className="nav-text">{item.label}</span>
                         </Link>
