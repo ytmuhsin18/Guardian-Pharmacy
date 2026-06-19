@@ -4,7 +4,7 @@ import { Pill, CheckCircle, Save, X, Search, ToggleRight, ToggleLeft, Edit2, Tra
 import { useApp } from '../../context/AppContext';
 import { uploadToCloudinary } from '../../lib/cloudinary';
 
-const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
+const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock, rowIndex }) => {
     const { fetchMedicineImage } = useApp();
     const [imageSrc, setImageSrc] = React.useState(
         (Array.isArray(med.images) && med.images.length > 0) ? med.images[0] : med.image_base64
@@ -22,11 +22,7 @@ const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
             },
             { threshold: 0.1 }
         );
-
-        if (rowRef.current) {
-            observer.observe(rowRef.current);
-        }
-
+        if (rowRef.current) observer.observe(rowRef.current);
         return () => observer.disconnect();
     }, []);
 
@@ -38,61 +34,91 @@ const MedicineTableRow = memo(({ med, onEdit, onDelete, onToggleStock }) => {
         }
     }, [isVisible, med.id, imageSrc, fetchMedicineImage]);
 
+    const isEven = rowIndex % 2 === 0;
+    const cellStyle = {
+        border: '1px solid #d0d7de',
+        padding: '6px 10px',
+        fontSize: '0.82rem',
+        verticalAlign: 'middle',
+        background: isEven ? '#ffffff' : '#f6f8fa',
+        color: '#1e293b',
+        whiteSpace: 'nowrap',
+    };
+
     return (
-        <tr ref={rowRef}>
-            <td>
-                {imageSrc ? (
-                    <img
-                        src={imageSrc}
-                        alt={med.name}
-                        style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '4px', background: 'white', border: '1px solid #e2e8f0' }}
-                        loading="lazy"
-                    />
-                ) : (
-                    <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
-                        <Pill size={20} color="#94a3b8" />
-                    </div>
+        <tr ref={rowRef} style={{ transition: 'background 0.15s' }}
+            onMouseEnter={e => { Array.from(e.currentTarget.cells).forEach(c => c.style.background = '#e8f4fd'); }}
+            onMouseLeave={e => { Array.from(e.currentTarget.cells).forEach(c => c.style.background = isEven ? '#ffffff' : '#f6f8fa'); }}
+        >
+            {/* Row number */}
+            <td style={{ ...cellStyle, color: '#94a3b8', fontWeight: 600, textAlign: 'center', width: '40px', background: isEven ? '#f8fafc' : '#f1f5f9', borderRight: '2px solid #c8d6e0' }}>
+                {rowIndex + 1}
+            </td>
+            {/* Image */}
+            <td style={{ ...cellStyle, textAlign: 'center', width: '64px' }}>
+                <a href={`/medicine/${med.id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    {imageSrc ? (
+                        <img
+                            src={imageSrc}
+                            alt={med.name}
+                            style={{ width: '48px', height: '48px', objectFit: 'contain', borderRadius: '6px', background: 'white', border: '1px solid #e2e8f0', display: 'block', margin: '0 auto' }}
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', margin: '0 auto' }}>
+                            <Pill size={22} color="#94a3b8" />
+                        </div>
+                    )}
+                </a>
+            </td>
+            {/* Name */}
+            <td style={{ ...cellStyle, whiteSpace: 'normal', minWidth: '180px', maxWidth: '260px' }}>
+                <a href={`/medicine/${med.id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a', lineHeight: 1.3, cursor: 'pointer' }}>{med.name}</div>
+                </a>
+                {med.combination && <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>{med.combination}</div>}
+            </td>
+            {/* Category */}
+            <td style={{ ...cellStyle }}>
+                <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
+                    {med.category}
+                </span>
+            </td>
+            {/* Price */}
+            <td style={{ ...cellStyle, fontWeight: 700, color: '#15803d' }}>
+                ₹{med.price}
+                {med.discount > 0 && (
+                    <span style={{ marginLeft: '6px', color: '#ea580c', fontSize: '0.75rem', fontWeight: 800, background: '#fff7ed', padding: '1px 5px', borderRadius: '4px' }}>
+                        -{Math.round(med.discount)}%
+                    </span>
                 )}
             </td>
-            <td>
-                <strong>{med.name}</strong><br />
-                {med.combination && <span className="text-muted text-sm">{med.combination}</span>}
-            </td>
-            <td>{med.category}</td>
-            <td>
-                ₹{med.price}
-                {med.discount > 0 && <span style={{ marginLeft: '8px', color: '#ea580c', fontSize: '0.8rem', fontWeight: 'bold' }}>-{Math.round(med.discount)}%</span>}
-            </td>
-            <td>
+            {/* Stock */}
+            <td style={{ ...cellStyle, textAlign: 'center' }}>
                 <button
-                    className={`stock-toggle-btn ${med.inStock ? 'in-stock' : 'out-of-stock'}`}
                     onClick={() => onToggleStock(med.id, med.inStock)}
                     title={med.inStock ? 'Click to mark Out of Stock' : 'Click to mark In Stock'}
+                    style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        padding: '3px 10px', borderRadius: '5px', cursor: 'pointer',
+                        fontSize: '0.75rem', fontWeight: 700, border: 'none',
+                        background: med.inStock ? '#dcfce7' : '#fee2e2',
+                        color: med.inStock ? '#15803d' : '#ef4444',
+                    }}
                 >
-                    {med.inStock ? (
-                        <><ToggleRight size={20} /> In Stock</>
-                    ) : (
-                        <><ToggleLeft size={20} /> Out of Stock</>
-                    )}
+                    {med.inStock ? <><ToggleRight size={16} /> In Stock</> : <><ToggleLeft size={16} /> Out</>}
                 </button>
             </td>
-            <td>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                        className="btn-icon accept"
-                        onClick={() => onEdit(med)}
-                        title="Edit Medicine"
-                        style={{ background: '#e0f2fe', color: 'var(--primary)', border: '1px solid #bae6fd' }}
-                    >
-                        <Edit2 size={16} />
+            {/* Actions */}
+            <td style={{ ...cellStyle, textAlign: 'center' }}>
+                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                    <button onClick={() => onEdit(med)} title="Edit"
+                        style={{ background: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd', borderRadius: '5px', padding: '4px 8px', cursor: 'pointer' }}>
+                        <Edit2 size={14} />
                     </button>
-                    <button
-                        className="btn-icon reject"
-                        onClick={() => onDelete(med.id, med.name)}
-                        title="Delete Medicine"
-                        style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca' }}
-                    >
-                        <Trash2 size={16} />
+                    <button onClick={() => onDelete(med.id, med.name)} title="Delete"
+                        style={{ background: '#fee2e2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: '5px', padding: '4px 8px', cursor: 'pointer' }}>
+                        <Trash2 size={14} />
                     </button>
                 </div>
             </td>
@@ -258,11 +284,36 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
     };
 
     const filteredMedicines = useMemo(() => {
-        return medicines.filter(m =>
-            (m.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (m.combination && m.combination.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (m.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+        if (!searchTerm) return medicines;
+        const query = searchTerm.toLowerCase();
+
+        // 1. Filter first
+        const matches = medicines.filter(m =>
+            (m.name || '').toLowerCase().includes(query) ||
+            (m.combination && m.combination.toLowerCase().includes(query)) ||
+            (m.category || '').toLowerCase().includes(query)
         );
+
+        // 2. Sort to prioritize exact/starts-with matches
+        return matches.sort((a, b) => {
+            const nameA = (a.name || '').toLowerCase();
+            const nameB = (b.name || '').toLowerCase();
+
+            // Check for exact match
+            const exactA = nameA === query;
+            const exactB = nameB === query;
+            if (exactA && !exactB) return -1;
+            if (!exactA && exactB) return 1;
+
+            // Check for starts-with match
+            const startsA = nameA.startsWith(query);
+            const startsB = nameB.startsWith(query);
+            if (startsA && !startsB) return -1;
+            if (!startsA && startsB) return 1;
+
+            // Otherwise sort alphabetically
+            return nameA.localeCompare(nameB);
+        });
     }, [medicines, searchTerm]);
 
     return (
@@ -654,37 +705,37 @@ const MedicinesTab = memo(({ medicines, addMedicine, updateMedicineData, deleteM
                         />
                     </div>
                 </div>
-                <div className="medicines-scroll-wrapper">
-                    <div className="appointments-table-wrapper">
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Name / Comb.</th>
-                                    <th>Category</th>
-                                    <th>Price / Disc.</th>
-                                    <th>Stock Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredMedicines.map(med => (
-                                    <MedicineTableRow
-                                        key={med.id}
-                                        med={med}
-                                        onEdit={handleEditMedicine}
-                                        onDelete={handleDeleteMedicine}
-                                        onToggleStock={toggleMedicineStock}
-                                    />
+                <div style={{ overflowX: 'auto', borderRadius: '10px', border: '2px solid #c8d6e0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'auto', fontFamily: 'Consolas, "Courier New", monospace' }}>
+                        <thead>
+                            <tr>
+                                {/* Row # */}
+                                <th style={{ border: '1px solid #c8d6e0', background: '#e8ecf0', padding: '8px 10px', fontSize: '0.72rem', fontWeight: 800, color: '#475569', textAlign: 'center', width: '40px', position: 'sticky', top: 0, zIndex: 2, borderRight: '2px solid #c8d6e0', letterSpacing: '0.5px' }}>#</th>
+                                {['IMAGE', 'NAME / COMBINATION', 'CATEGORY', 'PRICE / DISC.', 'STOCK STATUS', 'ACTIONS'].map(col => (
+                                    <th key={col} style={{ border: '1px solid #c8d6e0', background: '#e8ecf0', padding: '8px 14px', fontSize: '0.72rem', fontWeight: 800, color: '#334155', textAlign: 'left', position: 'sticky', top: 0, zIndex: 2, whiteSpace: 'nowrap', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                                        {col}
+                                    </th>
                                 ))}
-                                {filteredMedicines.length === 0 && (
-                                    <tr>
-                                        <td colSpan="6" className="text-center text-muted" style={{ padding: '2rem' }}>No medicines found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredMedicines.map((med, idx) => (
+                                <MedicineTableRow
+                                    key={med.id}
+                                    med={med}
+                                    rowIndex={idx}
+                                    onEdit={handleEditMedicine}
+                                    onDelete={handleDeleteMedicine}
+                                    onToggleStock={toggleMedicineStock}
+                                />
+                            ))}
+                            {filteredMedicines.length === 0 && (
+                                <tr>
+                                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8', fontSize: '0.9rem', border: '1px solid #d0d7de' }}>No medicines found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </motion.div>

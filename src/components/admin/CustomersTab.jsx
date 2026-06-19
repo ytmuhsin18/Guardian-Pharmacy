@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Mail, Calendar, User, ArrowUpRight, Phone, Edit2, Trash2, X, Save } from 'lucide-react';
+import { Search, User, Phone, Edit2, Trash2, X, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 
@@ -47,87 +47,77 @@ function CustomersTab({ users }) {
                 </div>
             </div>
 
-            <div className="customers-list-container">
-                <AnimatePresence mode='popLayout'>
-                    {filteredUsers.length > 0 ? (
-                        <div className="customers-grid">
-                            {filteredUsers.map((user, index) => (
-                                <motion.div
-                                    key={user.id || index}
-                                    className="customer-card-premium"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                >
-                                    <div className="customer-card-header">
-                                        <div className="customer-avatar-large">
-                                            {user.name?.charAt(0) || 'U'}
+            <div className="customers-table-wrapper">
+                <table className="excel-table">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email Address</th>
+                            <th>Phone Number</th>
+                            <th>Joined Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredUsers.length > 0 ? (
+                            filteredUsers.map((user, index) => (
+                                <tr key={user.id || index}>
+                                    <td style={{ color: '#94a3b8', fontSize: '0.8rem', textAlign: 'center', width: '40px' }}>{index + 1}</td>
+                                    <td className="id-cell">{user.id?.slice(-6).toUpperCase() || 'N/A'}</td>
+                                    <td className="name-cell">
+                                        <div className="name-with-avatar">
+                                            <div className="mini-avatar">{user.name?.charAt(0) || 'U'}</div>
+                                            {user.name}
                                         </div>
-                                        <div className="customer-main-info">
-                                            <h3>{user.name}</h3>
-                                            <span className="customer-id">{user.id?.slice(-6) || 'N/A'}</span>
+                                    </td>
+                                    <td>{user.email || '-'}</td>
+                                    <td>{user.phone || 'No phone'}</td>
+                                    <td>
+                                        {user.createdAt && !isNaN(new Date(user.createdAt).getTime())
+                                            ? new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                                            : 'N/A'}
+                                    </td>
+                                    <td>
+                                        <div className="customer-status-pill online" style={{ padding: '2px 8px', fontSize: '0.7rem' }}>
+                                            <div className="dot"></div>
+                                            Verified
                                         </div>
-                                        <div className="customer-actions-top" style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+                                    </td>
+                                    <td>
+                                        <div className="action-btns-cell">
                                             <button
-                                                className="customer-action-btn"
+                                                className="table-action-btn edit"
                                                 title="Edit Customer"
-                                                style={{ color: '#0984e3' }}
                                                 onClick={() => handleEditClick(user)}
                                             >
-                                                <Edit2 size={16} />
+                                                <Edit2 size={14} />
                                             </button>
                                             <button
-                                                className="customer-action-btn"
+                                                className="table-action-btn delete"
                                                 title="Delete Customer"
-                                                style={{ color: '#ef4444' }}
                                                 onClick={() => deleteRegisteredUser(user.id)}
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="8">
+                                    <div className="no-results-table">
+                                        <User size={32} style={{ opacity: 0.3, marginBottom: '0.5rem' }} />
+                                        <p>No customers found matching your search.</p>
                                     </div>
-
-                                    <div className="customer-details-list">
-                                        {user.email && (
-                                            <div className="customer-detail-item">
-                                                <Mail size={16} />
-                                                <span>{user.email}</span>
-                                            </div>
-                                        )}
-                                        <div className="customer-detail-item">
-                                            <Phone size={16} />
-                                            <span>{user.phone || 'No phone'}</span>
-                                        </div>
-                                        <div className="customer-detail-item">
-                                            <Calendar size={16} />
-                                            <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="customer-card-footer">
-                                        <div className="customer-status-pill online">
-                                            <div className="dot"></div>
-                                            Verified Account
-                                        </div>
-                                        <button className="customer-action-btn" title="View Details">
-                                            <ArrowUpRight size={18} />
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : (
-                        <motion.div
-                            className="no-results-premium"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                        >
-                            <User size={48} className="muted-icon" />
-                            <h3>No customers found</h3>
-                            <p>Try searching with a different name, phone or email address.</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {/* Edit Modal */}

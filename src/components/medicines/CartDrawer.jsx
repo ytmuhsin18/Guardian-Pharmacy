@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles, Banknote } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles } from 'lucide-react';
 
 const FREE_DELIVERY_THRESHOLD = 500;
 
@@ -310,79 +310,16 @@ const CartDrawer = ({
                                         />
                                     </div>
                                     <div className="checkout-form-group">
-                                        <label className="input-label">Payment Method *</label>
-                                        <div style={{ display: 'flex', gap: '12px' }}>
-                                            <motion.div
-                                                className={`payment-option-card ${customerDetails.payment_method === 'COD' ? 'active' : ''}`}
-                                                whileHover={{ y: -2 }}
-                                                whileTap={{ scale: 0.96 }}
-                                                style={{
-                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0',
-                                                    borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
-                                                    background: 'white',
-                                                    borderColor: customerDetails.payment_method === 'COD' ? '#00b894' : '#e2e8f0',
-                                                    color: customerDetails.payment_method === 'COD' ? '#00b894' : '#475569',
-                                                    position: 'relative',
-                                                    overflow: 'hidden'
-                                                }}
-                                                onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'COD' })}
-                                            >
-                                                <AnimatePresence>
-                                                    {customerDetails.payment_method === 'COD' && (
-                                                        <motion.div
-                                                            layoutId="payment-highlight"
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            exit={{ opacity: 0 }}
-                                                            style={{
-                                                                position: 'absolute', inset: 0,
-                                                                background: 'rgba(0, 184, 148, 0.08)',
-                                                                zIndex: 0
-                                                            }}
-                                                        />
-                                                    )}
-                                                </AnimatePresence>
-                                                <div style={{ position: 'relative', zIndex: 1 }}>
-                                                    <Banknote size={24} style={{ marginBottom: '6px', opacity: customerDetails.payment_method === 'COD' ? 1 : 0.6 }} />
-                                                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Cash on Delivery</div>
-                                                </div>
-                                            </motion.div>
-
-                                            <motion.div
-                                                className={`payment-option-card ${customerDetails.payment_method === 'ONLINE' ? 'active' : ''}`}
-                                                whileHover={{ y: -2 }}
-                                                whileTap={{ scale: 0.96 }}
-                                                style={{
-                                                    flex: 1, padding: '16px 12px', border: '2px solid #e2e8f0',
-                                                    borderRadius: '16px', cursor: 'pointer', textAlign: 'center',
-                                                    background: 'white',
-                                                    borderColor: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#e2e8f0',
-                                                    color: customerDetails.payment_method === 'ONLINE' ? '#0984e3' : '#475569',
-                                                    position: 'relative',
-                                                    overflow: 'hidden'
-                                                }}
-                                                onClick={() => setCustomerDetails({ ...customerDetails, payment_method: 'ONLINE' })}
-                                            >
-                                                <AnimatePresence>
-                                                    {customerDetails.payment_method === 'ONLINE' && (
-                                                        <motion.div
-                                                            layoutId="payment-highlight"
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            exit={{ opacity: 0 }}
-                                                            style={{
-                                                                position: 'absolute', inset: 0,
-                                                                background: 'rgba(9, 132, 227, 0.08)',
-                                                                zIndex: 0
-                                                            }}
-                                                        />
-                                                    )}
-                                                </AnimatePresence>
-                                                <div style={{ position: 'relative', zIndex: 1 }}>
-                                                    <CreditCard size={24} style={{ marginBottom: '6px', opacity: customerDetails.payment_method === 'ONLINE' ? 1 : 0.6 }} />
-                                                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Online Payment</div>
-                                                </div>
-                                            </motion.div>
+                                        <label className="input-label">Payment Method</label>
+                                        <div style={{
+                                            padding: '16px 12px', border: '2px solid #0984e3',
+                                            borderRadius: '16px', textAlign: 'center',
+                                            background: 'rgba(9, 132, 227, 0.06)',
+                                            color: '#0984e3',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                                        }}>
+                                            <CreditCard size={22} />
+                                            <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>Online Payment</span>
                                         </div>
 
                                         <AnimatePresence>

@@ -901,3 +901,167 @@
         box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1), 0 4px 16px rgba(16, 185, 129, 0.45);
     }
 }
+
+/* Excel Style Table */
+.customers-table-wrapper {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.excel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    table-layout: fixed;
+}
+
+.excel-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
+}
+
+.excel-table th:last-child {
+    border-right: none;
+}
+
+.excel-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9;
+    color: #1e293b;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.excel-table td:last-child {
+    border-right: none;
+}
+
+.excel-table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+.excel-table tbody tr:nth-child(even) {
+    background-color: #fcfcfd;
+}
+
+.id-cell {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: #64748b;
+    font-size: 0.85rem;
+    width: 100px;
+}
+
+.name-cell {
+    width: 250px;
+}
+
+.name-with-avatar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.mini-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.action-btns-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.table-action-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: white;
+    transition: all 0.2s;
+    color: #64748b;
+}
+
+.table-action-btn.edit:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.table-action-btn.delete:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.no-results-table {
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #94a3b8;
+    background: #f8fafc;
+}
+
+.excel-table th:nth-child(1) {
+    width: 60px;
+}
+
+/* S.No */
+.excel-table th:nth-child(2) {
+    width: 100px;
+}
+
+/* ID */
+.excel-table th:nth-child(4) {
+    width: 250px;
+}
+
+/* Email */
+.excel-table th:nth-child(5) {
+    width: 150px;
+}
+
+/* Phone */
+.excel-table th:nth-child(6) {
+    width: 150px;
+}
+
+/* Joined Date */
+.excel-table th:nth-child(7) {
+    width: 120px;
+}
+
+/* Status */
+.excel-table th:nth-child(8) {
+    width: 100px;
+}
+
+/* Actions */

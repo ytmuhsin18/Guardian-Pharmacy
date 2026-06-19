@@ -44,7 +44,7 @@ function App() {
   const [showOrderAnim, setShowOrderAnim] = React.useState(false);
   const [showCheckoutForm, setShowCheckoutForm] = React.useState(false);
   const [customerDetails, setCustomerDetails] = React.useState({
-    name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'COD'
+    name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'ONLINE'
   });
   const [finalOrderSummary, setFinalOrderSummary] = React.useState(null);
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
@@ -95,7 +95,7 @@ function App() {
           whatsapp: user.phone && user.phone !== 'N/A' ? user.phone : '',
           address: '',
           pincode: '',
-          payment_method: 'COD'
+          payment_method: 'ONLINE'
         });
       }
     } else {
@@ -106,7 +106,7 @@ function App() {
         if (parsed.paymentMethod) { parsed.payment_method = parsed.paymentMethod; delete parsed.paymentMethod; }
         setCustomerDetails(parsed);
       } else {
-        setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'COD' });
+        setCustomerDetails({ name: '', phone: '', whatsapp: '', address: '', pincode: '', email: '', payment_method: 'ONLINE' });
       }
     }
   }, [user]);
@@ -133,6 +133,20 @@ function App() {
   const handleCheckout = async (e) => {
     e.preventDefault();
     setIsCheckingOut(true);
+
+    const totalPayable = cartTotal + (cartTotal >= 500 ? 0 : 40);
+
+    // ── FIRE UPI IMMEDIATELY via anchor click (most reliable on Android) ──
+    if (customerDetails.payment_method === 'ONLINE') {
+      const upiUrl = `upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${totalPayable.toFixed(2)}&cu=INR&tn=Order%20for%20${encodeURIComponent(customerDetails.name)}`;
+      const anchor = document.createElement('a');
+      anchor.href = upiUrl;
+      anchor.style.display = 'none';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    }
+
     const orderDetails = {
       customer_name: customerDetails.name,
       phone: customerDetails.phone,
@@ -142,8 +156,8 @@ function App() {
       email: customerDetails.email || null,
       message: customerDetails.message || '',
       items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, selectedSize: item.selectedSize, image: item.images?.[0] || item.image_base64 })),
-      total_amount: cartTotal + (cartTotal >= 500 ? 0 : 40),
-      payment_method: String(customerDetails.payment_method || 'COD')
+      total_amount: totalPayable,
+      payment_method: String(customerDetails.payment_method || 'ONLINE')
     };
     console.log('Placing order with details:', orderDetails);
     const success = await addOrder(orderDetails);
@@ -157,17 +171,9 @@ function App() {
         localStorage.setItem(userKey, JSON.stringify(customerDetails));
       }
 
-      // Also track order completion per-user
-      const historyKey = `my_guardian_orders_${userKeySuffix}`;
-      const myOrders = JSON.parse(localStorage.getItem(historyKey) || '[]');
-      // Using an ID or generating one if data[0] is not available here
-      // AppContext's addOrder returns success and handles internal storage, 
-      // but we can track the IDs here too for UI convenience.
-
-
       setFinalOrderSummary({
         total: cartTotal,
-        paymentMethod: customerDetails.payment_method || 'COD',
+        paymentMethod: customerDetails.payment_method || 'ONLINE',
         name: customerDetails.name
       });
 
@@ -187,17 +193,8 @@ function App() {
         setOrderComplete(true);
       }, 2600);
 
-      const timeoutDuration = customerDetails.payment_method === 'ONLINE' ? 600000 : 13000;
+      const timeoutDuration = 600000; // 10 min for online payment confirmation
       setTimeout(() => setOrderComplete(false), timeoutDuration);
-
-      // AUTOMATION: If online payment, attempt to open UPI app immediately after order is placed
-      if (customerDetails.payment_method === 'ONLINE') {
-        const upiUrl = `upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR&tn=Order%20for%20${customerDetails.name}`;
-        // Delay slightly to let the "Order Placed" animation start
-        setTimeout(() => {
-          window.location.href = upiUrl;
-        }, 800);
-      }
     }
   };
 
@@ -445,14 +442,14 @@ function App() {
                     <button
                       className="btn btn-whatsapp-pay"
                       onClick={() => {
-                        const message = encodeURIComponent(`Hello! I just placed an order (Online Payment). My name is ${finalOrderSummary?.name}. Please provide the payment QR code/link.`);
+                        const message = encodeURIComponent(`Hello, I just placed an order online and completed the payment. My name is ${finalOrderSummary?.name}. Can you please check my order status? Thank you.`);
                         window.open(`https://wa.me/919487469098?text=${message}`, '_blank');
                       }}
                     >
                       <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
                       </svg>
-                      Click to Pay on WhatsApp
+                      Your Order is Confirmed ✅
                     </button>
                   )}
                   <button

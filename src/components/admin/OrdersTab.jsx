@@ -115,12 +115,25 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                     {isNew && (
                                                         <motion.span
                                                             initial={{ scale: 0, opacity: 0 }}
-                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            animate={{
+                                                                scale: [1, 1.12, 1],
+                                                                opacity: 1,
+                                                                boxShadow: [
+                                                                    '0 0 0px rgba(16,185,129,0)',
+                                                                    '0 0 10px rgba(16,185,129,0.7)',
+                                                                    '0 0 0px rgba(16,185,129,0)'
+                                                                ]
+                                                            }}
+                                                            transition={{
+                                                                scale: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
+                                                                boxShadow: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
+                                                                opacity: { duration: 0.3 }
+                                                            }}
                                                             className="new-order-badge"
                                                         >
                                                             <motion.span
-                                                                animate={{ opacity: [1, 0.5, 1] }}
-                                                                transition={{ duration: 1.2, repeat: Infinity }}
+                                                                animate={{ opacity: [1, 0.4, 1], rotate: [0, 15, -15, 0] }}
+                                                                transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
                                                             >
                                                                 <Sparkles size={10} />
                                                             </motion.span>
@@ -146,7 +159,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                     {(order.items || []).map((item, idx) => {
                                                         const img = getItemImage(item);
                                                         return (
-                                                            <div key={idx} className="order-item-card">
+                                                            <a key={idx} href={`/medicine/${item.id}`} target="_blank" rel="noopener noreferrer" className="order-item-card" style={{ textDecoration: 'none' }}>
                                                                 {img ? (
                                                                     <img
                                                                         src={img}
@@ -159,7 +172,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                                     </div>
                                                                 )}
                                                                 <div className="order-item-details">
-                                                                    <span className="order-item-name" title={item.name}>{item.name}</span>
+                                                                    <span className="order-item-name" title={item.name} style={{ cursor: 'pointer' }}>{item.name}</span>
                                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                                         <span className="order-item-qty">Qty: {item.quantity}</span>
                                                                         {item.selectedSize && (
@@ -177,7 +190,7 @@ const OrdersTab = memo(({ orders, updateOrderStatus, medicines = [] }) => {
                                                                         )}
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </a>
                                                         );
                                                     })}
                                                 </div>
