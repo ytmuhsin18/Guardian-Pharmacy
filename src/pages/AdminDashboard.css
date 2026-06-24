@@ -110,6 +110,17 @@
     color: #dc2626;
 }
 
+/* Install Banner visibility */
+.admin-install-banner {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .admin-install-banner {
+        display: flex !important;
+    }
+}
+
 /* Main Content */
 .admin-main {
     flex-grow: 1;

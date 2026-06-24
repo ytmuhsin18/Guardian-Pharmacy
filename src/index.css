@@ -1,5 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
 
+.contact-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.contact-link:hover {
+  color: var(--primary) !important;
+}
+
 :root {
   /* Brand Colors */
   --primary: #00b894;
@@ -467,4 +479,119 @@ ul {
   background: #e2e8f0;
   color: #1e293b !important;
   transform: translateY(-1px);
+}
+
+/* -- Premium Model Components -- */
+.premium-page-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: white;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.header-content-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.back-circle-btn {
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0d9488;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.back-circle-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.15);
+}
+
+.user-profile-circle {
+  width: 44px;
+  height: 44px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0d9488;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-profile-circle:hover {
+  background: #e2e8f0;
+}
+
+.model-brand-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.model-brand-text span {
+  color: #0d9488;
+}
+
+.page-hero-gradient {
+  height: 280px;
+  background: linear-gradient(135deg, #14b8a6 0%, #5eead4 100%);
+  margin-top: 70px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.model-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #1e293b;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(30, 41, 59, 0.15);
+}
+
+.model-back-button:hover {
+  transform: translateY(-2px);
+  background: #0f172a;
+  box-shadow: 0 15px 25px rgba(30, 41, 59, 0.2);
+}
+
+.model-back-button svg {
+  stroke-width: 3px;
 }

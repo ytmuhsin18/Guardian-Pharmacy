@@ -291,14 +291,14 @@ function SurgicalProducts() {
             <AnimatePresence>
                 {orderComplete && (
                     <div className="modal-overlay" style={{ zIndex: 1000 }}>
-                        <motion.div 
+                        <motion.div
                             className="modal-backdrop"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setOrderComplete(false)}
                         />
-                        <motion.div 
+                        <motion.div
                             className="modal-content success-modal"
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -309,13 +309,13 @@ function SurgicalProducts() {
                                 initial={{ scale: 0, rotate: -15 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
-                                style={{ 
-                                    width: '100px', 
-                                    height: '100px', 
-                                    background: '#f0fdf4', 
-                                    borderRadius: '50%', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
+                                style={{
+                                    width: '100px',
+                                    height: '100px',
+                                    background: '#f0fdf4',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
                                     justifyContent: 'center',
                                     margin: '0 auto 2rem',
                                     border: '5px solid #ccfbf1'
@@ -333,8 +333,8 @@ function SurgicalProducts() {
                                 <span style={{ color: '#0d9488', fontWeight: 700 }}>Enjoy your purchase! 🛍️✨</span>
                             </p>
 
-                            <button 
-                                className="btn btn-primary btn-block" 
+                            <button
+                                className="btn btn-primary btn-block"
                                 onClick={() => setOrderComplete(false)}
                                 style={{ borderRadius: '15px', padding: '16px', fontWeight: 800 }}
                             >

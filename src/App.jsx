@@ -24,6 +24,7 @@ import SurgicalProducts from './pages/SurgicalProducts';
 import Physiotherapy from './pages/Physiotherapy';
 
 import UserLogin from './pages/UserLogin';
+import MonthlyAnalytics from './pages/MonthlyAnalytics';
 import noInternetImg from './assets/no-internet.png';
 import { WifiOff, RefreshCw } from 'lucide-react';
 
@@ -138,7 +139,7 @@ function App() {
 
     // ── FIRE UPI IMMEDIATELY via anchor click (most reliable on Android) ──
     if (customerDetails.payment_method === 'ONLINE') {
-      const upiUrl = `upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${totalPayable.toFixed(2)}&cu=INR&tn=Order%20for%20${encodeURIComponent(customerDetails.name)}`;
+      const upiUrl = `upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&mc=0000&mode=02&purpose=00&am=${totalPayable.toFixed(2)}&cu=INR&tn=Order%20for%20${encodeURIComponent(customerDetails.name)}`;
       const anchor = document.createElement('a');
       anchor.href = upiUrl;
       anchor.style.display = 'none';
@@ -203,7 +204,7 @@ function App() {
       <ScrollToTop />
       <div className="page-layout">
 
-        {!isAdminPage && location.pathname !== '/tokens' && <Navbar />}
+        {!isAdminPage && location.pathname !== '/tokens' && !isAuthPage && <Navbar />}
         {!isAdminPage && <CustomerNotification />}
         <main className={isAdminPage ? "" : "main-content"}>
           <Routes>
@@ -215,14 +216,15 @@ function App() {
             <Route path="/categories" element={<SurgicalProducts />} />
             <Route path="/physiotherapy" element={<Physiotherapy />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/analytics" element={<MonthlyAnalytics />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signin" element={<UserLogin />} />
             <Route path="/tokens" element={<TokenStatus />} />
           </Routes>
         </main>
-        {!isAdminPage && <Footer />}
-        {!isAdminPage && location.pathname !== '/tokens' && <MobileNavbar />}
-        {!isAdminPage && location.pathname !== '/tokens' && <WhatsAppButton />}
+        {!isAdminPage && !isAuthPage && <Footer />}
+        {!isAdminPage && location.pathname !== '/tokens' && !isAuthPage && <MobileNavbar />}
+        {!isAdminPage && location.pathname !== '/tokens' && !isAuthPage && <WhatsAppButton />}
 
         {!shouldHideCart && (
           <CartDrawer

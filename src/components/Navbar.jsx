@@ -101,6 +101,7 @@ function Navbar() {
     const { setIsCartOpen, totalItems, cartTotal, user, logout, orders, updateOrderStatus } = useApp();
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [showOrdersModal, setShowOrdersModal] = useState(false);
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
 
     // Filter orders for the current user (by phone, email, or private device history)
     const userOrders = orders.filter(order => {
@@ -181,10 +182,10 @@ function Navbar() {
                                     </motion.div>
                                 </Link>
                             ) : (
-                                <div className="nav-user-pill">
+                                <div className="nav-user-pill" style={{ position: 'relative' }}>
                                     <button
                                         className="user-profile-info-btn"
-                                        onClick={() => setShowOrdersModal(true)}
+                                        onClick={() => setShowUserDropdown(!showUserDropdown)}
                                     >
                                         <div className="user-avatar-small">
                                             <UserRound size={16} />
@@ -199,6 +200,100 @@ function Navbar() {
                                         <LogOut size={14} />
                                         <span className="desktop-only">Logout</span>
                                     </button>
+
+                                    <AnimatePresence>
+                                        {showUserDropdown && (
+                                            <>
+                                                <motion.div
+                                                    className="dropdown-backdrop"
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    style={{ position: 'fixed', inset: 0, zIndex: 999 }}
+                                                    onClick={() => setShowUserDropdown(false)}
+                                                />
+                                                <motion.div
+                                                    className="user-dropdown-menu"
+                                                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 10, scale: 1 }}
+                                                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '100%',
+                                                        right: 0,
+                                                        width: '240px',
+                                                        background: 'white',
+                                                        borderRadius: '20px',
+                                                        boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                                                        zIndex: 1000,
+                                                        overflow: 'hidden',
+                                                        border: '1px solid #f1f5f9',
+                                                        padding: '12px',
+                                                        marginTop: '8px'
+                                                    }}
+                                                >
+                                                    <div className="dropdown-user-header" style={{ padding: '8px 12px 14px', borderBottom: '1px solid #f1f5f9', marginBottom: '8px' }}>
+                                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Logged in as</span>
+                                                        <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', marginTop: '4px', wordBreak: 'break-all' }}>
+                                                            {user.phone || user.email}
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        className="dropdown-item"
+                                                        onClick={() => { setShowOrdersModal(true); setShowUserDropdown(false); }}
+                                                        style={{
+                                                            width: '100%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '12px',
+                                                            padding: '12px',
+                                                            border: 'none',
+                                                            background: 'transparent',
+                                                            borderRadius: '12px',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#f0f9ff', color: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <Package size={18} />
+                                                        </div>
+                                                        <div style={{ textAlign: 'left' }}>
+                                                            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>My Orders</div>
+                                                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>View & track history</div>
+                                                        </div>
+                                                        <ChevronRight size={16} color="#cbd5e1" style={{ marginLeft: 'auto' }} />
+                                                    </button>
+
+                                                    <button
+                                                        className="dropdown-item logout"
+                                                        onClick={() => { handleLogoutClick(); setShowUserDropdown(false); }}
+                                                        style={{
+                                                            width: '100%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '12px',
+                                                            padding: '12px',
+                                                            border: 'none',
+                                                            background: 'transparent',
+                                                            borderRadius: '12px',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s',
+                                                            marginTop: '4px'
+                                                        }}
+                                                    >
+                                                        <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#fff1f2', color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                            <LogOut size={18} />
+                                                        </div>
+                                                        <div style={{ textAlign: 'left' }}>
+                                                            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>Sign Out</div>
+                                                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Logout from device</div>
+                                                        </div>
+                                                    </button>
+                                                </motion.div>
+                                            </>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             )
                         )}

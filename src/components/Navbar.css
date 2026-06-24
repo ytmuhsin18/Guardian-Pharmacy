@@ -472,6 +472,19 @@
     letter-spacing: -0.01em;
 }
 
+.dropdown-item:hover {
+    background: #f8fafc !important;
+}
+
+.dropdown-item.logout:hover {
+    background: #fff1f2 !important;
+}
+
+.nav-user-pill-premium:hover {
+    border-color: var(--primary) !important;
+    background: var(--primary-light) !important;
+}
+
 .order-date {
     display: flex;
     align-items: center;

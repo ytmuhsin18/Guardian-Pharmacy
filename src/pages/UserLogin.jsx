@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Lock, Mail, Eye, EyeOff, ArrowRight, Phone } from 'lucide-react';
+import { User, Lock, Mail, Eye, EyeOff, ArrowRight, Phone, ArrowLeft, Pill, Heart, Activity, ShieldCheck, Plus } from 'lucide-react';
 import './UserLogin.css';
 import { useApp } from '../context/AppContext';
 import WelcomeCelebration from '../components/WelcomeCelebration';
 
 function UserLogin() {
     const { login, user, registeredUsers } = useApp();
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     const [isReturningCelebration, setIsReturningCelebration] = useState(false);
@@ -129,6 +129,75 @@ function UserLogin() {
                 }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
             />
+
+            {/* Floating Background Medical Icons */}
+            <div className="floating-medical-icons" style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+                {[...Array(24)].map((_, i) => {
+                    const Icon = [Pill, Heart, Activity, ShieldCheck, Plus][i % 5];
+                    const size = 20 + (i * 7) % 40;
+                    const duration = 15 + (i * 5) % 25;
+                    const delay = i * 0.4;
+                    const colors = ['#00b894', '#0984e3', '#6c5ce7', '#fab1a0', '#ff7675', '#fdcb6e'];
+                    const color = colors[i % colors.length];
+
+                    return (
+                        <motion.div
+                            key={i}
+                            className="floating-icon-wrapper"
+                            initial={{
+                                x: `${(i * 13) % 100}%`,
+                                y: `${(i * 19) % 100}%`,
+                                opacity: 0,
+                                rotate: 0
+                            }}
+                            animate={{
+                                y: [`${(i * 19) % 100}%`, `${((i * 19) % 100) - 15}%`, `${(i * 19) % 100}%`],
+                                x: [`${(i * 13) % 100}%`, `${((i * 13) % 100) + 8}%`, `${(i * 13) % 100}%`],
+                                opacity: [0, 0.12, 0],
+                                rotate: [0, 90, 0]
+                            }}
+                            transition={{
+                                duration,
+                                repeat: Infinity,
+                                delay,
+                                ease: "linear"
+                            }}
+                            style={{ position: 'absolute' }}
+                        >
+                            <Icon size={size} color={color} strokeWidth={1} style={{ filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))' }} />
+                        </motion.div>
+                    );
+                })}
+            </div>
+
+            {/* Prominent Back Button */}
+            <motion.button
+                className="prominent-back-btn"
+                onClick={() => navigate('/')}
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.1, backgroundColor: 'white' }}
+                whileTap={{ scale: 0.9 }}
+                style={{
+                    position: 'fixed',
+                    top: '25px',
+                    left: '20px',
+                    background: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '50px',
+                    height: '50px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: 'var(--primary)',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    zIndex: 100
+                }}
+            >
+                <ArrowLeft size={28} strokeWidth={3} />
+            </motion.button>
 
             <motion.div
                 className="user-login-container"
@@ -290,8 +359,8 @@ function UserLogin() {
                     </div>
 
                     {isLogin && (
-                        <div 
-                            className="forgot-password-link tooltip-container" 
+                        <div
+                            className="forgot-password-link tooltip-container"
                             style={{ position: 'relative', display: 'inline-block', cursor: 'help', color: '#64748b' }}
                             title="If you forgot your password, please contact us at 094874 69098 for assistance."
                         >

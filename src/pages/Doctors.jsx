@@ -1,6 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand } from 'lucide-react';
+import { Calendar, Clock, MapPin, Star, User, X, CheckCircle, Hash, Hand, Sparkles } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
@@ -77,6 +77,24 @@ function Doctors() {
     const [bookingSuccess, setBookingSuccess] = useState(false);
     const [showQR, setShowQR] = useState(false);
     const [dateError, setDateError] = useState('');
+    const [timeLeft, setTimeLeft] = useState(300);
+
+    useEffect(() => {
+        let timer;
+        if (showQR) {
+            setTimeLeft(300);
+            timer = setInterval(() => {
+                setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [showQR]);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     // Lock body scroll when modal is open
     useEffect(() => {
@@ -121,7 +139,7 @@ function Doctors() {
 
         // Check if today is Sunday
         if (today.getDay() === 0) {
-            setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <strong>094874 69098</strong></>);
+            setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <a href="tel:09487469098" className="contact-link"><strong>094874 69098</strong></a></>);
             setBookingFormData(prev => ({ ...prev, date: '' }));
         } else {
             setDateError('');
@@ -141,7 +159,7 @@ function Doctors() {
         if (name === 'date') {
             const selectedDate = new Date(value);
             if (selectedDate.getDay() === 0) {
-                setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <strong>094874 69098</strong></>);
+                setDateError(<>Sunday is a Holiday. For any Emergency Call us now: <a href="tel:09487469098" className="contact-link"><strong>094874 69098</strong></a></>);
                 setBookingFormData({ ...bookingFormData, date: '' });
                 return;
             } else {
@@ -461,26 +479,60 @@ function Doctors() {
                                                         <span className="qr-fee-label">Consultation Fee</span>
                                                         <span className="qr-fee-amount">₹250</span>
                                                     </div>
-                                                    <p className="qr-subtitle">Scan the QR below via Paytm / any UPI app to confirm your slot</p>
+                                                    <p className="qr-subtitle">Scan the QR code to pay, or click the QR code to open your payment app.</p>
 
-                                                    <div className="qr-image-wrapper">
+                                                    <div className="qr-image-wrapper" style={{ position: 'relative' }}>
                                                         <a
-                                                            href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Clinic&am=250&cu=INR&tn=Appointment%20for%20${bookingFormData.patientName}`}
+                                                            href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Clinic&mc=0000&mode=02&purpose=00&am=250&cu=INR&tn=Appointment%20for%20${bookingFormData.patientName}`}
                                                             className="qr-link"
-                                                            style={{ textDecoration: 'none', display: 'block' }}
+                                                            style={{ textDecoration: 'none', display: 'block', position: 'relative' }}
                                                         >
                                                             <img
-                                                                src="/paytm-qr.jpg"
+                                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=10&data=${encodeURIComponent(`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Clinic&mc=0000&mode=02&purpose=00&am=250&cu=INR&tn=Appointment%20for%20${bookingFormData.patientName}`)}`}
                                                                 alt="Paytm QR Code"
                                                                 className="qr-image"
-                                                                style={{ cursor: 'pointer' }}
+                                                                style={{ cursor: 'pointer', width: '200px', height: '200px', borderRadius: '12px', display: 'block', margin: '0 auto' }}
                                                             />
+
+
                                                             <div className="qr-label">Paytm · UPI · GPay · PhonePe</div>
-                                                            <div className="upi-id-display" style={{ marginTop: '8px', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', background: '#f1f5f9', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                                                                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>TAP TO PAY VIA ANY APP</span>
-                                                                <span style={{ color: '#0d9488' }}>paytmqr5j6flc@ptys</span>
+                                                            <div className="upi-id-display"
+                                                                style={{
+                                                                    marginTop: '8px', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b',
+                                                                    background: '#f1f5f9', padding: '10px 12px', borderRadius: '12px',
+                                                                    border: '1.5px solid #e2e8f0', display: 'flex', flexDirection: 'column',
+                                                                    alignItems: 'center', gap: '4px', cursor: 'pointer', position: 'relative'
+                                                                }}
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    navigator.clipboard.writeText('paytmqr5j6flc@ptys');
+                                                                    alert('UPI ID copied to clipboard!');
+                                                                }}
+                                                            >
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>TAP TO COPY UPI ID</span>
+
+                                                                </div>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <span style={{ color: '#0d9488' }}>paytmqr5j6flc@ptys</span>
+                                                                    <Sparkles size={14} color="#0d9488" />
+                                                                </div>
                                                             </div>
                                                         </a>
+                                                    </div>
+
+                                                    <div style={{ marginTop: '12px', marginBottom: '16px', width: '100%', maxWidth: '200px' }}>
+                                                        <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, marginBottom: '6px', textAlign: 'center' }}>
+                                                            QR valid for <span style={{ color: '#0d9488', fontVariantNumeric: 'tabular-nums' }}>{formatTime(timeLeft)}</span> minutes
+                                                        </div>
+                                                        <div style={{ width: '100%', height: '4px', background: '#e2e8f0', borderRadius: '2px', overflow: 'hidden' }}>
+                                                            <motion.div
+                                                                initial={{ width: '100%' }}
+                                                                animate={{ width: `${(timeLeft / 300) * 100}%` }}
+                                                                transition={{ duration: 1, ease: 'linear' }}
+                                                                style={{ height: '100%', background: '#0d9488' }}
+                                                            />
+                                                        </div>
                                                     </div>
 
                                                     <p className="qr-note">💡 Your token will be assigned by the admin once payment is verified.</p>

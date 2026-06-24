@@ -200,14 +200,22 @@ function Home() {
                                 <div className="icon-box"><MapPin size={22} className="text-primary" /></div>
                                 <div>
                                     <strong>Address</strong>
-                                    <p>South Madavilagam, Vasan Nagar, Madappuram, <br />Thiruvarur, Tamil Nadu 610001</p>
+                                    <p>
+                                        <a href="https://maps.app.goo.gl/awKrfW5eVoEk9gay5" target="_blank" rel="noopener noreferrer" className="contact-link">
+                                            South Madavilagam, Vasan Nagar, Madappuram, <br />Thiruvarur, Tamil Nadu 610001
+                                        </a>
+                                    </p>
                                 </div>
                             </li>
                             <li>
                                 <div className="icon-box"><Phone size={22} className="text-primary" /></div>
                                 <div>
                                     <strong>Phone</strong>
-                                    <p>094874 69098</p>
+                                    <p>
+                                        <a href="tel:09487469098" className="contact-link">
+                                            094874 69098
+                                        </a>
+                                    </p>
                                 </div>
                             </li>
                         </ul>
@@ -233,7 +241,7 @@ function Home() {
                             ></iframe>
                         </div>
                         <a
-                            href="https://maps.app.goo.gl/fEUrSfdPTmKKMLwz5"
+                            href="https://maps.app.goo.gl/awKrfW5eVoEk9gay5"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="open-maps-btn"

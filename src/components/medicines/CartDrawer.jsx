@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, X, Trash2, ChevronLeft, CreditCard, Truck, ShieldCheck, Ticket, Lock, Unlock, Sparkles, Hand } from 'lucide-react';
 
 const FREE_DELIVERY_THRESHOLD = 500;
 
@@ -15,6 +15,24 @@ const CartDrawer = ({
     const qrSectionRef = React.useRef(null);
 
     // Auto-scroll to QR when Online Payment is selected
+    const [timeLeft, setTimeLeft] = React.useState(300); // 5 minutes in seconds
+
+    React.useEffect(() => {
+        if (customerDetails.payment_method === 'ONLINE' && isOpen) {
+            setTimeLeft(300);
+            const timer = setInterval(() => {
+                setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [customerDetails.payment_method, isOpen]);
+
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
     React.useEffect(() => {
         if (customerDetails.payment_method === 'ONLINE' && qrSectionRef.current) {
             setTimeout(() => {
@@ -339,7 +357,7 @@ const CartDrawer = ({
                                                         textAlign: 'center'
                                                     }}>
                                                         <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', marginBottom: '8px' }}>Scan & Pay Online</h4>
-                                                        <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px' }}>Pay via any UPI app (Paytm, GPay, PhonePe, etc.)</p>
+                                                        <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px' }}>Scan the QR code to pay, or click the QR code to open your payment app.</p>
 
                                                         <div style={{
                                                             background: 'white',
@@ -347,15 +365,40 @@ const CartDrawer = ({
                                                             borderRadius: '16px',
                                                             display: 'inline-block',
                                                             boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
-                                                            marginBottom: '16px'
-                                                        }}>
-                                                            <a href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR`}>
+                                                            marginBottom: '16px',
+                                                            position: 'relative',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                            onClick={() => {
+                                                                // Trigger form submission
+                                                                const form = document.querySelector('.checkout-form');
+                                                                if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                                                            }}>
+                                                            <a
+                                                                style={{ display: 'block', position: 'relative', textDecoration: 'none' }}
+                                                                href={`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&mc=0000&mode=02&purpose=00&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR&tn=Order%20Payment`}
+                                                            >
                                                                 <img
-                                                                    src="/paytm-qr.jpg"
+                                                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(`upi://pay?pa=paytmqr5j6flc@ptys&pn=Guardian%20Pharmacy&mc=0000&mode=02&purpose=00&am=${(cartTotal + (cartTotal >= 500 ? 0 : 40)).toFixed(2)}&cu=INR&tn=Order%20Payment`)}`}
                                                                     alt="Payment QR"
-                                                                    style={{ width: '160px', height: '160px', borderRadius: '8px' }}
+                                                                    style={{ width: '180px', height: '180px', borderRadius: '12px', display: 'block', margin: '0 auto' }}
                                                                 />
+
                                                             </a>
+                                                        </div>
+
+                                                        <div style={{ marginTop: '4px', marginBottom: '16px' }}>
+                                                            <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, marginBottom: '6px' }}>
+                                                                QR valid for <span style={{ color: '#0984e3', fontVariantNumeric: 'tabular-nums' }}>{formatTime(timeLeft)}</span> minutes
+                                                            </div>
+                                                            <div style={{ width: '100%', height: '4px', background: '#e2e8f0', borderRadius: '2px', overflow: 'hidden' }}>
+                                                                <motion.div
+                                                                    initial={{ width: '100%' }}
+                                                                    animate={{ width: `${(timeLeft / 300) * 100}%` }}
+                                                                    transition={{ duration: 1, ease: 'linear' }}
+                                                                    style={{ height: '100%', background: '#0984e3' }}
+                                                                />
+                                                            </div>
                                                         </div>
 
                                                         <div style={{
@@ -369,19 +412,25 @@ const CartDrawer = ({
                                                             gap: '12px',
                                                             cursor: 'pointer',
                                                             transition: 'all 0.2s ease',
-                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                                                            position: 'relative'
                                                         }}
                                                             onClick={() => {
                                                                 navigator.clipboard.writeText('paytmqr5j6flc@ptys');
                                                                 alert('UPI ID copied to clipboard!');
                                                             }}>
                                                             <div style={{ textAlign: 'left' }}>
-                                                                <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>UPI ID (Tap to Copy)</span>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                                    <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', display: 'block', textTransform: 'uppercase', letterSpacing: '0.5px' }}>UPI ID (Tap to Copy)</span>
+                                                                </div>
                                                                 <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0984e3' }}>paytmqr5j6flc@ptys</span>
                                                             </div>
-                                                            <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '10px' }}>
+                                                            <motion.div
+                                                                style={{ background: '#f1f5f9', padding: '8px', borderRadius: '10px' }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                            >
                                                                 <Sparkles size={16} color="#0984e3" />
-                                                            </div>
+                                                            </motion.div>
                                                         </div>
 
                                                         <p style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '12px', fontStyle: 'italic' }}>

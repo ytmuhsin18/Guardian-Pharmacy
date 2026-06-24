@@ -20,8 +20,8 @@ function MedicineDetails() {
     const [lastTap, setLastTap] = useState(0);
 
     const defaultOrthoSizes = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'UNI'];
-    const ORTHO_SIZES = (product?.availableSizes && product.availableSizes.length > 0) 
-        ? product.availableSizes.map(s => typeof s === 'object' ? s.size : s) 
+    const ORTHO_SIZES = (product?.availableSizes && product.availableSizes.length > 0)
+        ? product.availableSizes.map(s => typeof s === 'object' ? s.size : s)
         : defaultOrthoSizes;
     const isOrtho = product?.category === 'Ortho';
 
@@ -146,9 +146,9 @@ function MedicineDetails() {
                                     <motion.div
                                         className="carousel-track"
                                         animate={{ x: `-${activeImageIndex * 100}%` }}
-                                        transition={{ 
-                                            type: 'spring', 
-                                            stiffness: 260, 
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 260,
                                             damping: 32,
                                             mass: 1,
                                             restDelta: 0.01
@@ -173,8 +173,8 @@ function MedicineDetails() {
                                         style={{ display: 'flex', width: '100%', height: '100%', cursor: 'grab' }}
                                     >
                                         {(Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image_base64 || 'https://via.placeholder.com/400']).map((img, i) => (
-                                            <div 
-                                                key={i} 
+                                            <div
+                                                key={i}
                                                 className="carousel-slide"
                                                 onMouseEnter={() => {
                                                     if (window.innerWidth > 768) setIsZoomed(true);
@@ -215,23 +215,23 @@ function MedicineDetails() {
                                                     }
                                                     setLastTap(now);
                                                 }}
-                                                style={{ 
+                                                style={{
                                                     cursor: isZoomed ? 'zoom-out' : 'zoom-in',
                                                     position: 'relative',
                                                     overflow: 'hidden'
                                                 }}
                                             >
-                                                <img 
-                                                    src={img} 
-                                                    alt={`${product.name} ${i + 1}`} 
-                                                    className="main-image" 
+                                                <img
+                                                    src={img}
+                                                    alt={`${product.name} ${i + 1}`}
+                                                    className="main-image"
                                                     style={{
                                                         transform: (isZoomed && window.innerWidth <= 768) ? 'scale(2.5)' : 'scale(1)',
                                                         transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`
                                                     }}
                                                 />
                                                 {isZoomed && window.innerWidth > 768 && (
-                                                    <div 
+                                                    <div
                                                         className="zoom-lens"
                                                         style={{
                                                             left: `${zoomOrigin.x}%`,
@@ -247,14 +247,14 @@ function MedicineDetails() {
 
                                 {Array.isArray(product.images) && product.images.length > 1 && (
                                     <>
-                                        <button 
+                                        <button
                                             className="gallery-nav-btn prev"
                                             onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => Math.max(0, prev - 1)); }}
                                             style={{ display: activeImageIndex === 0 ? 'none' : 'flex' }}
                                         >
                                             <ChevronLeft size={24} />
                                         </button>
-                                        <button 
+                                        <button
                                             className="gallery-nav-btn next"
                                             onClick={(e) => { e.stopPropagation(); setActiveImageIndex(prev => Math.min((product.images.length - 1), prev + 1)); }}
                                             style={{ display: activeImageIndex === product.images.length - 1 ? 'none' : 'flex' }}
@@ -272,8 +272,8 @@ function MedicineDetails() {
                                 {isZoomed && window.innerWidth > 768 && (
                                     <div className="side-zoom-view shadow-lg">
                                         <div className="side-zoom-header">Zoom Preview</div>
-                                        <img 
-                                            src={(Array.isArray(product.images) && product.images.length > 0 ? product.images[activeImageIndex] : (product.image_base64 || ''))} 
+                                        <img
+                                            src={(Array.isArray(product.images) && product.images.length > 0 ? product.images[activeImageIndex] : (product.image_base64 || ''))}
                                             alt="Zoomed view"
                                             style={{
                                                 transform: 'scale(2.5)',
@@ -343,7 +343,7 @@ function MedicineDetails() {
                                     {ORTHO_SIZES.map((size, idx) => {
                                         const isSelected = selectedSize === size;
                                         const sizeData = product.availableSizes?.find(s => (s.size === size || s === size));
-                                        
+
                                         // Calculate specific price for this button
                                         const sBasePrice = Number(product.price) || 0;
                                         const sPrice = (sizeData && typeof sizeData === 'object') ? Number(sizeData.price) || sBasePrice : sBasePrice;
@@ -544,8 +544,8 @@ function MedicineDetails() {
                                     <Minus size={18} />
                                 </button>
                                 <span className="m-qty-val">{quantity}</span>
-                                <button 
-                                    className="m-qty-btn" 
+                                <button
+                                    className="m-qty-btn"
                                     onClick={() => addToCart({ ...product, price: currentPrice, discount: currentDiscount }, isOrtho ? selectedSize : null)}
                                     disabled={quantity >= 10}
                                     style={{ opacity: quantity >= 10 ? 0.5 : 1 }}

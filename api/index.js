@@ -56,7 +56,7 @@ medicinesRouter.post('/bulk', async (req, res) => {
                       VALUES (${med.name}, ${med.combination || null}, ${med.category || null}, ${med.condition || null}, ${med.price || 0}, ${med.discount || 0}, ${med.description || null}, ${med.instock !== false}, ${med.image_base64 || null})`;
         }
         res.json({ success: true, count: req.body.length });
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('POST bulk medicines error:', err); res.status(500).json({ error: err.message }); }
 });
 
 medicinesRouter.put('/:id', async (req, res) => {
@@ -77,7 +77,7 @@ medicinesRouter.put('/:id', async (req, res) => {
             WHERE id = ${id} RETURNING *
         `;
         res.json([result[0]]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('PUT medicine error:', err); res.status(500).json({ error: err.message }); }
 });
 
 medicinesRouter.delete('/:id', async (req, res) => {
@@ -85,7 +85,7 @@ medicinesRouter.delete('/:id', async (req, res) => {
         const sql = getSql();
         await sql`DELETE FROM medicines WHERE id = ${req.params.id}`;
         res.json({ success: true });
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('DELETE medicine error:', err); res.status(500).json({ error: err.message }); }
 });
 
 medicinesRouter.get('/:id/image', async (req, res) => {
@@ -93,7 +93,7 @@ medicinesRouter.get('/:id/image', async (req, res) => {
         const sql = getSql();
         const result = await sql`SELECT image_base64 FROM medicines WHERE id = ${req.params.id}`;
         res.json(result[0] || {});
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET medicine image error:', err); res.status(500).json({ error: err.message }); }
 });
 app.use('/api/medicines', medicinesRouter);
 
@@ -104,7 +104,7 @@ doctorsRouter.get('/', async (req, res) => {
         const sql = getSql();
         const result = await sql`SELECT * FROM doctors ORDER BY id ASC`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET doctors error:', err); res.status(500).json({ error: err.message }); }
 });
 doctorsRouter.post('/', async (req, res) => {
     try {
@@ -132,21 +132,21 @@ doctorsRouter.put('/:id', async (req, res) => {
         const { name, specialty, experience, about, image_base64, availability_start, availability_end, availability_start_2, availability_end_2 } = req.body;
         const result = await sql`UPDATE doctors SET name=${name}, specialty=${specialty}, experience=${experience}, about=${about || null}, image_base64=${image_base64 || null}, availability_start=${availability_start || null}, availability_end=${availability_end || null}, availability_start_2=${availability_start_2 || null}, availability_end_2=${availability_end_2 || null} WHERE id=${id} RETURNING *`;
         res.json([result[0]]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('PUT doctor error:', err); res.status(500).json({ error: err.message }); }
 });
 doctorsRouter.get('/:id/image', async (req, res) => {
     try {
         const sql = getSql();
         const result = await sql`SELECT image_base64 FROM doctors WHERE id = ${req.params.id}`;
         res.json(result[0] || {});
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET doctor image error:', err); res.status(500).json({ error: err.message }); }
 });
 doctorsRouter.delete('/:id', async (req, res) => {
     try {
         const sql = getSql();
         await sql`DELETE FROM doctors WHERE id = ${req.params.id}`;
         res.json({ success: true });
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('DELETE doctor error:', err); res.status(500).json({ error: err.message }); }
 });
 app.use('/api/doctors', doctorsRouter);
 
@@ -157,7 +157,7 @@ appointmentsRouter.get('/', async (req, res) => {
         const sql = getSql();
         const result = await sql`SELECT * FROM appointments ORDER BY created_at DESC LIMIT 500`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET appointments error:', err); res.status(500).json({ error: err.message }); }
 });
 appointmentsRouter.post('/', async (req, res) => {
     try {
@@ -165,7 +165,7 @@ appointmentsRouter.post('/', async (req, res) => {
         const { patientname, doctorid, doctorname, date, time, phone, reason, status } = req.body;
         const result = await sql`INSERT INTO appointments (patientname, doctorid, doctorname, date, time, phone, reason, status) VALUES (${patientname}, ${doctorid}, ${doctorname}, ${date}, ${time || null}, ${phone}, ${reason || null}, ${status || 'Pending'}) RETURNING *`;
         res.json([result[0]]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('POST appointment error:', err); res.status(500).json({ error: err.message }); }
 });
 appointmentsRouter.put('/:id', async (req, res) => {
     try {
@@ -180,14 +180,14 @@ appointmentsRouter.put('/:id', async (req, res) => {
             return res.json([result[0]]);
         }
         res.json([]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('PUT appointment error:', err); res.status(500).json({ error: err.message }); }
 });
 appointmentsRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
         await sql`DELETE FROM appointments WHERE created_at < NOW() - INTERVAL '72 hours'`;
         res.json({ success: true });
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('DELETE appointments cleanup error:', err); res.status(500).json({ error: err.message }); }
 });
 appointmentsRouter.post('/statusCheck', async (req, res) => {
     try {
@@ -198,7 +198,7 @@ appointmentsRouter.post('/statusCheck', async (req, res) => {
         if (query.length === 0) return res.json([]);
         const result = await sql`SELECT id, status FROM appointments WHERE id = ANY(${query})`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('POST appointments statusCheck error:', err); res.status(500).json({ error: err.message }); }
 });
 app.use('/api/appointments', appointmentsRouter);
 
@@ -209,7 +209,7 @@ ordersRouter.get('/', async (req, res) => {
         const sql = getSql();
         const result = await sql`SELECT id, customer_name, phone, whatsapp, address, pincode, email, total_amount, payment_method, status, created_at, items::text as items FROM orders ORDER BY created_at DESC LIMIT 500`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('GET orders error:', err); res.status(500).json({ error: err.message }); }
 });
 ordersRouter.post('/', async (req, res) => {
     try {
@@ -218,7 +218,7 @@ ordersRouter.post('/', async (req, res) => {
         const payment_method = req.body.payment_method || req.body.paymentMethod || 'COD';
         const result = await sql`INSERT INTO orders (customer_name, phone, whatsapp, address, pincode, email, items, total_amount, status, payment_method) VALUES (${customer_name}, ${phone}, ${whatsapp}, ${address}, ${pincode}, ${email || null}, ${JSON.stringify(items)}, ${total_amount}, ${status || 'Pending'}, ${payment_method}) RETURNING *`;
         res.json([result[0]]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('POST order error:', err); res.status(500).json({ error: err.message }); }
 });
 ordersRouter.put('/:id', async (req, res) => {
     try {
@@ -228,14 +228,14 @@ ordersRouter.put('/:id', async (req, res) => {
             return res.json([result[0]]);
         }
         res.json([]);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('PUT order error:', err); res.status(500).json({ error: err.message }); }
 });
 ordersRouter.delete('/cleanup', async (req, res) => {
     try {
         const sql = getSql();
         await sql`DELETE FROM orders WHERE created_at < NOW() - INTERVAL '72 hours'`;
         res.json({ success: true });
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('DELETE orders cleanup error:', err); res.status(500).json({ error: err.message }); }
 });
 ordersRouter.post('/statusCheck', async (req, res) => {
     try {
@@ -246,7 +246,7 @@ ordersRouter.post('/statusCheck', async (req, res) => {
         if (query.length === 0) return res.json([]);
         const result = await sql`SELECT id, status FROM orders WHERE id = ANY(${query})`;
         res.json(result);
-    } catch (err) { console.error('GET medicines error:', err); res.status(500).json({ error: err.message }); }
+    } catch (err) { console.error('POST orders statusCheck error:', err); res.status(500).json({ error: err.message }); }
 });
 app.use('/api/orders', ordersRouter);
 
